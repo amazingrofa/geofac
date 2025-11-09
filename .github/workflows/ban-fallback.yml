@@ -1,5 +1,9 @@
 name: Ban Fallback Methods
 on: [push, pull_request]
+
+permissions:
+  contents: read
+
 jobs:
   forbid:
     runs-on: ubuntu-latest
