@@ -28,6 +28,12 @@ public class FactorizerShell {
             // Parse input
             BigInteger N = parseBigInteger(n);
 
+            // Enforce strict target policy
+            if (Policy.STRICT_GEOMETRIC_ONLY && !N.equals(Policy.TARGET)) {
+                System.err.println("TARGET_MISMATCH: Repo factors only the designated N.");
+                System.exit(Policy.EXIT_TARGET_MISMATCH);
+            }
+
             // Validate
             if (N.bitLength() < 10) {
                 return formatError("Number too small (must be at least 10 bits)");
@@ -55,6 +61,11 @@ public class FactorizerShell {
                 return formatFailure(service.getSamples(), duration);
             }
 
+        } catch (NoFactorFoundException e) {
+            // Geometric resonance failed to find a factor
+            System.err.println(e.getMessage());
+            System.exit(Policy.EXIT_NO_FACTOR_FOUND);
+            return null; // Unreachable but needed for compilation
         } catch (NumberFormatException e) {
             return formatError(
                 "Invalid number format\n" +
