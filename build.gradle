@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.geofac'
+version = '0.1.0-SNAPSHOT'
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.shell:spring-shell-starter:3.2.0'
+
+    // High-precision math (verified from z-sandbox)
+    implementation 'ch.obermuhlner:big-math:2.3.2'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    jvmArgs '-XX:+UseParallelGC'
+}
+
+// Suppress Gradle metadata warnings
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
+}
+java.targetCompatibility = JavaVersion.VERSION_17
