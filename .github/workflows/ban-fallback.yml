@@ -1,0 +1,15 @@
+name: Ban Fallback Methods
+on: [push, pull_request]
+jobs:
+  forbid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block forbidden algorithms or fallback hooks
+        run: |
+          set -euo pipefail
+          if git grep -nE '(ECM|Pollard|rho[^a-z]|MPQS|NFS|yafu|msieve|sympy\.factorint|fallback|backup)' -- \
+            ':!docs' ':!**/*.md' ':!LICENSE' ':!**/README*.md' ':!.github/workflows/ban-fallback.yml'; then
+            echo "::error title=Forbidden method detected::Remove all fallback references (Geometric Resonance only)."
+            exit 1
+          fi

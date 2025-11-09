@@ -1,6 +1,9 @@
+⚠️ **Strict scope:** This repo exists solely to run a Geometric Resonance factorization
+on N = 137524771864208156028430259349934309717. No alternative algorithms. No fallback.
+
 ## Geofac
 
-Geofac is an experimental Spring Boot + Spring Shell application that reimplements the “geometric resonance” factorization algorithm in pure Java. It combines a high-precision Dirichlet kernel search, golden-ratio quasi Monte Carlo sampling, and a Pollard Rho fallback so you can probe large semiprimes from an interactive CLI.
+Geofac is an experimental Spring Boot + Spring Shell application that reimplements the "geometric resonance" factorization algorithm in pure Java for a specific 127-bit semiprime defined in Policy.TARGET.
 
 ### Why it exists
 - Prototype a deterministic-style factorization approach inspired by the author’s z-sandbox notebooks.
@@ -10,7 +13,7 @@ Geofac is an experimental Spring Boot + Spring Shell application that reimplemen
 ### Key features
 - **High-precision core** – `FactorizerService` uses `ch.obermuhlner:big-math` for arbitrary precision math, Dirichlet kernel gating, and phase-corrected “snap” rounding.
 - **Adaptive search** – sampling range, kernel order (`J`), and thresholds are all configurable through `application.yml`.
-- **Fallback strategy** – when the geometric search cannot converge within the timeout, an automatically tuned Pollard Rho routine attempts factor recovery.
+- **Strict enforcement** – only the designated target N is accepted; geometric resonance is the sole algorithm.
 - **Spring Shell CLI** – run `factor <semiprime>` directly in the embedded shell, complete with formatted output and helpful error messages.
 - **Integration tests** – `FactorizerServiceTest` exercises validation rules and a 127-bit reference semiprime (expect a ~5 minute runtime).
 
@@ -47,7 +50,7 @@ All tuning knobs live in `src/main/resources/application.yml` under the `geofac.
 | `j` | `6` | Dirichlet kernel order. |
 | `threshold` | `0.92` | Minimum normalized amplitude required before evaluating a candidate. |
 | `k-lo`, `k-hi` | `0.25`, `0.45` | Range for k sampling (fractional offsets). |
-| `search-timeout-ms` | `15000` (defaulted in code) | Maximum time allowed for the geometric search before falling back to Pollard Rho. |
+| `search-timeout-ms` | `15000` (defaulted in code) | Maximum time allowed for the geometric search. |
 
 Modify these settings, or override them with Spring’s standard configuration mechanisms (env vars, profiles, etc.).
 
@@ -73,7 +76,7 @@ Test reports land in `build/reports/tests/test/index.html`.
 ```
 src/main/java/com/geofac
 ├── GeofacApplication      # Spring Boot entry point
-├── FactorizerService      # Geometric search + Pollard Rho fallback
+├── FactorizerService      # Geometric resonance factorization
 ├── FactorizerShell        # Spring Shell command surface
 ├── util
 │   ├── DirichletKernel    # Kernel amplitude / angular math

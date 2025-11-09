@@ -24,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
     "geofac.j=6",
     "geofac.threshold=0.92",
     "geofac.k-lo=0.25",
-    "geofac.k-hi=0.45"
+    "geofac.k-hi=0.45",
+    "geofac.search-timeout-ms=300000"  // 5 minutes for testing
 })
 public class FactorizerServiceTest {
 
