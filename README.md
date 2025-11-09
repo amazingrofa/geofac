@@ -1,89 +1,96 @@
-## Geofac
+Geofac — Singular Objective: Factor N via Geometric Resonance (No Fallbacks)
 
-Geofac is an experimental Spring Boot + Spring Shell application that reimplements the “geometric resonance” factorization algorithm in pure Java. It combines a high-precision Dirichlet kernel search, golden-ratio quasi Monte Carlo sampling, and a Pollard Rho fallback so you can probe large semiprimes from an interactive CLI.
+Target N
+137524771864208156028430259349934309717
 
-### Why it exists
-- Prototype a deterministic-style factorization approach inspired by the author’s z-sandbox notebooks.
-- Provide a reproducible test harness built with Spring Boot, JUnit 5, and Gradle.
-- Offer a shell-first user experience for iterating on search parameters without bespoke tooling.
+Geofac is a Spring Boot + Spring Shell application that implements the geometric resonance factorization algorithm in pure Java. This repo has a single objective: factor the challenge semiprime N above using resonance-only search. All fallback methods are removed/disabled.
 
-### Key features
-- **High-precision core** – `FactorizerService` uses `ch.obermuhlner:big-math` for arbitrary precision math, Dirichlet kernel gating, and phase-corrected “snap” rounding.
-- **Adaptive search** – sampling range, kernel order (`J`), and thresholds are all configurable through `application.yml`.
-- **Fallback strategy** – when the geometric search cannot converge within the timeout, an automatically tuned Pollard Rho routine attempts factor recovery.
-- **Spring Shell CLI** – run `factor <semiprime>` directly in the embedded shell, complete with formatted output and helpful error messages.
-- **Integration tests** – `FactorizerServiceTest` exercises validation rules and a 127-bit reference semiprime (expect a ~5 minute runtime).
+Why it exists
+	•	Deliver a reproducible, deterministic geometric-resonance factorization for this one N.
+	•	Provide a tight, auditable test harness (Spring Boot, JUnit 5, Gradle).
+	•	Offer an interactive CLI for iterating resonance parameters only.
 
-### Getting started
+Non-negotiables
+	•	No fallbacks (Pollard Rho, ECM, QS, etc. are absent or unreachable).
+	•	Resonance-only search paths.
+	•	Reproducibility: fixed seeds, frozen configs, exported artifacts.
+
+Key features (resonance-only)
+	•	High-precision core — FactorizerService uses ch.obermuhlner:big-math, Dirichlet kernel gating, golden-ratio quasi-Monte-Carlo sampling, and phase-corrected snapping.
+	•	Configurable search — sampling range, kernel order (J), thresholds, and precision via application.yml.
+	•	Spring Shell CLI — factor <N> inside the embedded shell with minimal, deterministic logs.
+	•	Proof artifacts — each run emits factors.json, search_log.txt, config.json, and env.txt.
+
+Getting started
+
 Prerequisites:
-- JDK 17 (repo sets `org.gradle.java.home` for convenience, but any local JDK 17 installation works)
-- Git & Gradle wrapper (bundled)
+	•	JDK 17
+	•	Git & Gradle wrapper (bundled)
 
-Clone and run the interactive shell:
-```bash
 git clone https://github.com/zfifteen/geofac.git
 cd geofac
 ./gradlew bootRun
-```
 
-Once the Spring Shell prompt appears, factor a known semiprime:
-```shell
+At the shell:> prompt, run the challenge:
+
 shell:>factor 137524771864208156028430259349934309717
-```
 
-You can also review the built-in demo text:
-```shell
-shell:>example
-```
+On success, the CLI prints p, q, verifies p*q == N, and writes artifacts under:
 
-### Configuration
-All tuning knobs live in `src/main/resources/application.yml` under the `geofac.*` namespace:
+results/N=137524771864208156028430259349934309717/<run_id>/
+  ├─ factors.json
+  ├─ search_log.txt
+  ├─ config.json
+  └─ env.txt
 
-| Property | Default | Description |
-| --- | --- | --- |
-| `precision` | `240` | Minimum decimal digits used by the BigDecimal math context (automatically raised with input size). |
-| `samples` | `3000` | Number of k-samples explored per factorization attempt. |
-| `m-span` | `180` | Half-width for the Dirichlet kernel sweep over `m`. |
-| `j` | `6` | Dirichlet kernel order. |
-| `threshold` | `0.92` | Minimum normalized amplitude required before evaluating a candidate. |
-| `k-lo`, `k-hi` | `0.25`, `0.45` | Range for k sampling (fractional offsets). |
-| `search-timeout-ms` | `15000` (defaulted in code) | Maximum time allowed for the geometric search before falling back to Pollard Rho. |
+If no factors are found within the configured budget, the run ends with a clear message. No alternative methods are attempted.
 
-Modify these settings, or override them with Spring’s standard configuration mechanisms (env vars, profiles, etc.).
+Configuration
 
-### Testing
-Run the full suite (warning: the 127-bit integration test takes ~5–6 minutes):
-```bash
+src/main/resources/application.yml under geofac.*:
+
+Property	Default	Description
+precision	240	Minimum decimal digits for BigDecimal math (auto-raised with input size).
+samples	3000	Number of k-samples per attempt.
+m-span	180	Half-width for Dirichlet kernel sweep over m.
+j	6	Dirichlet kernel order.
+threshold	0.92	Normalized amplitude gate before candidate evaluation.
+k-lo, k-hi	0.25, 0.45	k-sampling range (fractional offsets).
+search-timeout-ms	15000	Max time for a run; on timeout the command exits (no fallback).
+
+Override via Spring config (env vars, profiles, etc.) as needed.
+
+Testing
+
+Run unit and lightweight integration tests:
+
 ./gradlew test
-```
 
-For a faster feedback loop, target only the lightweight tests:
-```bash
-./gradlew test --tests "com.geofac.FactorizerServiceTest.testServiceIsInjected"
-```
+(Optional) Execute the resonance run manually via CLI as shown above. Heavy, long-running factor attempts are not part of default tests.
 
-To exercise the heavy semiprime test by itself:
-```bash
-./gradlew test --tests "com.geofac.FactorizerServiceTest.testFactor127BitSemiprime"
-```
+Project layout
 
-Test reports land in `build/reports/tests/test/index.html`.
-
-### Project layout
-```
 src/main/java/com/geofac
 ├── GeofacApplication      # Spring Boot entry point
-├── FactorizerService      # Geometric search + Pollard Rho fallback
+├── FactorizerService      # Geometric resonance search core (no fallbacks)
 ├── FactorizerShell        # Spring Shell command surface
 ├── util
 │   ├── DirichletKernel    # Kernel amplitude / angular math
 │   └── SnapKernel         # Phase-corrected snapping heuristic
 └── TestFactorization      # Standalone main for manual experiments
-```
 
-### Roadmap ideas
-1. Add profiling hooks to capture amplitude distributions per run.
-2. Move long-running tests behind a Gradle profile to unblock CI.
-3. Experiment with GPU-backed kernels or Kotlin Multiplatform ports.
+CI & Proof
 
-Pull requests and issue discussions are welcome—this project is a playground for factorization research, so curiosity > polish.
+A CI workflow runs a deterministic shard with pinned seeds. Success requires:
+	•	stdout shows p, q, and p*q == N = OK
+	•	artifacts uploaded from results/N=.../<run_id>/
+
+Contributing
+
+This repo has a single goal: factor N above via geometric resonance only.
+PRs must state how they advance that goal. Introducing or re-enabling fallback methods is out of scope.
+
+Roadmap (strictly in-scope)
+	1.	Parameter grid refinement for earlier true-hit ranking (top-K precision).
+	2.	Deterministic progress logs and minimal profiling hooks (amplitude histograms).
+	3.	CI artifact bundling and a one-page proof report (experiments/N-factorization.md).
