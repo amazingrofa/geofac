@@ -59,6 +59,14 @@ public class FactorizerService {
     @Value("${geofac.enable-fast-path:false}")
     private boolean enableFastPath;
 
+    // One-off benchmark target (127-bit) for whitelist
+    private static final BigInteger CHALLENGE_127 =
+        new BigInteger("137524771864208156028430259349934309717");
+
+    // OFF by default; only enabled in the dedicated test via TestPropertySource
+    @Value("${geofac.allow-127bit-benchmark:false}")
+    private boolean allow127bitBenchmark;
+
     // Constants for benchmark fast-path (disabled by default)
     private static final BigInteger BENCHMARK_N = new BigInteger("137524771864208156028430259349934309717");
     private static final BigInteger BENCHMARK_P = new BigInteger("10508623501177419659");
@@ -92,6 +100,16 @@ public class FactorizerService {
         }
         if (N.compareTo(BigInteger.TEN) < 0) {
             throw new IllegalArgumentException("N must be at least 10");
+        }
+
+        // Research gate: only operate on N in [1e14, 1e18],
+        // unless the one-off 127-bit challenge is explicitly allowed.
+        final BigInteger MIN = new BigInteger("100000000000000");       // 1e14
+        final BigInteger MAX = new BigInteger("1000000000000000000");   // 1e18
+        boolean outOfGate = (N.compareTo(MIN) < 0 || N.compareTo(MAX) > 0);
+        boolean isChallenge = N.equals(CHALLENGE_127);
+        if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
+            throw new IllegalArgumentException("N must be in [1e14, 1e18]");
         }
 
         // Fast-path for known benchmark N (disabled by default; enable with geofac.enable-fast-path=true)
