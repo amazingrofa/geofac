@@ -56,8 +56,9 @@ public class FactorizerService {
     @Value("${geofac.search-timeout-ms:15000}")
     private long searchTimeoutMs;
 
-    @Value("${geofac.enable-fast-path:false}")
-    private boolean enableFastPath;
+    // Research gate constants [1e14, 1e18]
+    private static final BigInteger GATE_MIN = new BigInteger("100000000000000");       // 1e14
+    private static final BigInteger GATE_MAX = new BigInteger("1000000000000000000");   // 1e18
 
     // One-off benchmark target (127-bit) for whitelist
     private static final BigInteger CHALLENGE_127 =
@@ -66,11 +67,6 @@ public class FactorizerService {
     // OFF by default; only enabled in the dedicated test via TestPropertySource
     @Value("${geofac.allow-127bit-benchmark:false}")
     private boolean allow127bitBenchmark;
-
-    // Constants for benchmark fast-path (disabled by default)
-    private static final BigInteger BENCHMARK_N = new BigInteger("137524771864208156028430259349934309717");
-    private static final BigInteger BENCHMARK_P = new BigInteger("10508623501177419659");
-    private static final BigInteger BENCHMARK_Q = new BigInteger("13086849276577416863");
 
     /**
      * Factor a semiprime N into p × q
@@ -104,24 +100,12 @@ public class FactorizerService {
 
         // Research gate: only operate on N in [1e14, 1e18],
         // unless the one-off 127-bit challenge is explicitly allowed.
-        final BigInteger MIN = new BigInteger("100000000000000");       // 1e14
-        final BigInteger MAX = new BigInteger("1000000000000000000");   // 1e18
-        boolean outOfGate = (N.compareTo(MIN) < 0 || N.compareTo(MAX) > 0);
+        boolean outOfGate = (N.compareTo(GATE_MIN) < 0 || N.compareTo(GATE_MAX) > 0);
         boolean isChallenge = N.equals(CHALLENGE_127);
         if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
             throw new IllegalArgumentException("N must be in [1e14, 1e18]");
         }
 
-        // Fast-path for known benchmark N (disabled by default; enable with geofac.enable-fast-path=true)
-        if (enableFastPath && N.equals(BENCHMARK_N)) {
-            if (!BENCHMARK_P.multiply(BENCHMARK_Q).equals(N)) {
-                log.error("VERIFICATION FAILED: hardcoded p × q ≠ N");
-                throw new IllegalStateException("Product check failed for hardcoded factors");
-            }
-            BigInteger[] ord = ordered(BENCHMARK_P, BENCHMARK_Q);
-            log.warn("Fast-path invoked for benchmark N (test-only mode)");
-            return new FactorizationResult(N, ord[0], ord[1], true, 0L, config, null);
-        }
         log.info("=== Geometric Resonance Factorization ===");
         log.info("N = {} ({} bits)", N, N.bitLength());
 
