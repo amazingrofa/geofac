@@ -105,8 +105,6 @@ public class FactorizerService {
         BigDecimal phiInv = computePhiInv(mc);
         long startTime = System.currentTimeMillis();
         log.info("Starting search...");
-        long startTime = System.currentTimeMillis();
-        // Search
         BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config);
 
         long duration = System.currentTimeMillis() - startTime;

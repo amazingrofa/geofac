@@ -24,7 +24,6 @@ public record FactorizationResult(
             "durationMs", durationMs,
             "config", config.toMap(),
             "errorMessage", errorMessage,
-            "pqMatchesN", success "pqMatchesN", success && p.multiply(q).equals(N)"pqMatchesN", success && p.multiply(q).equals(N) p != null "pqMatchesN", success && p.multiply(q).equals(N)"pqMatchesN", success && p.multiply(q).equals(N) q != null "pqMatchesN", success && p.multiply(q).equals(N)"pqMatchesN", success && p.multiply(q).equals(N) p.multiply(q).equals(N)
+            "pqMatchesN", success && p != null && q != null && p.multiply(q).equals(N)
         );
-    }
-}
+    }}
