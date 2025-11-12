@@ -132,20 +132,37 @@ public class FactorizerService {
             log.warn("Resonance search did not yield a factor. Attempting Pollard's Rho fallback...");
             long deadline = startTime + config.searchTimeoutMs();
             long remainingMs = deadline - System.currentTimeMillis();
+            boolean fallbackAttempted = false;
+            
             if (remainingMs > 0) {
+                fallbackAttempted = true;
                 BigInteger fallbackFactor = pollardsRhoWithDeadline(N, deadline);
                 if (fallbackFactor != null && fallbackFactor.compareTo(BigInteger.ONE) > 0 && fallbackFactor.compareTo(N) < 0) {
-                    BigInteger q = N.divide(fallbackFactor);
-                    log.info("=== SUCCESS (via fallback) ===");
-                    log.info("p = {}", fallbackFactor);
-                    log.info("q = {}", q);
-                    long totalDuration = System.currentTimeMillis() - startTime;
-                    BigInteger[] ord = ordered(fallbackFactor, q);
-                    return new FactorizationResult(N, ord[0], ord[1], true, totalDuration, config, null);
+                    try {
+                        BigInteger q = N.divide(fallbackFactor);
+                        if (!fallbackFactor.multiply(q).equals(N)) {
+                            log.error("Fallback factor invalid: p × q ≠ N");
+                            throw new ArithmeticException("Invalid fallback factor");
+                        }
+                        log.info("=== SUCCESS (via fallback) ===");
+                        log.info("p = {}", fallbackFactor);
+                        log.info("q = {}", q);
+                        long totalDuration = System.currentTimeMillis() - startTime;
+                        BigInteger[] ord = ordered(fallbackFactor, q);
+                        return new FactorizationResult(N, ord[0], ord[1], true, totalDuration, config, null);
+                    } catch (ArithmeticException e) {
+                        log.warn("Fallback division failed: {}", e.getMessage());
+                        // Fall through to failure return
+                    }
                 }
             }
-            log.error("NO_FACTOR_FOUND: both resonance and fallback failed.");
-            return new FactorizationResult(N, null, null, false, duration, config, "NO_FACTOR_FOUND: both resonance and fallback failed.");
+            
+            long totalDuration = System.currentTimeMillis() - startTime;
+            String failureMessage = fallbackAttempted 
+                ? "NO_FACTOR_FOUND: both resonance and fallback failed."
+                : "NO_FACTOR_FOUND: resonance timeout exceeded, fallback skipped.";
+            log.error(failureMessage);
+            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -156,7 +173,8 @@ public class FactorizerService {
                 throw new IllegalStateException("Product check failed");
             }
             log.info("Verification: p × q = N ✓");
-            return new FactorizationResult(N, factors[0], factors[1], true, duration, config, null);
+            long totalDuration = System.currentTimeMillis() - startTime;
+            return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
         }
     }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
