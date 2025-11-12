@@ -51,21 +51,16 @@ public class FactorizerShell {
             // Factor
             log.info("Shell command: factor {}", N);
             long startTime = System.currentTimeMillis();
-            BigInteger[] factors = service.factor(N);
+            FactorizationResult result = service.factor(N);
             long duration = System.currentTimeMillis() - startTime;
 
             // Format result
-            if (factors != null) {
-                return formatSuccess(factors[0], factors[1], duration);
+            if (result.success()) {
+                return formatSuccess(result.p(), result.q(), duration);
             } else {
-                return formatFailure(service.getSamples(), duration);
+                return formatFailure(result.config().samples(), duration);
             }
 
-        } catch (NoFactorFoundException e) {
-            // Geometric resonance failed to find a factor
-            System.err.println(e.getMessage());
-            System.exit(Policy.EXIT_NO_FACTOR_FOUND);
-            return null; // Unreachable but needed for compilation
         } catch (NumberFormatException e) {
             return formatError(
                 "Invalid number format\n" +

@@ -25,8 +25,9 @@ Geofac is a Spring Boot + Spring Shell application that implements the geometric
 
 ### Getting started
 Prerequisites
-- JDK 17
-- Git & Gradle wrapper (bundled)
+- JDK 17 or later (tested with JDK 24)
+- Gradle 8.14 (wrapper bundled)
+- Git
 
 ```bash
 git clone https://github.com/zfifteen/geofac.git
@@ -102,9 +103,9 @@ src/main/java/com/geofac
 This repo has a single goal: factor `N` above via geometric resonance only. PRs must explain how they advance that goal. Introducing or re-enabling fallback methods is out of scope.
 
 ### Roadmap (strictly in-scope)
-1. Parameter grid refinement for better early-hit ranking.
-2. Deterministic progress logs plus lightweight amplitude histograms.
-3. CI artifact bundling with a one-page proof report (`experiments/N-factorization.md`).
+1. **Performance Optimization (Primary Goal)**: Implement and benchmark optimizations to reduce sample counts, decrease runtime, and/or improve convergence. This includes parameter grid refinement, algorithmic improvements, and hardware acceleration.
+2. **Deterministic Progress Logging**: Enhance logging with lightweight amplitude histograms and deterministic progress markers to better analyze performance of runs.
+3. **CI Artifact and Proof Bundling**: Automate the bundling of artifacts with a one-page proof report for easier verification.
 
 ### Documentation
 
@@ -117,5 +118,6 @@ Comprehensive documentation is available in the `docs/` directory:
 
 These documents provide verifiable artifacts, reproducibility notes, and links to canonical theoretical sources.
 
-### Additional Research Directions
-- Explore AMX (Apple Matrix Coprocessor) for potential hardware-accelerated optimizations in computational tasks, as an optional path for performance improvements.
+### Additional Research Directions (Performance-focused)
+- **Hardware Acceleration**: Explore and implement hardware-accelerated optimizations, such as using the Apple Matrix Coprocessor (AMX) or other specialized hardware for computational tasks.
+- **Advanced QMC Methods**: Investigate and benchmark alternative Quasi-Monte Carlo sequences or methods for further variance reduction and faster convergence.

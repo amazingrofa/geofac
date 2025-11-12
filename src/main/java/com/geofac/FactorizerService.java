@@ -1,4 +1,5 @@
 package com.geofac;
+import java.util.Map;
 
 import com.geofac.util.DirichletKernel;
 import com.geofac.util.SnapKernel;
@@ -62,7 +63,18 @@ public class FactorizerService {
      * @return Array [p, q] if successful, null if not found
      * @throws IllegalArgumentException if N is invalid
      */
-    public BigInteger[] factor(BigInteger N) {
+    public FactorizationResult factor(BigInteger N) {
+        // Create config snapshot for reproducibility
+        FactorizerConfig config = new FactorizerConfig(
+                Math.max(precision, N.bitLength() * 2 + 100),
+                samples,
+                mSpan,
+                J,
+                threshold,
+                kLo,
+                kHi,
+                searchTimeoutMs
+        );
         // Validation
         if (N == null) {
             throw new IllegalArgumentException("N cannot be null");
@@ -78,7 +90,7 @@ public class FactorizerService {
         log.info("N = {} ({} bits)", N, N.bitLength());
 
         // Adaptive precision based on bit length
-        int adaptivePrecision = Math.max(precision, N.bitLength() * 2 + 100);
+        int adaptivePrecision = config.precision();
         MathContext mc = new MathContext(adaptivePrecision, RoundingMode.HALF_EVEN);
 
         log.info("Precision: {} decimal digits", adaptivePrecision);
@@ -91,60 +103,45 @@ public class FactorizerService {
         BigDecimal pi = BigDecimalMath.pi(mc);
         BigDecimal twoPi = pi.multiply(BigDecimal.valueOf(2), mc);
         BigDecimal phiInv = computePhiInv(mc);
-
+        long startTime = System.currentTimeMillis();
         log.info("Starting search...");
         long startTime = System.currentTimeMillis();
-
         // Search
-        BigInteger[] result = search(N, mc, lnN, twoPi, phiInv, startTime);
+        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config);
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("Search completed in {}.{} seconds", duration / 1000, duration % 1000);
 
-        if (result == null) {
-            if (Policy.STRICT_GEOMETRIC_ONLY) {
-                log.error("NO_FACTOR_FOUND: resonance did not yield a factor.");
-                throw new NoFactorFoundException("NO_FACTOR_FOUND: resonance did not yield a factor.");
-            } else {
-                throw new IllegalStateException("FALLBACK_DISABLED: geometric resonance only.");
-            }
-        }
-
-        if (result != null) {
+        if (factors == null) {
+            log.error("NO_FACTOR_FOUND: resonance did not yield a factor.");
+            return new FactorizationResult(N, null, null, false, duration, config, "NO_FACTOR_FOUND: resonance did not yield a factor.");
+        } else {
             log.info("=== SUCCESS ===");
-            log.info("p = {}", result[0]);
-            log.info("q = {}", result[1]);
-
+            log.info("p = {}", factors[0]);
+            log.info("q = {}", factors[1]);
             // Verify
-            if (!result[0].multiply(result[1]).equals(N)) {
+            if (!factors[0].multiply(factors[1]).equals(N)) {
                 log.error("VERIFICATION FAILED: p × q ≠ N");
                 throw new IllegalStateException("Product check failed");
             }
             log.info("Verification: p × q = N ✓");
-        } else {
-            log.error("All factorization strategies failed for {}", N);
-            log.warn("Consider: increase samples, m-span, or adjust threshold");
+            return new FactorizationResult(N, factors[0], factors[1], true, duration, config, null);
         }
-
-        return result;
-    }
-
-    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
-                                BigDecimal twoPi, BigDecimal phiInv, long startTime) {
+    }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
+                                BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
         BigDecimal u = BigDecimal.ZERO;
-        BigDecimal kWidth = BigDecimal.valueOf(kHi - kLo);
-        BigDecimal thresholdBd = BigDecimal.valueOf(threshold);
+        BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
-        int progressInterval = (int) Math.max(1, samples / 10); // Log every 10%
+        int progressInterval = (int) Math.max(1, config.samples() / 10); // Log every 10%
 
-        for (long n = 0; n < samples; n++) {
-            if (searchTimeoutMs > 0 && System.currentTimeMillis() - startTime >= searchTimeoutMs) {
-                log.warn("Geometric search timed out after {} samples (configured {} ms)", n, searchTimeoutMs);
+        for (long n = 0; n < config.samples(); n++) {
+            if (config.searchTimeoutMs() > 0 && System.currentTimeMillis() - startTime >= config.searchTimeoutMs()) {
+                log.warn("Geometric search timed out after {} samples (configured {} ms)", n, config.searchTimeoutMs());
                 return null;
             }
 
             if (n > 0 && n % progressInterval == 0) {
-                int percent = (int) ((n * 100) / samples);
+                int percent = (int) ((n * 100) / config.samples());
                 log.info("Progress: {}% ({}/{})", percent, n, samples);
             }
 
@@ -154,21 +151,21 @@ public class FactorizerService {
                 u = u.subtract(BigDecimal.ONE, mc);
             }
 
-            BigDecimal k = BigDecimal.valueOf(kLo).add(kWidth.multiply(u, mc), mc);
+            BigDecimal k = BigDecimal.valueOf(config.kLo()).add(kWidth.multiply(u, mc), mc);
             BigInteger m0 = BigInteger.ZERO; // Balanced semiprime assumption
 
             AtomicReference<BigInteger[]> result = new AtomicReference<>();
 
             // Parallel m-scan
-            IntStream.rangeClosed(-mSpan, mSpan).parallel().forEach(dm -> {
+            IntStream.rangeClosed(-config.mSpan(), config.mSpan()).parallel().forEach(dm -> {
                 if (result.get() != null) return; // Early exit if found
 
                 BigInteger m = m0.add(BigInteger.valueOf(dm));
                 BigDecimal theta = twoPi.multiply(new BigDecimal(m), mc).divide(k, mc);
 
                 // Dirichlet kernel filtering
-                BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, J, mc);
-                if (amplitude.compareTo(thresholdBd) > 0) {
+                BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+                if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
                     // Test candidate and neighbors

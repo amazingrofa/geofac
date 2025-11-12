@@ -76,3 +76,7 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
 Do not create a new template; always operate on the existing `.specify/memory/constitution.md` file.
+
+## Amendment Reference
+
+The latest governance shift is captured in `CONSTITUTION_AMENDMENT.md`, which elevates "Implement performance optimizations for the geometric resonance factorization algorithm" as the single most important activity for the project. When updating the constitution, explicitly reflect this priority: ensure principles, governance notes, and the Sync Impact Report highlight measurable performance work (profiling, sample reduction, convergence tuning) as the core mandate. Treat the amendment as authoritative context when assessing principle changes or version bumps.
