@@ -145,20 +145,7 @@ public class FactorizerService {
         BigDecimal phiInv = computePhiInv(mc);
         long startTime = System.currentTimeMillis();
         log.info("Starting search...");
-        
-        // Reserve 20% of timeout for fallback if needed
-        long resonanceTimeout = (long) (config.searchTimeoutMs() * 0.8);
-        FactorizerConfig resonanceConfig = new FactorizerConfig(
-                config.precision(),
-                config.samples(),
-                config.mSpan(),
-                config.J(),
-                config.threshold(),
-                config.kLo(),
-                config.kHi(),
-                resonanceTimeout
-        );
-        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, resonanceConfig);
+        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config);
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("Search completed in {}.{} seconds", duration / 1000, duration % 1000);

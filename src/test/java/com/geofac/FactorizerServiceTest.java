@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
     "geofac.allow-127bit-benchmark=true",
-    "geofac.enable-fast-path=true",
     "geofac.precision=260",
     "geofac.samples=3500",
     "geofac.m-span=260",
