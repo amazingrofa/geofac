@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
     "geofac.allow-127bit-benchmark=true",
     // Reduce precision for speed while maintaining accuracy
-    "geofac.precision=240",
-    "geofac.samples=3000",
+    "geofac.precision=300",
+    "geofac.samples=7500",
     "geofac.m-span=180",
     "geofac.j=6",
     "geofac.threshold=0.92",
