@@ -170,7 +170,7 @@ public class FactorizerService {
             return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
         }
     }
-    }    }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
+    }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
