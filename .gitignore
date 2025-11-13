@@ -1,6 +1,16 @@
-.idea/
-.snapshots/
-*.iml
-*.log*
+# macOS specific files
+.DS_Store
+
+# Gradle build artifacts
 .gradle/
 build/
+
+# IntelliJ IDEA artifacts
+.idea/
+geofac.iml
+
+# Log files
+*.log
+
+# Snapshots directory
+.snapshots/
