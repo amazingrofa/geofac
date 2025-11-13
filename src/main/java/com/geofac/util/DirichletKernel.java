@@ -29,8 +29,11 @@ public final class DirichletKernel {
         BigDecimal th2 = t.multiply(half, mc); // θ/2
         BigDecimal sinTh2 = BigDecimalMath.sin(th2, mc);
 
-        // Singularity guard: if |sin(θ/2)| is very small, treat as peak
-        if (sinTh2.abs(mc).compareTo(BigDecimal.ONE.movePointLeft(10)) < 0) {
+        // Singularity guard: adaptive epsilon based on precision
+        int epsScale = PrecisionUtil.epsilonScale(mc);
+        BigDecimal eps = BigDecimal.ONE.scaleByPowerOfTen(-epsScale);
+
+        if (sinTh2.abs(mc).compareTo(eps) < 0) {
             return BigDecimal.ONE;
         }
 

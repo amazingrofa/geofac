@@ -32,8 +32,8 @@ public final class SnapKernel {
         // Phase correction: adjust based on residual
         BigDecimal correctedPHat = applyPhaseCorrection(pHat, mc);
 
-        // Nearest integer
-        return roundToBigInteger(correctedPHat, mc.getRoundingMode());
+        // Nearest integer with tolerance: avoid toBigIntegerExact which may throw
+        return roundToBigInteger(correctedPHat, mc.getRoundingMode(), mc);
     }
 
     /**
@@ -41,21 +41,23 @@ public final class SnapKernel {
      * Uses residual analysis to improve integer proximity.
      */
     private static BigDecimal applyPhaseCorrection(BigDecimal pHat, MathContext mc) {
-        // For now, simple correction based on fractional part
-        // More sophisticated correction would analyze curvature residuals
-        BigDecimal fractional = pHat.subtract(
-            new BigDecimal(pHat.toBigInteger()), mc
-        );
+        // Simple nearest-integer approach without adding 1 (which was incorrect)
+        // The fractional part analysis should not shift by a full integer unit
+        BigDecimal fractional = pHat.remainder(BigDecimal.ONE, mc);
 
-        // If fractional part > 0.5, adjust toward next integer
-        if (fractional.compareTo(BigDecimal.valueOf(0.5)) > 0) {
-            return pHat.add(BigDecimal.ONE, mc);
-        } else {
-            return pHat;
-        }
+        // The pHat value is already the exponential result; we just need to round it properly
+        // No additional correction needed here - the rounding happens in roundToBigInteger
+        return pHat;
     }
 
-    private static BigInteger roundToBigInteger(BigDecimal x, RoundingMode mode) {
-        return x.setScale(0, mode).toBigIntegerExact();
+    private static BigInteger roundToBigInteger(BigDecimal x, RoundingMode mode, MathContext mc) {
+        // Use HALF_UP rounding for nearest integer
+        // This is the standard rounding approach for finding the closest integer factor candidate
+        try {
+            return x.setScale(0, RoundingMode.HALF_UP).toBigIntegerExact();
+        } catch (ArithmeticException e) {
+            // Fallback if exact conversion fails
+            return x.setScale(0, RoundingMode.HALF_UP).toBigInteger();
+        }
     }
 }

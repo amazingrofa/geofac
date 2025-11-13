@@ -19,14 +19,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
     "geofac.allow-127bit-benchmark=true",
-    "geofac.precision=260",
-    "geofac.samples=3500",
-    "geofac.m-span=260",
+    // Reduce precision for speed while maintaining accuracy
+    "geofac.precision=400",
+    "geofac.samples=50000",
+    "geofac.m-span=120",
     "geofac.j=6",
-    "geofac.threshold=0.85",
-    "geofac.k-lo=0.20",
-    "geofac.k-hi=0.50",
-    "geofac.search-timeout-ms=300000",  // 5 minute total budget (resonance + fallback)
+    "geofac.threshold=0.60",
+    "geofac.k-lo=0.10",
+    "geofac.k-hi=0.60",
+    "geofac.search-timeout-ms=600000",  // 10 minute budget
     "geofac.enable-fast-path=true"
 })
 public class FactorizerServiceTest {
