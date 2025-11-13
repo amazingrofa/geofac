@@ -22,24 +22,38 @@ public final class DirichletKernel {
      * @return Normalized amplitude in [0, 1]
      */
     public static BigDecimal normalizedAmplitude(BigDecimal theta, int J, MathContext mc) {
-        // Reduce to [-π, π] for stability
+        // Reduce to principal range for stability
         BigDecimal t = principalAngle(theta, mc);
 
+        // θ/2 and (2J+1)θ/2
         BigDecimal half = BigDecimal.valueOf(0.5);
-        BigDecimal th2 = t.multiply(half, mc); // θ/2
-        BigDecimal sinTh2 = BigDecimalMath.sin(th2, mc);
+        BigDecimal th2 = t.multiply(half, mc);
+        BigDecimal a = th2.multiply(BigDecimal.valueOf(2L * J + 1L), mc);
 
-        // Singularity guard: if |sin(θ/2)| is very small, treat as peak
-        if (sinTh2.abs(mc).compareTo(BigDecimal.ONE.movePointLeft(10)) < 0) {
+        // Dynamic epsilon relative to precision for guarding removable singularities at multiples of π
+        int prec = Math.max(8, mc.getPrecision());
+        int epsScale = Math.max(12, prec / 2);
+        BigDecimal eps = BigDecimal.ONE.movePointLeft(epsScale);
+
+        // If sin(θ/2) is effectively zero (θ ≈ 2πn), the normalized kernel tends to 1
+        BigDecimal sinTh2 = BigDecimalMath.sin(th2, mc).abs(mc);
+        if (sinTh2.compareTo(eps) <= 0) {
             return BigDecimal.ONE;
         }
 
-        BigDecimal twoJPlus1 = BigDecimal.valueOf(2 * J + 1);
-        BigDecimal num = BigDecimalMath.sin(th2.multiply(twoJPlus1, mc), mc);
-        BigDecimal den = sinTh2.multiply(twoJPlus1, mc);
-        BigDecimal amplitude = num.divide(den, mc).abs(mc);
+        // Stable evaluation via sinc ratio
+        BigDecimal sincA = stableSinc(a, mc);
+        BigDecimal sincB = stableSinc(th2, mc);
 
-        return amplitude;
+        // If both are extremely small (0/0 near removable singularity), define as 1
+        if (sincB.abs(mc).compareTo(eps) <= 0 && sincA.abs(mc).compareTo(eps) <= 0) {
+            return BigDecimal.ONE;
+        }
+
+        BigDecimal amp = sincA.divide(sincB, mc).abs(mc);
+
+        // Clamp to [0, 1]
+        return (amp.compareTo(BigDecimal.ONE) > 0) ? BigDecimal.ONE : amp;
     }
 
     /**
@@ -64,5 +78,26 @@ public final class DirichletKernel {
     private static BigDecimal floor(BigDecimal x, MathContext mc) {
         // Always round toward negative infinity to maintain periodicity math
         return x.setScale(0, java.math.RoundingMode.FLOOR);
+    }
+
+    // Numerically stable sinc(x) = sin(x)/x with series fallback near x ≈ 0
+    private static BigDecimal stableSinc(BigDecimal x, MathContext mc) {
+        BigDecimal ax = x.abs(mc);
+        int prec = Math.max(8, mc.getPrecision());
+        int tolScale = Math.max(10, prec / 2);
+        BigDecimal tol = BigDecimal.ONE.movePointLeft(tolScale);
+
+        if (ax.compareTo(tol) <= 0) {
+            // Series: 1 - x^2/6 + x^4/120 - x^6/5040
+            BigDecimal x2 = x.multiply(x, mc);
+            BigDecimal term1 = x2.divide(BigDecimal.valueOf(6), mc);
+            BigDecimal x4 = x2.multiply(x2, mc);
+            BigDecimal term2 = x4.divide(BigDecimal.valueOf(120), mc);
+            BigDecimal x6 = x4.multiply(x2, mc);
+            BigDecimal term3 = x6.divide(BigDecimal.valueOf(5040), mc);
+            return BigDecimal.ONE.subtract(term1, mc).add(term2, mc).subtract(term3, mc);
+        }
+
+        return BigDecimalMath.sin(x, mc).divide(x, mc);
     }
 }

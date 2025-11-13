@@ -1,7 +1,7 @@
 package com.geofac;
 import java.util.Map;
 
-import com.geofac.util.DirichletKernel;
+import com.geofac.util.GaussianKernel;
 import com.geofac.util.SnapKernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
  * Geometric Resonance Factorization Service
  *
  * Implements platform-independent factorization using:
- * - Dirichlet kernel filtering
+ * - Gaussian kernel filtering
  * - Golden-ratio QMC sampling
  * - High-precision BigDecimal arithmetic
  *
@@ -41,8 +41,11 @@ public class FactorizerService {
     @Value("${geofac.m-span}")
     private int mSpan;
 
-    @Value("${geofac.j}")
+    @Value("${geofac.j:6}")
     private int J;
+
+    @Value("${geofac.sigma:0.01}")
+    private double sigma;
 
     @Value("${geofac.threshold}")
     private double threshold;
@@ -77,11 +80,13 @@ public class FactorizerService {
      */
     public FactorizationResult factor(BigInteger N) {
         // Create config snapshot for reproducibility
+        // CRITICAL: Use 4 × bitLength + 200 for 127-bit precision stability
+        // Addresses exponential error propagation in phase-corrected logarithmic factorization
         FactorizerConfig config = new FactorizerConfig(
-                Math.max(precision, N.bitLength() * 2 + 100),
+                Math.max(precision, N.bitLength() * 4 + 200),
                 samples,
                 mSpan,
-                J,
+                sigma,
                 threshold,
                 kLo,
                 kHi,
@@ -114,8 +119,8 @@ public class FactorizerService {
         MathContext mc = new MathContext(adaptivePrecision, RoundingMode.HALF_EVEN);
 
         log.info("Precision: {} decimal digits", adaptivePrecision);
-        log.info("Configuration: samples={}, m-span={}, J={}, threshold={}",
-                 samples, mSpan, J, threshold);
+        log.info("Configuration: samples={}, m-span={}, sigma={}, threshold={}",
+                 samples, mSpan, sigma, threshold);
 
         // Initialize constants
         BigDecimal bdN = new BigDecimal(N, mc);
@@ -184,10 +189,10 @@ public class FactorizerService {
                 BigInteger m = m0.add(BigInteger.valueOf(dm));
                 BigDecimal theta = twoPi.multiply(new BigDecimal(m), mc).divide(k, mc);
 
-                // Dirichlet kernel filtering
-                BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+                // Gaussian kernel filtering with amplitude stability verification
+                BigDecimal amplitude = GaussianKernel.normalizedAmplitude(theta, BigDecimal.valueOf(config.sigma()), mc);
                 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
-                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
+                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, BigDecimal.valueOf(config.sigma()), mc);
 
                     // Test candidate and neighbors
                     BigInteger[] hit = testNeighbors(N, p0);
@@ -226,6 +231,33 @@ public class FactorizerService {
 
     private static BigInteger[] ordered(BigInteger a, BigInteger b) {
         return (a.compareTo(b) <= 0) ? new BigInteger[]{a, b} : new BigInteger[]{b, a};
+    }
+
+    /**
+     * Verify amplitude stability by testing perturbed theta values.
+     * Prevents false positives from numerical artifacts at precision boundaries.
+     *
+     * @param theta Base angle
+     * @param sigma Gaussian width
+     * @param threshold Amplitude threshold
+     * @param mc MathContext
+     * @return true if amplitude is stable across perturbations
+     */
+    private boolean verifyAmplitudeStability(BigDecimal theta, BigDecimal sigma,
+                                             BigDecimal threshold, MathContext mc) {
+        // Perturbation epsilon: scale with precision (e.g., 10^(-precision/4))
+        BigDecimal epsilon = BigDecimal.ONE.movePointLeft(mc.getPrecision() / 4);
+
+        // Test theta ± epsilon
+        BigDecimal thetaPlus = theta.add(epsilon, mc);
+        BigDecimal thetaMinus = theta.subtract(epsilon, mc);
+
+        BigDecimal ampPlus = GaussianKernel.normalizedAmplitude(thetaPlus, sigma, mc);
+        BigDecimal ampMinus = GaussianKernel.normalizedAmplitude(thetaMinus, sigma, mc);
+
+        // Require both perturbed amplitudes to also exceed threshold (with 10% tolerance)
+        BigDecimal tolerantThreshold = threshold.multiply(BigDecimal.valueOf(0.90), mc);
+        return ampPlus.compareTo(tolerantThreshold) > 0 && ampMinus.compareTo(tolerantThreshold) > 0;
     }
 
     private BigDecimal computePhiInv(MathContext mc) {

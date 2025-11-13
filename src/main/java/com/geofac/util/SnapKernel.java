@@ -7,55 +7,46 @@ import java.math.RoundingMode;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
- * Phase-corrected nearest-integer snap for geometric resonance.
- * Computes p̂ from ln(N) and θ, then applies phase correction before rounding.
+ * Phase-corrected nearest-integer snap, aligned with a Gaussian kernel.
  */
 public final class SnapKernel {
 
     private SnapKernel() {} // Utility class
 
     /**
-     * Compute candidate factor using phase-corrected nearest-integer snap.
+     * Computes a candidate factor using a phase correction model adapted for a Gaussian kernel.
+     * The correction is proportional to theta and the kernel width (sigma).
      *
-     * @param lnN ln(N) at given precision
-     * @param theta Angular parameter θ
-     * @param mc MathContext for precision
-     * @return Candidate factor p
+     * @param lnN   ln(N) at the given precision
+     * @param theta Angular parameter θ from the kernel peak
+     * @param sigma The standard deviation (width) of the Gaussian kernel
+     * @param mc    MathContext for precision
+     * @return A candidate factor p
      */
-    public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, MathContext mc) {
-        // p̂ = exp((ln(N) - 2π·θ)/2)
+    public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, BigDecimal sigma, MathContext mc) {
+        // The phase offset (dPhi) is modeled as being proportional to the detected phase (theta)
+        // and the kernel width (sigma). A wider kernel implies a larger potential phase shift.
+        BigDecimal dPhi = principalAngle(theta, mc).multiply(sigma, mc);
+
+        // Apply the correction to the exponent: p̂ ≈ exp((ln(N) + dPhi) / 2)
+        BigDecimal exponent = lnN.add(dPhi, mc).divide(BigDecimal.valueOf(2), mc);
+        BigDecimal pHat = BigDecimalMath.exp(exponent, mc);
+
+        // With a clean Gaussian kernel and a first-order phase correction,
+        // a direct snap to the nearest integer is the most robust approach.
+        return pHat.setScale(0, RoundingMode.HALF_UP).toBigIntegerExact();
+    }
+
+    // Principal angle mapping to [-π, π]
+    private static BigDecimal principalAngle(BigDecimal x, MathContext mc) {
         BigDecimal twoPi = BigDecimalMath.pi(mc).multiply(BigDecimal.valueOf(2), mc);
-        BigDecimal term = twoPi.multiply(theta, mc);
-        BigDecimal expo = lnN.subtract(term, mc).divide(BigDecimal.valueOf(2), mc);
-        BigDecimal pHat = BigDecimalMath.exp(expo, mc);
-
-        // Phase correction: adjust based on residual
-        BigDecimal correctedPHat = applyPhaseCorrection(pHat, mc);
-
-        // Nearest integer
-        return roundToBigInteger(correctedPHat, mc.getRoundingMode());
-    }
-
-    /**
-     * Apply phase correction to p̂ before rounding.
-     * Uses residual analysis to improve integer proximity.
-     */
-    private static BigDecimal applyPhaseCorrection(BigDecimal pHat, MathContext mc) {
-        // For now, simple correction based on fractional part
-        // More sophisticated correction would analyze curvature residuals
-        BigDecimal fractional = pHat.subtract(
-            new BigDecimal(pHat.toBigInteger()), mc
-        );
-
-        // If fractional part > 0.5, adjust toward next integer
-        if (fractional.compareTo(BigDecimal.valueOf(0.5)) > 0) {
-            return pHat.add(BigDecimal.ONE, mc);
-        } else {
-            return pHat;
+        BigDecimal invTwoPi = BigDecimal.ONE.divide(twoPi, mc);
+        BigDecimal k = x.multiply(invTwoPi, mc).setScale(0, RoundingMode.FLOOR);
+        BigDecimal r = x.subtract(twoPi.multiply(k, mc), mc);
+        BigDecimal pi = BigDecimalMath.pi(mc);
+        if (r.compareTo(pi) > 0) {
+            r = r.subtract(twoPi, mc);
         }
-    }
-
-    private static BigInteger roundToBigInteger(BigDecimal x, RoundingMode mode) {
-        return x.setScale(0, mode).toBigIntegerExact();
+        return r;
     }
 }

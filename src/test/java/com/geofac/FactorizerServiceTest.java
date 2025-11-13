@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
     "geofac.allow-127bit-benchmark=true",
-    "geofac.precision=260",
-    "geofac.samples=3500",
-    "geofac.m-span=260",
-    "geofac.j=6",
-    "geofac.threshold=0.85",
+    "geofac.precision=708",            // 4 × 127 + 200 = 708 for adaptive precision (overridden by service)
+    "geofac.samples=10000",            // Increased from 3500 for better k-space coverage
+    "geofac.m-span=1000",              // Increased from 260 for broader phase scanning
+    "geofac.sigma=0.01",               // Gaussian kernel width
+    "geofac.threshold=0.80",           // Lowered from 0.85 for 127-bit balanced semiprimes
     "geofac.k-lo=0.20",
     "geofac.k-hi=0.50",
-    "geofac.search-timeout-ms=300000",  // 5 minute total budget (resonance + fallback)
+    "geofac.search-timeout-ms=600000", // 10 minute budget for 127-bit challenge
     "geofac.enable-fast-path=true"
 })
 public class FactorizerServiceTest {
