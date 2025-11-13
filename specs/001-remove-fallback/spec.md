@@ -18,7 +18,7 @@ The current system uses Pollard's Rho as a backup if the primary resonance metho
 
 ## 3. Non-Functional Requirements
 
-- **Performance**: The change must not negatively impact the performance of the primary resonance search algorithm.
+- **Performance**: The change must not negatively impact the performance of the primary resonance search algorithm. This will be verified by running existing benchmarks and ensuring no statistically significant regression.
 - **Clarity**: The resulting code should be clearer and easier to understand, with a more linear control flow.
 - **Compliance**: The final implementation must be fully compliant with the project's constitution, especially the "Resonance-Only Factorization" principle.
 
@@ -32,5 +32,12 @@ The current system uses Pollard's Rho as a backup if the primary resonance metho
 
 -   When `FactorizerService.factor()` is called and the resonance search fails, the returned `FactorizationResult` must indicate failure, and no fallback method is attempted.
 -   The `pollardsRhoWithDeadline` method no longer exists in the `FactorizerService` class.
--   All existing tests must continue to pass, and a new test may be added to verify the explicit failure case without fallback.
+-   All existing tests must continue to pass, and a new test **must** be added to verify the explicit failure case without fallback.
 -   The project must build and run successfully after the changes.
+
+## Clarifications
+
+### Session 2025-11-12
+
+- Q: The spec's acceptance criteria states a new test "may be added," which is ambiguous and conflicts with the "Test-First Development" principle in the project's constitution. How should we proceed? → A: The new test is mandatory to prove the fallback is removed.
+- Q: How should we verify the non-functional requirement that performance is 'not negatively impacted'? → A: Run existing benchmarks and ensure no statistically significant regression.
