@@ -5,7 +5,7 @@ spring:
     banner-mode: off
 
 geofac:
-  precision: 240
+  enable-diagnostics: false  precision: 240
   samples: 3000
   m-span: 180
   j: 6
@@ -16,6 +16,6 @@ geofac:
 logging:
   level:
     com.geofac: INFO
-    org.springframework.shell: WARN
+  enable-diagnostics: false    org.springframework.shell: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

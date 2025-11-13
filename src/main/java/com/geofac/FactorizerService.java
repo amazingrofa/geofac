@@ -13,7 +13,9 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-
+import java.util.stream.Collectors;import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
@@ -58,6 +60,11 @@ public class FactorizerService {
     @Value("${geofac.enable-fast-path:false}")
     private boolean enableFastPath;
 
+    @Value("${geofac.enable-diagnostics:false}")
+    private boolean enableDiagnostics;
+
+    private Queue<BigDecimal> amplitudeDistribution;
+    private Queue<String> candidateLogs;
     // Research gate constants [1e14, 1e18]
     private static final BigInteger GATE_MIN = new BigInteger("100000000000000");       // 1e14
     private static final BigInteger GATE_MAX = new BigInteger("1000000000000000000");   // 1e18
@@ -93,13 +100,9 @@ public class FactorizerService {
                 kHi,
                 searchTimeoutMs
         );
-        // Validation
-        if (N == null) {
-            throw new IllegalArgumentException("N cannot be null");
-        }
-        if (N.signum() <= 0) {
-            throw new IllegalArgumentException("N must be positive");
-        }
+        if (enableDiagnostics) {
+            amplitudeDistribution = new ConcurrentLinkedQueue<>();
+            candidateLogs = new ConcurrentLinkedQueue<>();
         if (N.compareTo(BigInteger.TEN) < 0) {
             throw new IllegalArgumentException("N must be at least 10");
         }
@@ -152,7 +155,7 @@ public class FactorizerService {
             long totalDuration = System.currentTimeMillis() - startTime;
             String failureMessage = "NO_FACTOR_FOUND: resonance search failed within the configured timeout.";
             log.error(failureMessage);
-            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
+            if (enableDiagnostics) logDiagnostics();            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -167,9 +170,8 @@ public class FactorizerService {
             return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
         }
     }
-    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
+    }    }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
-        BigDecimal u = BigDecimal.ZERO;
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
         int progressInterval = (int) Math.max(1, config.samples() / 10); // Log every 10%
@@ -205,14 +207,20 @@ public class FactorizerService {
 
                 // Dirichlet kernel filtering
                 BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
-                if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
+                if (enableDiagnostics) amplitudeDistribution.add(amplitude);                if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
-                    // Test candidate and neighbors
+                    if (enableDiagnostics) candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));                    // Test candidate and neighbors
                     BigInteger[] hit = testNeighbors(N, p0);
                     if (hit != null) {
                         result.compareAndSet(null, hit);
-                    }
+                    if (enableDiagnostics) {
+                        if (hit != null) {
+                            candidateLogs.add(String.format("Accepted: factors %s * %s", hit[0], hit[1]));
+                        } else {
+                            candidateLogs.add("Rejected: no neighbor divides N");
+                        }
+                    }                    }
                 }
             });
 
@@ -258,5 +266,30 @@ public class FactorizerService {
 
     int getMSpan() {
         return mSpan;
+    }    private void logDiagnostics() {
+        if (amplitudeDistribution == null || amplitudeDistribution.isEmpty()) {
+            log.info("Diagnostics: No amplitudes collected.");
+            return;
+        }
+        // Compute stats on amplitudes (convert to double for simplicity)
+        List<Double> amps = amplitudeDistribution.stream().map(BigDecimal::doubleValue).sorted().collect(Collectors.toList());
+        double minAmp = amps.get(0);
+        double maxAmp = amps.get(amps.size() - 1);
+        double meanAmp = amps.stream().mapToDouble(d -> d).average().orElse(0.0);
+        long count = amps.size();
+        log.info("Diagnostics - Amplitude Distribution: count={}, min={}, max={}, mean={}", count, String.format("%.6f", minAmp), String.format("%.6f", maxAmp), String.format("%.6f", meanAmp));
+        
+        // Log candidate evaluations (limit to first 50 for brevity)
+        int logLimit = 50;
+        int logged = 0;
+        for (String logEntry : candidateLogs) {
+            if (logged >= logLimit) {
+                log.info("Diagnostics: ... (truncated, {} more candidate logs)", candidateLogs.size() - logged);
+                break;
+            }
+            log.info("Diagnostics - {}", logEntry);
+            logged++;
+        }
     }
+}
 }
