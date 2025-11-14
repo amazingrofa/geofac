@@ -8,7 +8,7 @@ Authoritative references
 - CLAUDE.md (geofac-specific constraints and rationale)
 
 Non‑negotiable invariants
-- Validation gate: Only semiprimes in [1e14, 1e18]. Out‑of‑gate allowed only for the 127‑bit whitelist: CHALLENGE_127 = 137524771864208156028430259349934309717.
+- Validation gate: The project follows a strict, two-gate validation policy. All code must adhere to the rules defined in [docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md).
 - No classical fallbacks: Do not propose or insert Pollard’s Rho, trial division, ECM, or sieves.
 - Deterministic/quasi‑deterministic methods only (Sobol/Halton, Gaussian kernel resonance, phase‑corrected snap). No stochastic “try until it works.”
 - Precision is explicit and adaptive: precision = max(configured, N.bitLength() × 4 + 200). In Java use BigDecimal with explicit MathContext; in Python use mpmath/mpfr with explicit mp.dps/bits. Log the chosen precision.

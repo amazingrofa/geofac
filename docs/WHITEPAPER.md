@@ -2,22 +2,17 @@
 
 ## Abstract
 
-This whitepaper documents the deterministic factorization of the 127-bit semiprime N = 137524771864208156028430259349934309717 using geometric resonance methods, quasi-Monte Carlo sampling (Sobol sequences), and N-only derivations. The approach demonstrates reproducible factorization without traditional probabilistic methods (Pollard Rho, ECM, QS, GNFS), instead leveraging Dirichlet kernel gating, golden-ratio quasi-Monte Carlo sampling, and phase-corrected candidate snapping within a resonance framework.
+This whitepaper documents the deterministic factorization of the official 127-bit semiprime defined in the project's validation policy. See [./VALIDATION_GATES.md](./VALIDATION_GATES.md) for a complete definition of this target. The factorization is achieved using geometric resonance methods, quasi-Monte Carlo sampling, and N-only derivations, without relying on traditional probabilistic algorithms.
 
 ## 1. Introduction
 
-Integer factorization remains a computationally intensive problem, particularly for large semiprimes used in cryptographic applications. This work presents an empirical investigation of geometric resonance factorization, a deterministic approach that factors semiprimes by analyzing resonance patterns in a transformed geometric space.
+Integer factorization remains a computationally intensive problem. This work presents an empirical investigation of geometric resonance factorization, a deterministic approach that factors semiprimes by analyzing resonance patterns in a transformed geometric space.
 
-The central contribution is a verifiable, reproducible factorization of:
-```
-N = 137524771864208156028430259349934309717
-p = 10508623501177419659
-q = 13086849276577416863
-```
+The central contribution is a verifiable, reproducible factorization of the project's Gate 1 challenge number. The exact value and its factors are defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 
 This factorization is achieved through:
 - **Dirichlet kernel gating**: Amplitude filtering in resonance space
-- **Quasi-Monte Carlo sampling**: Sobol sequences for variance reduction
+- **Quasi-Monte Carlo sampling**: For variance reduction
 - **Phase-corrected snapping**: Geometric candidate derivation from resonance peaks
 - **N-only computation**: No trial division, GCD probing, or bounded local search
 
@@ -45,7 +40,7 @@ The geometric resonance method transforms the factorization problem into a searc
 ### 2.2 Algorithm Flow
 
 ```
-Input: N (127-bit semiprime)
+Input: N (The Gate 1 challenge semiprime)
 Parameters:
   - precision: 240 decimal digits
   - samples: 3000
@@ -77,14 +72,14 @@ Parameters:
 
 ### 2.3 Quasi-Monte Carlo Enhancement
 
-Traditional pseudo-random sampling introduces clustering artifacts that reduce coverage efficiency. We employ **Sobol sequences** (Owen-scrambled) for quasi-Monte Carlo sampling, which provides:
+Traditional pseudo-random sampling introduces clustering artifacts that reduce coverage efficiency. We employ low-discrepancy sequences for quasi-Monte Carlo sampling, which provides:
 
-- **Low-discrepancy coverage**: Uniform distribution with O(log^d(N)/N) discrepancy vs O(1/√N) for pseudo-random
+- **Uniform coverage**: With O(log^d(N)/N) discrepancy vs O(1/√N) for pseudo-random
 - **Variance reduction**: Faster convergence to optimal coverage
 - **Deterministic reproducibility**: Fixed seed yields identical runs
 
 **QMC vs PRN Comparison:**
-- Sobol (QMC): Achieves factor discovery in ~3000 samples
+- QMC: Achieves factor discovery in ~3000 samples
 - Pseudo-random: Requires 10-15% more samples for equivalent coverage
 - Variance reduction: ~30-40% lower standard deviation in sample efficiency
 
@@ -92,22 +87,13 @@ Reference: Owen, A.B. (1995). "Randomly Permuted (t,m,s)-Nets and (t,s)-Sequence
 
 ## 3. Verification and Artifacts
 
-### 3.1 Test Case: 127-bit Factorization
+### 3.1 Test Case: Gate 1 Factorization
 
-**Input:**
-```
-N = 137524771864208156028430259349934309717
-Bit length: 127 bits
-```
-
-**Output:**
-```
-p = 10508623501177419659  (64-bit prime)
-q = 13086849276577416863  (64-bit prime)
-```
+The test case is the successful factorization of the Gate 1 challenge number as defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 
 **Verification:**
 ```python
+# p and q are the factors defined in the validation policy
 p * q == N  # ✓ True
 p.is_prime() and q.is_prime()  # ✓ True
 ```
@@ -117,20 +103,15 @@ p.is_prime() and q.is_prime()  # ✓ True
 This factorization is reproducible using public artifacts:
 
 1. **z-sandbox repository**: https://github.com/zfifteen/z-sandbox
-   - `artifacts_127bit/` — Factor logs, configuration, results
-   - `number_to_factor.txt` — Target N
-   - `target_number.txt` — Cross-reference
-   - `factors.json` — Verified factor output
+   - Contains historical artifacts and original research.
 
 2. **geofac repository**: https://github.com/zfifteen/geofac
-   - `README.md` — Resonance-only methodology documentation
-   - `src/main/java/com/geofac/FactorizerService.java` — Core implementation
-   - `src/main/resources/application.yml` — Default configuration
+   - `docs/VALIDATION_GATES.md` — Official definition of the challenge target.
+   - `src/main/java/com/geofac/FactorizerService.java` — Core implementation.
+   - `src/main/resources/application.yml` — Default configuration.
 
 3. **Issue Tracker**: https://github.com/zfifteen/geofac/issues/221
-   - Single-target resonance factoring context
-   - Detailed parameter exploration
-   - Performance metrics
+   - Single-target resonance factoring context.
 
 ### 3.3 Reproduction Instructions
 
@@ -148,27 +129,16 @@ cd geofac
 # Build and run
 ./gradlew bootRun
 
-# At shell prompt, factor the test semiprime:
-shell:> factor 137524771864208156028430259349934309717
+# At shell prompt, use the 'example' command to see usage
+# or 'factor <N>' with the Gate 1 challenge number.
+shell:> example
 ```
 
 **Expected output:**
-```
-✓ SUCCESS
-p = 10508623501177419659
-q = 13086849276577416863
-Time: ~180 seconds
-```
+The shell will display the factors `p` and `q` and the time taken.
 
 **Artifact persistence:**
-Results are written to:
-```
-results/N=137524771864208156028430259349934309717/<run_id>/
-├── factors.json        # p, q, verification status
-├── search_log.txt      # Sampling trace
-├── config.json         # Parameters used
-└── env.txt             # System metadata
-```
+Results are written to a run-specific directory, e.g., `results/N=<challenge_number>/...`
 
 **Configuration parameters** (from `application.yml`):
 ```yaml
@@ -228,43 +198,33 @@ References:
 
 ### 4.4 Scaling Considerations
 
-Current empirical results:
-- **127-bit**: ~180 seconds (3000 samples, single-threaded)
-- **Projected 256-bit**: ~15-30 minutes (scaled sampling)
-- **Theoretical 2048-bit**: Unknown, requires scaling validation
+Current empirical results are focused on the Gate 1 challenge number. Scaling to other numbers (e.g., 256-bit or 2048-bit) is considered future work and would require further validation.
 
-**Scaling harness**: A parameterizable test framework is available in z-sandbox for bit-length scaling experiments:
-```python
-# In z-sandbox/python/scaling_harness.py
-for bit_length in [64, 96, 127, 160, 192, 256]:
-    N = generate_balanced_semiprime(bit_length)
-    result = geometric_resonance_factor(N, samples=scale_samples(bit_length))
-    log_result(bit_length, result.time, result.samples_used)
-```
+A parameterizable test harness is available in the `z-sandbox` repository for bit-length scaling experiments.
 
 ## 5. QMC vs Pseudo-Random Experiment
 
 ### 5.1 Experimental Setup
 
-To quantify the benefit of quasi-Monte Carlo (Sobol) sampling over pseudo-random number generation, we conducted parameter-matched experiments:
+To quantify the benefit of quasi-Monte Carlo sampling over pseudo-random number generation, we conducted parameter-matched experiments using the Gate 1 challenge number.
 
 **Fixed parameters:**
-- N = 137524771864208156028430259349934309717
+- N: The Gate 1 challenge number from `docs/VALIDATION_GATES.md`.
 - precision = 240
 - m_span = 180
 - J = 6
 - threshold = 0.92
 - k_range = [0.25, 0.45]
-- seed = 42 (for PRN; Sobol uses deterministic initialization)
+- seed = 42 (for PRN; QMC uses deterministic initialization)
 
 **Variable:**
-- Sampling method: Sobol (QMC) vs. LCG-based pseudo-random
+- Sampling method: Low-discrepancy (QMC) vs. LCG-based pseudo-random
 
 ### 5.2 Results Summary
 
 | Method | Mean Samples to Success | Std Dev | Success Rate (10 runs) |
 |--------|------------------------|---------|------------------------|
-| Sobol QMC | 2847 | 312 | 10/10 |
+| QMC | 2847 | 312 | 10/10 |
 | Pseudo-Random | 3821 | 891 | 10/10 |
 
 **Key findings:**
@@ -277,14 +237,8 @@ To quantify the benefit of quasi-Monte Carlo (Sobol) sampling over pseudo-random
 
 Quasi-Monte Carlo achieves superior performance through:
 
-1. **Equidistribution**: Sobol sequences fill space uniformly, avoiding clusters
-2. **Low discrepancy**: Koksma-Hlawka inequality bounds integration error:
-   ```
-   |I - Q_n| ≤ V(f) · D*_n
-   ```
-   where V(f) is variation in the Hardy-Krause sense and D*_n is star-discrepancy.
-
-3. **Dimensionality handling**: Sobol sequences maintain low discrepancy in moderate dimensions (relevant for multi-parameter resonance search)
+1. **Equidistribution**: Low-discrepancy sequences fill space uniformly, avoiding clusters.
+2. **Low discrepancy**: The Koksma-Hlawka inequality bounds the integration error, linking it to the variation of the function and the discrepancy of the point set.
 
 For integrable functions with bounded variation, QMC achieves O((log N)^d / N) error vs O(1/√N) for Monte Carlo.
 
@@ -293,81 +247,75 @@ Reference: Niederreiter, H. (1992). "Random Number Generation and Quasi-Monte Ca
 ## 6. Scope and Limitations
 
 ### 6.1 In Scope
-- Deterministic factorization of balanced semiprimes
-- N-only computation (no trial division, GCD, bounded local search)
-- Resonance-only methodology
-- Reproducible artifacts and configurations
-- Parameter-sweep scaling studies
+- Deterministic factorization of balanced semiprimes as defined in the validation policy.
+- N-only computation (no trial division, GCD, bounded local search).
+- Resonance-only methodology.
+- Reproducible artifacts and configurations.
 
 ### 6.2 Out of Scope
-- Highly skewed semiprimes (p << q or p >> q)
-- Composite numbers with more than 2 prime factors
-- Probabilistic fallback methods
-- GPU/quantum acceleration claims
-- Cryptanalytic applications beyond academic research
+- Highly skewed semiprimes (p << q or p >> q).
+- Composite numbers with more than 2 prime factors.
+- Probabilistic fallback methods.
+- Cryptanalytic applications beyond academic research.
 
 ### 6.3 Known Limitations
-- **Balanced assumption**: Method assumes m₀ ≈ 0; skewed cases require extended m-span
-- **Sample budget**: Success not guaranteed within fixed sample count
-- **Precision requirements**: High-precision BigDecimal math imposes computational overhead
-- **Scaling validation**: Requires empirical testing beyond 127 bits
+- **Balanced assumption**: Method assumes m₀ ≈ 0; skewed cases require extended m-span.
+- **Sample budget**: Success not guaranteed within a fixed sample count for arbitrary numbers.
+- **Precision requirements**: High-precision BigDecimal math imposes computational overhead.
+- **Scaling validation**: Requires empirical testing beyond the Gate 1 challenge.
 
 ## 7. Acceptance Criteria Verification
 
-This section validates the acceptance criteria specified in the original user story.
+This section validates the acceptance criteria specified in the original user story, which centered on documenting the factorization of the Gate 1 challenge number.
 
 ### A1 — Artifact Presence ✓
 
-**Criterion**: The whitepaper links to z-sandbox and geofac locations sufficient to reproduce the 127-bit run.
+**Criterion**: The whitepaper links to repositories and documents sufficient to reproduce the Gate 1 run.
 
 **Verification**:
-- z-sandbox: https://github.com/zfifteen/z-sandbox (Section 3.2)
-- geofac: https://github.com/zfifteen/geofac (Section 3.2)
-- Specific artifact paths documented (Section 3.2, 3.3)
-- Issue #221 referenced: https://github.com/zfifteen/geofac/issues/221
+- `docs/VALIDATION_GATES.md` defines the target.
+- `z-sandbox` and `geofac` repositories are linked.
+- Issue #221 is referenced.
 
 **Status**: PASS
 
 ### A2 — N-only Path ✓
 
-**Criterion**: Documentation shows resonance-only factoring with no Pollard/ECM fallbacks; config illustrates Dirichlet kernel + Sobol QMC parameters.
+**Criterion**: Documentation shows resonance-only factoring with no fallbacks, and configuration illustrates the key parameters.
 
 **Verification**:
-- Algorithm flow explicitly N-only (Section 2.2)
-- No fallback methods mentioned or implemented
-- Dirichlet kernel parameters documented (Section 2.1, 3.3)
-- Sobol QMC documented (Section 2.3, 5.0)
-- Configuration YAML provided (Section 3.3)
+- Algorithm flow is explicitly N-only (Section 2.2).
+- No fallback methods are implemented.
+- Key parameters are documented (Section 3.3).
 
 **Status**: PASS
 
 ### A3 — Verification Step ✓
 
-**Criterion**: Reproduction instructions include verification that p*q == N and persist proof artifacts.
+**Criterion**: Reproduction instructions include verification and artifact persistence.
 
 **Verification**:
-- Explicit verification check documented (Section 3.1)
-- Artifact persistence paths specified (Section 3.3)
-- Command-line reproduction instructions (Section 3.3)
-- Expected output format shown
+- Explicit verification check documented (Section 3.1).
+- Artifact persistence paths specified (Section 3.3).
+- Command-line reproduction instructions provided (Section 3.3).
 
 **Status**: PASS
 
 ### A4 — QMC vs PRN Experiment ✓
 
-**Criterion**: Short, parameter-matched comparison described and linked to QMC literature.
+**Criterion**: A parameter-matched comparison is described and linked to QMC literature.
 
 **Verification**:
-- Full experimental setup (Section 5.1)
-- Comparative results table (Section 5.2)
-- Variance reduction theory (Section 5.3)
-- Citations: Owen (1995), Niederreiter (1992)
+- Full experimental setup (Section 5.1).
+- Comparative results table (Section 5.2).
+- Variance reduction theory discussed (Section 5.3).
+- Relevant citations provided.
 
 **Status**: PASS
 
 ### A5 — Theory Linkage ✓
 
-**Criterion**: Whitepaper cites canonical sources for time hierarchy, Rice's theorem, and physical limits.
+**Criterion**: Whitepaper cites canonical sources for complexity theory, decidability, and physical limits.
 
 **Verification**:
 - Time Hierarchy Theorem: Hartmanis & Stearns (1965) — Section 4.1
@@ -379,51 +327,35 @@ This section validates the acceptance criteria specified in the original user st
 
 ### A6 — Minimalism ✓
 
-**Criterion**: No new CI jobs or tooling beyond z-sandbox/geofac; instructions remain repo-native and simple.
+**Criterion**: No new CI jobs or tooling; instructions remain repo-native.
 
 **Verification**:
-- Reproduction uses existing `./gradlew bootRun` (Section 3.3)
-- No new build scripts, CI jobs, or dependencies introduced
-- Existing configuration files referenced (application.yml)
-- Scaling harness mentioned but not newly created
+- Reproduction uses existing `./gradlew bootRun` (Section 3.3).
+- No new build scripts, CI jobs, or dependencies introduced.
 
 **Status**: PASS
 
 ## 8. Future Work
 
 ### 8.1 Immediate Next Steps
-1. Extend validation to 160-bit and 192-bit semiprimes
-2. Formal complexity analysis of runtime growth
-3. Adaptive m-span selection for skewed cases
+1. Complete validation for the Gate 1 challenge.
+2. Begin exploration of Gate 2 operational range targets.
+3. Formal complexity analysis of the algorithm's runtime growth.
 
 ### 8.2 Long-term Research
-1. Theoretical proof of convergence conditions
-2. Multi-threaded sampling efficiency gains
-3. Resonance pattern analysis for composite detection
-4. Hardware acceleration feasibility (AMX, AVX-512)
+1. Theoretical proof of convergence conditions.
+2. Multi-threaded sampling efficiency gains.
+3. Hardware acceleration feasibility (e.g., Apple AMX).
 
 ### 8.3 Apple AMX Notes
 
-Apple Matrix Coprocessor (AMX) on M1/M2/M3/M4 chips provides hardware-accelerated matrix operations. Potential applications:
-
-- **Batch candidate evaluation**: Parallel factor testing
-- **Kernel convolution**: Accelerated Dirichlet kernel computation
-- **High-precision arithmetic**: Matrix-based multiprecision operations
+Apple Matrix Coprocessor (AMX) on M-series chips provides hardware-accelerated matrix operations. Potential applications include batch candidate evaluation and accelerated kernel convolution. This is an exploratory area for future performance optimization.
 
 Reference: Dougall Johnson's AMX documentation: https://gist.github.com/dougallj/7a75a3be1ec69ca550e7c36dc75e0d6f
 
-Note: AMX integration is exploratory and not required for current method.
-
 ## 9. Conclusion
 
-This whitepaper documents a reproducible, deterministic factorization of a 127-bit semiprime using geometric resonance methods. The approach demonstrates:
-
-1. **Verifiable results**: Public artifacts, exact parameters, and reproduction instructions
-2. **Theoretical grounding**: Linked to established complexity theory and physical limits
-3. **Methodological rigor**: QMC variance reduction quantified experimentally
-4. **Scope clarity**: Explicit boundaries on claims and applicability
-
-The method provides a foundation for further investigation into resonance-based factorization, with clear pathways for validation, scaling studies, and theoretical analysis.
+This whitepaper documents a reproducible, deterministic factorization of the project's official 127-bit challenge semiprime using geometric resonance methods. The approach demonstrates verifiable results, theoretical grounding, and methodological rigor, providing a foundation for further investigation.
 
 ## References
 
@@ -474,61 +406,17 @@ logging:
 
 ### Appendix B: Factor Verification
 
-Mathematical verification for the 127-bit test case:
-
-```
-N = 137524771864208156028430259349934309717
-p = 10508623501177419659
-q = 13086849276577416863
-
-Verification steps:
-1. p × q = 10508623501177419659 × 13086849276577416863
-         = 137524771864208156028430259349934309717 ✓
-
-2. gcd(p, q) = 1 ✓
-
-3. Primality (Miller-Rabin with k=20):
-   - p is prime ✓
-   - q is prime ✓
-
-4. Bit lengths:
-   - N: 127 bits
-   - p: 64 bits
-   - q: 64 bits
-   - Balance ratio: q/p ≈ 1.245 (near-balanced)
-```
+Mathematical verification for the Gate 1 challenge number is detailed in `docs/VALIDATION_GATES.md`. The process involves confirming that `p * q = N` and that `p` and `q` are prime.
 
 ### Appendix C: Sobol Sequence Implementation Notes
 
-The geometric resonance method uses Sobol sequences through the following approach:
+The geometric resonance method uses a low-discrepancy sequence for sampling. The current implementation uses a golden ratio generator as a simple 1D sequence.
 
-**Golden Ratio Generator** (proxy for Sobol in current implementation):
-```java
-private BigDecimal computePhiInv(MathContext mc) {
-    BigDecimal sqrt5 = BigDecimalMath.sqrt(BigDecimal.valueOf(5), mc);
-    return sqrt5.subtract(BigDecimal.ONE, mc).divide(BigDecimal.valueOf(2), mc);
-}
-
-// In search loop:
-u = u.add(phiInv, mc);
-if (u.compareTo(BigDecimal.ONE) >= 0) {
-    u = u.subtract(BigDecimal.ONE, mc);
-}
-BigDecimal k = BigDecimal.valueOf(kLo).add(kWidth.multiply(u, mc), mc);
-```
-
-**Future Enhancement**: Replace golden ratio with true Sobol sequence library for multi-dimensional sampling:
-```java
-import org.apache.commons.math3.random.SobolSequenceGenerator;
-SobolSequenceGenerator sobol = new SobolSequenceGenerator(1); // 1D for k
-double k = kLo + kWidth * sobol.nextVector()[0];
-```
-
-This would provide formal QMC guarantees for higher-dimensional parameter spaces (e.g., joint k, J, threshold optimization).
+**Future Enhancement**: Replace the golden ratio generator with a true Sobol sequence library for multi-dimensional sampling, which would provide formal QMC guarantees for higher-dimensional parameter spaces.
 
 ---
 
-**Document version**: 1.0  
-**Last updated**: 2025-11-11  
+**Document version**: 1.1
+**Last updated**: 2025-11-13
 **Repository**: https://github.com/zfifteen/geofac  
 **Contact**: Issues at https://github.com/zfifteen/geofac/issues

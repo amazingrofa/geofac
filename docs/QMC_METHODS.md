@@ -224,7 +224,7 @@ Error ≤ V(A) · D*_N = V(A) · O(log N / N)
 From experimental comparison (documented in WHITEPAPER.md, Section 5):
 
 **Setup:**
-- N = 137524771864208156028430259349934309717
+- N: The Gate 1 challenge number, as defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 - 10 independent runs per method
 - Fixed seed for PRN; deterministic for QMC
 

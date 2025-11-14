@@ -13,7 +13,10 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-
+import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
@@ -58,33 +61,48 @@ public class FactorizerService {
     @Value("${geofac.enable-fast-path:false}")
     private boolean enableFastPath;
 
-    // Research gate constants [1e14, 1e18]
-    private static final BigInteger GATE_MIN = new BigInteger("100000000000000");       // 1e14
-    private static final BigInteger GATE_MAX = new BigInteger("1000000000000000000");   // 1e18
+    @Value("${geofac.enable-diagnostics:false}")
+    private boolean enableDiagnostics;
 
-    // One-off benchmark target (127-bit) for whitelist
-    private static final BigInteger CHALLENGE_127 =
+    // Validation gate constants. See docs/VALIDATION_GATES.md for policy.
+    private static final BigInteger GATE_2_MIN = new BigInteger("100000000000000");       // 1e14
+    private static final BigInteger GATE_2_MAX = new BigInteger("1000000000000000000");   // 1e18
+    private static final BigInteger GATE_1_CHALLENGE =
         new BigInteger("137524771864208156028430259349934309717");
 
-    // Known factors for the challenge (fast-path targets)
+    // Known factors for the Gate 1 challenge (used for fast-path short-circuit).
     private static final BigInteger CHALLENGE_P = new BigInteger("10508623501177419659");
     private static final BigInteger CHALLENGE_Q = new BigInteger("13086849276577416863");
 
-    // OFF by default; only enabled in the dedicated test via TestPropertySource
-    @Value("${geofac.allow-127bit-benchmark:false}")
-    private boolean allow127bitBenchmark;
+    // Toggled by tests to allow Gate 1 challenge to bypass Gate 2 range check.
+    @Value("${geofac.allow-gate1-benchmark:false}")
+    private boolean allowGate1Benchmark;
 
     /**
-     * Factor a semiprime N into p × q
+     * Factor a semiprime N into p × q.
      *
-     * @param N The number to factor
-     * @return Array [p, q] if successful, null if not found
-     * @throws IllegalArgumentException if N is invalid
+     * @param N The number to factor. Must conform to project validation gates.
+     * @return A FactorizationResult containing the factors if successful.
+     * @throws IllegalArgumentException if N does not meet validation gate criteria.
      */
     public FactorizationResult factor(BigInteger N) {
+        // Initialize diagnostic queues as method-local variables
+        Queue<BigDecimal> amplitudeDistribution = null;
+        Queue<String> candidateLogs = null;
+        if (enableDiagnostics) {
+            amplitudeDistribution = new ConcurrentLinkedQueue<>();
+            candidateLogs = new ConcurrentLinkedQueue<>();
+        }
+        if (N.compareTo(BigInteger.TEN) < 0) {
+            throw new IllegalArgumentException("N must be at least 10.");
+        }
+
+        // Adaptive precision based on bit length (repository rule)
+        int adaptivePrecision = Math.max(precision, N.bitLength() * 4 + 200);
+
         // Create config snapshot for reproducibility
         FactorizerConfig config = new FactorizerConfig(
-                Math.max(precision, N.bitLength() * 2 + 100),
+                adaptivePrecision, // Use adaptivePrecision here
                 samples,
                 mSpan,
                 J,
@@ -93,28 +111,20 @@ public class FactorizerService {
                 kHi,
                 searchTimeoutMs
         );
-        // Validation
-        if (N == null) {
-            throw new IllegalArgumentException("N cannot be null");
-        }
-        if (N.signum() <= 0) {
-            throw new IllegalArgumentException("N must be positive");
-        }
-        if (N.compareTo(BigInteger.TEN) < 0) {
-            throw new IllegalArgumentException("N must be at least 10");
+
+        // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
+        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
+        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+
+        if (!isInGate2Range && !(allowGate1Benchmark && isGate1Challenge)) {
+            throw new IllegalArgumentException(
+                "Input N does not conform to project validation gates. See docs/VALIDATION_GATES.md for policy."
+            );
         }
 
-        // Research gate: only operate on N in [1e14, 1e18],
-        // unless the one-off 127-bit challenge is explicitly allowed.
-        boolean outOfGate = (N.compareTo(GATE_MIN) < 0 || N.compareTo(GATE_MAX) > 0);
-        boolean isChallenge = N.equals(CHALLENGE_127);
-        if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
-            throw new IllegalArgumentException("N must be in [1e14, 1e18]");
-        }
-
-        // Fast-path short-circuit for the canonical 127-bit benchmark when explicitly enabled.
-        if (enableFastPath && isChallenge) {
-            log.info("Fast-path enabled and matched for 127-bit challenge; returning known factors.");
+        // Fast-path short-circuit for the Gate 1 benchmark when explicitly enabled.
+        if (enableFastPath && isGate1Challenge) {
+            log.info("Fast-path enabled for Gate 1 challenge; returning known factors.");
             long duration = 0L;
             return new FactorizationResult(N, CHALLENGE_P, CHALLENGE_Q, true, duration, config, null);
         }
@@ -122,9 +132,7 @@ public class FactorizerService {
         log.info("=== Geometric Resonance Factorization ===");
         log.info("N = {} ({} bits)", N, N.bitLength());
 
-        // Adaptive precision based on bit length (repository rule)
-        int adaptivePrecision = Math.max(precision, N.bitLength() * 4 + 200);
-        MathContext mc = PrecisionUtil.mathContextFor(N, precision);
+        MathContext mc = PrecisionUtil.mathContextFor(N, adaptivePrecision); // Use adaptivePrecision here
 
         log.info("Precision: {} decimal digits", adaptivePrecision);
         log.info("Configuration: samples={}, m-span={}, J={}, threshold={}",
@@ -143,7 +151,7 @@ public class FactorizerService {
 
         long startTime = System.currentTimeMillis();
         log.info("Starting search...");
-        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config);
+        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config, amplitudeDistribution, candidateLogs);
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("Search completed in {}.{} seconds", duration / 1000, duration % 1000);
@@ -152,7 +160,7 @@ public class FactorizerService {
             long totalDuration = System.currentTimeMillis() - startTime;
             String failureMessage = "NO_FACTOR_FOUND: resonance search failed within the configured timeout.";
             log.error(failureMessage);
-            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
+            if (enableDiagnostics) logDiagnostics(amplitudeDistribution, candidateLogs);            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -167,9 +175,11 @@ public class FactorizerService {
             return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
         }
     }
+
     private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
-                                BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
-        BigDecimal u = BigDecimal.ZERO;
+                                BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config,
+                                Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {
+        BigDecimal u = BigDecimal.ZERO; // Initialize u
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
         int progressInterval = (int) Math.max(1, config.samples() / 10); // Log every 10%
@@ -205,13 +215,28 @@ public class FactorizerService {
 
                 // Dirichlet kernel filtering
                 BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+                if (enableDiagnostics && amplitudeDistribution != null) {
+                    amplitudeDistribution.add(amplitude);
+                }
+                
                 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
+                    if (enableDiagnostics && candidateLogs != null) {
+                        candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));
+                    }
+                    
                     // Test candidate and neighbors
                     BigInteger[] hit = testNeighbors(N, p0);
                     if (hit != null) {
                         result.compareAndSet(null, hit);
+                        if (enableDiagnostics && candidateLogs != null) {
+                            candidateLogs.add(String.format("Accepted: factors %s * %s", hit[0], hit[1]));
+                        }
+                    } else {
+                        if (enableDiagnostics && candidateLogs != null) {
+                            candidateLogs.add("Rejected: no neighbor divides N");
+                        }
                     }
                 }
             });
@@ -259,4 +284,33 @@ public class FactorizerService {
     int getMSpan() {
         return mSpan;
     }
+    
+    private void logDiagnostics(Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {
+        if (amplitudeDistribution == null || amplitudeDistribution.isEmpty()) {
+            log.info("Diagnostics: No amplitudes collected.");
+            return;
+        }
+        // Compute stats on amplitudes (convert to double for simplicity)
+        List<Double> amps = amplitudeDistribution.stream().map(BigDecimal::doubleValue).sorted().collect(Collectors.toList());
+        double minAmp = amps.get(0);
+        double maxAmp = amps.get(amps.size() - 1);
+        double meanAmp = amps.stream().mapToDouble(d -> d).average().orElse(0.0);
+        long count = amps.size();
+        log.info("Diagnostics - Amplitude Distribution: count={}, min={}, max={}, mean={}", count, String.format("%.6f", minAmp), String.format("%.6f", maxAmp), String.format("%.6f", meanAmp));
+        
+        // Log candidate evaluations (limit to first 50 for brevity)
+        if (candidateLogs != null && !candidateLogs.isEmpty()) {
+            int logLimit = 50;
+            int logged = 0;
+            for (String logEntry : candidateLogs) {
+                if (logged >= logLimit) {
+                    log.info("Diagnostics: ... (truncated, {} more candidate logs)", candidateLogs.size() - logged);
+                    break;
+                }
+                log.info("Diagnostics - {}", logEntry);
+                logged++;
+            }
+        }
+    }
 }
+

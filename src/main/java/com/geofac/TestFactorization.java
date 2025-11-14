@@ -11,8 +11,10 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 public class TestFactorization {
 
     public static void main(String[] args) {
-        // Test parameters from the failing test
+        // The official Gate 1 challenge number. See docs/VALIDATION_GATES.md for details.
         BigInteger N = new BigInteger("137524771864208156028430259349934309717");
+        
+        // Test parameters
         int precision = 240;
         long samples = 3000;
         int mSpan = 180;

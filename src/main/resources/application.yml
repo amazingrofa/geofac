@@ -5,6 +5,7 @@ spring:
     banner-mode: off
 
 geofac:
+  enable-diagnostics: false
   precision: 240
   samples: 3000
   m-span: 180

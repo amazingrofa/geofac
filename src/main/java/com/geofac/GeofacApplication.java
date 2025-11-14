@@ -7,11 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Geofac - Geometric Factorization Tool
  *
  * A modern Spring Boot terminal application for integer factorization
- * using geometric resonance methods.
+ * using geometric resonance methods. See docs/VALIDATION_GATES.md for the
+ * project's validation policy.
  *
  * Usage:
  *   ./gradlew bootRun
- *   shell> factor 137524771864208156028430259349934309717
+ *   shell> help
+ *   shell> example
  */
 @SpringBootApplication
 public class GeofacApplication {
