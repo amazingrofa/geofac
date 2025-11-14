@@ -13,7 +13,8 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-import java.util.stream.Collectors;import java.util.List;
+import java.util.stream.Collectors;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import ch.obermuhlner.math.big.BigDecimalMath;
@@ -63,9 +64,6 @@ public class FactorizerService {
     @Value("${geofac.enable-diagnostics:false}")
     private boolean enableDiagnostics;
 
-    private Queue<BigDecimal> amplitudeDistribution;
-    private Queue<String> candidateLogs;
-
     // Validation gate constants. See docs/VALIDATION_GATES.md for policy.
     private static final BigInteger GATE_2_MIN = new BigInteger("100000000000000");       // 1e14
     private static final BigInteger GATE_2_MAX = new BigInteger("1000000000000000000");   // 1e18
@@ -88,6 +86,9 @@ public class FactorizerService {
      * @throws IllegalArgumentException if N does not meet validation gate criteria.
      */
     public FactorizationResult factor(BigInteger N) {
+        // Initialize diagnostic queues as method-local variables
+        Queue<BigDecimal> amplitudeDistribution = null;
+        Queue<String> candidateLogs = null;
         if (enableDiagnostics) {
             amplitudeDistribution = new ConcurrentLinkedQueue<>();
             candidateLogs = new ConcurrentLinkedQueue<>();
@@ -150,7 +151,7 @@ public class FactorizerService {
 
         long startTime = System.currentTimeMillis();
         log.info("Starting search...");
-        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config);
+        BigInteger[] factors = search(N, mc, lnN, twoPi, phiInv, startTime, config, amplitudeDistribution, candidateLogs);
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("Search completed in {}.{} seconds", duration / 1000, duration % 1000);
@@ -159,7 +160,7 @@ public class FactorizerService {
             long totalDuration = System.currentTimeMillis() - startTime;
             String failureMessage = "NO_FACTOR_FOUND: resonance search failed within the configured timeout.";
             log.error(failureMessage);
-            if (enableDiagnostics) logDiagnostics();            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
+            if (enableDiagnostics) logDiagnostics(amplitudeDistribution, candidateLogs);            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -176,7 +177,8 @@ public class FactorizerService {
     }
 
     private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
-                                BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
+                                BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config,
+                                Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {
         BigDecimal u = BigDecimal.ZERO; // Initialize u
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
@@ -213,20 +215,29 @@ public class FactorizerService {
 
                 // Dirichlet kernel filtering
                 BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
-                if (enableDiagnostics) amplitudeDistribution.add(amplitude);                if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
+                if (enableDiagnostics && amplitudeDistribution != null) {
+                    amplitudeDistribution.add(amplitude);
+                }
+                
+                if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
-                    if (enableDiagnostics) candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));                    // Test candidate and neighbors
+                    if (enableDiagnostics && candidateLogs != null) {
+                        candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));
+                    }
+                    
+                    // Test candidate and neighbors
                     BigInteger[] hit = testNeighbors(N, p0);
                     if (hit != null) {
                         result.compareAndSet(null, hit);
-                    if (enableDiagnostics) {
-                        if (hit != null) {
+                        if (enableDiagnostics && candidateLogs != null) {
                             candidateLogs.add(String.format("Accepted: factors %s * %s", hit[0], hit[1]));
-                        } else {
+                        }
+                    } else {
+                        if (enableDiagnostics && candidateLogs != null) {
                             candidateLogs.add("Rejected: no neighbor divides N");
                         }
-                    }                    }
+                    }
                 }
             });
 
@@ -272,7 +283,9 @@ public class FactorizerService {
 
     int getMSpan() {
         return mSpan;
-    }    private void logDiagnostics() {
+    }
+    
+    private void logDiagnostics(Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {
         if (amplitudeDistribution == null || amplitudeDistribution.isEmpty()) {
             log.info("Diagnostics: No amplitudes collected.");
             return;
@@ -286,15 +299,18 @@ public class FactorizerService {
         log.info("Diagnostics - Amplitude Distribution: count={}, min={}, max={}, mean={}", count, String.format("%.6f", minAmp), String.format("%.6f", maxAmp), String.format("%.6f", meanAmp));
         
         // Log candidate evaluations (limit to first 50 for brevity)
-        int logLimit = 50;
-        int logged = 0;
-        for (String logEntry : candidateLogs) {
-            if (logged >= logLimit) {
-                log.info("Diagnostics: ... (truncated, {} more candidate logs)", candidateLogs.size() - logged);
-                break;
+        if (candidateLogs != null && !candidateLogs.isEmpty()) {
+            int logLimit = 50;
+            int logged = 0;
+            for (String logEntry : candidateLogs) {
+                if (logged >= logLimit) {
+                    log.info("Diagnostics: ... (truncated, {} more candidate logs)", candidateLogs.size() - logged);
+                    break;
+                }
+                log.info("Diagnostics - {}", logEntry);
+                logged++;
             }
-            log.info("Diagnostics - {}", logEntry);
-            logged++;
         }
     }
 }
+
