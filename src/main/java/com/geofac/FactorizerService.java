@@ -220,7 +220,7 @@ public class FactorizerService {
                 }
                 
                 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
-                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
+                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, k, mc);
 
                     // Guard: reject invalid p0 (must be in valid range (1, N))
                     if (p0.compareTo(BigInteger.ONE) <= 0 || p0.compareTo(N) >= 0) {

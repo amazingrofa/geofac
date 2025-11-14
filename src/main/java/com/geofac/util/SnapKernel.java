@@ -15,23 +15,26 @@ public final class SnapKernel {
     private SnapKernel() {} // Utility class
 
     /**
-     * Compute candidate factor using phase-corrected nearest-integer snap.
+     * Compute candidate factor using geometric snap.
+     *
+     * In geometric factorization, k represents the logarithmic ratio: p ≈ N^k
+     * For a balanced semiprime where p ≈ q ≈ √N, k ≈ 0.5
      *
      * @param lnN ln(N) at given precision
-     * @param theta Angular parameter θ (already 2π-scaled from caller)
+     * @param theta Angular parameter θ (used for Dirichlet filtering, not directly in snap)
+     * @param k Fractional exponent parameter
      * @param mc MathContext for precision
      * @return Candidate factor p
      */
-    public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, MathContext mc) {
-        // theta is already 2π*m/k from FactorizerService, so use it directly
-        // to avoid double-2π bug. Formula: p̂ = exp((ln(N) - theta)/2)
-        BigDecimal expo = lnN.subtract(theta, mc).divide(BigDecimal.valueOf(2), mc);
-        BigDecimal pHat = BigDecimalMath.exp(expo, mc);
+    public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, BigDecimal k, MathContext mc) {
+        // Core formula: p = N^k, which means ln(p) = k * ln(N)
+        BigDecimal lnP = k.multiply(lnN, mc);
+        BigDecimal pHat = BigDecimalMath.exp(lnP, mc);
 
         // Phase correction: adjust based on residual
         BigDecimal correctedPHat = applyPhaseCorrection(pHat, mc);
 
-        // Nearest integer with tolerance: avoid toBigIntegerExact which may throw
+        // Nearest integer with tolerance
         return roundToBigInteger(correctedPHat, mc.getRoundingMode(), mc);
     }
 

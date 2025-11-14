@@ -83,7 +83,7 @@ public class TestFactorization {
                 // Dirichlet kernel filtering
                 BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, 6, mc);
                 if (amplitude.compareTo(thresholdBd) > 0) {
-                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
+                    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, k, mc);
 
                     // Test candidate and neighbors
                     BigInteger[] hit = testNeighbors(N, p0);

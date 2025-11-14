@@ -32,20 +32,20 @@ echo "Output directory = $OUT_DIR"
 echo ""
 
 # Run the factorization with diagnostics enabled
-# Parameters: Plan 1 (specificity) from issue description
+# Parameters: Extended k-range based on mathematical analysis
 # Adaptive precision = max(configured, N.bitLength()*4 + 200) = max(640, 127*4+200) = 708
 java \
   -Dgeofac.allow-gate1-benchmark=true \
   -Dgeofac.enable-fast-path=false \
   -Dgeofac.enable-diagnostics=true \
   -Dgeofac.precision=640 \
-  -Dgeofac.samples=2000 \
+  -Dgeofac.samples=5000 \
   -Dgeofac.m-span=128 \
   -Dgeofac.j=6 \
-  -Dgeofac.threshold=0.92 \
-  -Dgeofac.k-lo=0.28 \
-  -Dgeofac.k-hi=0.42 \
-  -Dgeofac.search-timeout-ms=30000 \
+  -Dgeofac.threshold=0.90 \
+  -Dgeofac.k-lo=0.15 \
+  -Dgeofac.k-hi=0.55 \
+  -Dgeofac.search-timeout-ms=60000 \
   -jar build/libs/geofac-0.1.0-SNAPSHOT.jar factor "$TARGET_N" 2>&1 | tee "$OUT_DIR/run.log"
 
 # Check for success in the log
