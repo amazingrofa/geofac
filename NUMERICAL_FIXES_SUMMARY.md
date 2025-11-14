@@ -3,7 +3,7 @@
 ## Date: 2025-11-13
 
 ## Problem Statement
-The 127-bit RSA challenge number (137524771864208156028430259349934309717) failed to factor using the geometric resonance algorithm within reasonable timeouts, timing out after processing only a small fraction of the planned k-space samples.
+The official Gate 1 challenge number (see `docs/VALIDATION_GATES.md`) failed to factor using the geometric resonance algorithm within reasonable timeouts, timing out after processing only a small fraction of the planned k-space samples.
 
 ## Root Causes Identified
 

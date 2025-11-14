@@ -1,7 +1,7 @@
 # Instructions for Testing and Tweaking Geometric Resonance Factorization
 
 ## Objective
-Successfully factorize the 127-bit semiprime N = 137524771864208156028430259349934309717 into its exact factors p = 10508623501177419659 and q = 13086849276577416863 using the geometric resonance algorithm. The test must pass within the 10-minute timeout without failing or timing out.
+Successfully factorize the official Gate 1 challenge number using the geometric resonance algorithm. The exact number (N) and its factors (p, q) are defined in **[docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md)**. The test must pass within the configured timeout without failing.
 
 ## Current Status
 The test `com.geofac.FactorizerServiceTest.testFactor127BitSemiprime` is configured with parameters tuned for success:

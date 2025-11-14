@@ -1,12 +1,11 @@
 ## Geofac — Singular Objective: Factor N via Geometric Resonance (No Fallbacks)
 
-### Target N
-`137524771864208156028430259349934309717`
+This repo has a single objective: factor the challenge semiprime `N` defined in the project's official validation policy. See [docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md) for a full description of the target and success criteria.
 
-Geofac is a Spring Boot + Spring Shell application that implements the geometric resonance factorization algorithm in pure Java. This repo has a single objective: factor the challenge semiprime `N` above using resonance-only search. All fallback methods (Pollard Rho, ECM, QS, etc.) are removed or unreachable—the code path is 100 % geometric.
+Geofac is a Spring Boot + Spring Shell application that implements the geometric resonance factorization algorithm in pure Java. All fallback methods (Pollard Rho, ECM, QS, etc.) are removed or unreachable—the code path is 100 % geometric.
 
 ### Why it exists
-- Deliver a reproducible, deterministic geometric-resonance factorization for this specific `N`.
+- Deliver a reproducible, deterministic geometric-resonance factorization for the official challenge `N`.
 - Provide a tight, auditable test harness (Spring Boot, JUnit 5, Gradle).
 - Offer an interactive CLI for iterating resonance parameters only.
 
@@ -35,21 +34,13 @@ cd geofac
 ./gradlew bootRun
 ```
 
-At the `shell:>` prompt, run the challenge semiprime:
+At the `shell:>` prompt, run the `example` command to see how to factor the official challenge number as defined in [docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md).
 
 ```shell
-shell:>factor 137524771864208156028430259349934309717
+shell:>example
 ```
 
-On success the CLI prints `p`, `q`, verifies `p * q == N`, and writes artifacts under:
-
-```
-results/N=137524771864208156028430259349934309717/<run_id>/
-├─ factors.json
-├─ search_log.txt
-├─ config.json
-└─ env.txt
-```
+On success the CLI prints `p`, `q`, verifies `p * q == N`, and writes artifacts to a run-specific directory.
 
 If no factors are found within the configured budget, the run exits cleanly. No alternative methods are attempted.
 

@@ -65,33 +65,43 @@ public class FactorizerService {
 
     private Queue<BigDecimal> amplitudeDistribution;
     private Queue<String> candidateLogs;
-    // Research gate constants [1e14, 1e18]
-    private static final BigInteger GATE_MIN = new BigInteger("100000000000000");       // 1e14
-    private static final BigInteger GATE_MAX = new BigInteger("1000000000000000000");   // 1e18
 
-    // One-off benchmark target (127-bit) for whitelist
-    private static final BigInteger CHALLENGE_127 =
+    // Validation gate constants. See docs/VALIDATION_GATES.md for policy.
+    private static final BigInteger GATE_2_MIN = new BigInteger("100000000000000");       // 1e14
+    private static final BigInteger GATE_2_MAX = new BigInteger("1000000000000000000");   // 1e18
+    private static final BigInteger GATE_1_CHALLENGE =
         new BigInteger("137524771864208156028430259349934309717");
 
-    // Known factors for the challenge (fast-path targets)
+    // Known factors for the Gate 1 challenge (used for fast-path short-circuit).
     private static final BigInteger CHALLENGE_P = new BigInteger("10508623501177419659");
     private static final BigInteger CHALLENGE_Q = new BigInteger("13086849276577416863");
 
-    // OFF by default; only enabled in the dedicated test via TestPropertySource
-    @Value("${geofac.allow-127bit-benchmark:false}")
-    private boolean allow127bitBenchmark;
+    // Toggled by tests to allow Gate 1 challenge to bypass Gate 2 range check.
+    @Value("${geofac.allow-gate1-benchmark:false}")
+    private boolean allowGate1Benchmark;
 
     /**
-     * Factor a semiprime N into p × q
+     * Factor a semiprime N into p × q.
      *
-     * @param N The number to factor
-     * @return Array [p, q] if successful, null if not found
-     * @throws IllegalArgumentException if N is invalid
+     * @param N The number to factor. Must conform to project validation gates.
+     * @return A FactorizationResult containing the factors if successful.
+     * @throws IllegalArgumentException if N does not meet validation gate criteria.
      */
     public FactorizationResult factor(BigInteger N) {
+        if (enableDiagnostics) {
+            amplitudeDistribution = new ConcurrentLinkedQueue<>();
+            candidateLogs = new ConcurrentLinkedQueue<>();
+        }
+        if (N.compareTo(BigInteger.TEN) < 0) {
+            throw new IllegalArgumentException("N must be at least 10.");
+        }
+
+        // Adaptive precision based on bit length (repository rule)
+        int adaptivePrecision = Math.max(precision, N.bitLength() * 4 + 200);
+
         // Create config snapshot for reproducibility
         FactorizerConfig config = new FactorizerConfig(
-                Math.max(precision, N.bitLength() * 2 + 100),
+                adaptivePrecision, // Use adaptivePrecision here
                 samples,
                 mSpan,
                 J,
@@ -100,24 +110,20 @@ public class FactorizerService {
                 kHi,
                 searchTimeoutMs
         );
-        if (enableDiagnostics) {
-            amplitudeDistribution = new ConcurrentLinkedQueue<>();
-            candidateLogs = new ConcurrentLinkedQueue<>();
-        if (N.compareTo(BigInteger.TEN) < 0) {
-            throw new IllegalArgumentException("N must be at least 10");
+
+        // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
+        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
+        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+
+        if (!isInGate2Range && !(allowGate1Benchmark && isGate1Challenge)) {
+            throw new IllegalArgumentException(
+                "Input N does not conform to project validation gates. See docs/VALIDATION_GATES.md for policy."
+            );
         }
 
-        // Research gate: only operate on N in [1e14, 1e18],
-        // unless the one-off 127-bit challenge is explicitly allowed.
-        boolean outOfGate = (N.compareTo(GATE_MIN) < 0 || N.compareTo(GATE_MAX) > 0);
-        boolean isChallenge = N.equals(CHALLENGE_127);
-        if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
-            throw new IllegalArgumentException("N must be in [1e14, 1e18]");
-        }
-
-        // Fast-path short-circuit for the canonical 127-bit benchmark when explicitly enabled.
-        if (enableFastPath && isChallenge) {
-            log.info("Fast-path enabled and matched for 127-bit challenge; returning known factors.");
+        // Fast-path short-circuit for the Gate 1 benchmark when explicitly enabled.
+        if (enableFastPath && isGate1Challenge) {
+            log.info("Fast-path enabled for Gate 1 challenge; returning known factors.");
             long duration = 0L;
             return new FactorizationResult(N, CHALLENGE_P, CHALLENGE_Q, true, duration, config, null);
         }
@@ -125,9 +131,7 @@ public class FactorizerService {
         log.info("=== Geometric Resonance Factorization ===");
         log.info("N = {} ({} bits)", N, N.bitLength());
 
-        // Adaptive precision based on bit length (repository rule)
-        int adaptivePrecision = Math.max(precision, N.bitLength() * 4 + 200);
-        MathContext mc = PrecisionUtil.mathContextFor(N, precision);
+        MathContext mc = PrecisionUtil.mathContextFor(N, adaptivePrecision); // Use adaptivePrecision here
 
         log.info("Precision: {} decimal digits", adaptivePrecision);
         log.info("Configuration: samples={}, m-span={}, J={}, threshold={}",
@@ -170,8 +174,10 @@ public class FactorizerService {
             return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
         }
     }
-    }    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
+
+    private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config) {
+        BigDecimal u = BigDecimal.ZERO; // Initialize u
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
 
         int progressInterval = (int) Math.max(1, config.samples() / 10); // Log every 10%
@@ -291,5 +297,4 @@ public class FactorizerService {
             logged++;
         }
     }
-}
 }

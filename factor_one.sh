@@ -3,6 +3,7 @@
 # One-shot factorization of the target N using geometric resonance
 # Produces results/single_N_run.json and plaintext factors if successful
 
+# The official Gate 1 challenge number. See docs/VALIDATION_GATES.md for details.
 TARGET_N="137524771864208156028430259349934309717"
 
 echo "Starting one-shot factorization of N = $TARGET_N"

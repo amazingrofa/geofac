@@ -33,10 +33,9 @@ Treat cyclomatic complexity like gravity—escape it.
 Work from first principles. Guard them in code.
 
 ### Validation Gate (Non-Negotiable)
-- **Semiprime scale:** 10¹⁴ to 10¹⁸ (14-18 decimal digits)
-- **Out-of-gate:** Only via explicit whitelist (e.g., `CHALLENGE_127` for benchmarks)
-- **Small-prime "wins" are noise.** They don't generalize. They don't count.
-- **RSA challenge numbers only.** Never synthetic look-alikes.
+- The project follows a strict, two-gate validation policy. All code and analysis must adhere to the rules defined in **[docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md)**.
+- Small-prime "wins" are noise. They don't generalize. They don't count.
+- Only official challenge numbers are to be used for semiprimes.
 
 ### Geometric Purity
 - **No classical fallbacks:** No Pollard's Rho, trial division, ECM, or sieve methods
@@ -102,7 +101,7 @@ Example for 127-bit factorization failure:
 ## Testing Discipline
 
 "Works" means:
-- **Worked at declared scale** (e.g., 127-bit, 10³⁸ magnitude)
+- **Worked at declared scale** (e.g., the Gate 1 challenge number)
 - **Under declared constraints** (gate range, precision, timeout)
 - **With declared parameters** (samples, m-span, threshold)
 - **Artifact exists to prove it** (test output, logs, timing)
@@ -123,7 +122,7 @@ Label precisely:
 
 Example:
 ```java
-// OUT-OF-GATE BENCHMARK: 127-bit semiprime (10^38), whitelist-approved
+// BENCHMARK: Gate 1 Challenge Number (see docs/VALIDATION_GATES.md)
 // Success: factors found within 600s timeout at 708-digit precision
 // Parameters: samples=10000, m-span=1000, threshold=0.80
 ```
@@ -191,13 +190,13 @@ refine(p, ln, d, mc, i)
 - **"Just in case" validation that never fires**
 - **Comments explaining bad names** (rename instead)
 - **Scaffolding after the feature is done**
-- **Synthetic test data** (use canonical RSA challenge numbers)
+- **Synthetic test data** (use official challenge numbers)
 - **Branches that can be collapsed**
 
 ## What to Keep
 
-- **Explicit validation gates** (10¹⁴-10¹⁸ range checks)
-- **Precision declarations** (708 digits for 127-bit)
+- **Explicit validation gates** (as defined in `docs/VALIDATION_GATES.md`)
+- **Precision declarations**
 - **Reproducibility metadata** (seeds, timestamps, parameters)
 - **Guard clauses that enforce invariants**
 - **Names that explain themselves**
@@ -242,14 +241,14 @@ Artifact: <where proof lives>
 
 Example:
 ```
-fix: Adaptive precision scaling for 127-bit semiprime factorization
+fix: Adaptive precision scaling for Gate 1 challenge factorization
 
-Root cause: Exponential error propagation in exp((ln(N) + Δφ)/2) exceeded ±1 neighbor window at 260 digits
+Root cause: Exponential error propagation in exp((ln(N) + Δφ)/2) exceeded ±1 neighbor window at 260 digits.
 Fix: precision = N.bitLength() × 4 + 200 (708 digits for 127-bit)
 Impact: Post-exponential error reduced from 10^-222 to 10^-670
 
-Tested: N=137524771864208156028430259349934309717, factors found in 4.2 minutes
-Artifact: test/FactorizerServiceTest.java:108 assertion passes
+Tested: Gate 1 challenge number, factors found in 4.2 minutes.
+Artifact: test/FactorizerServiceTest.java assertion passes.
 ```
 
 ## PR Requirements
@@ -293,7 +292,7 @@ Do NOT defend complexity. If it's not minimal, it's wrong.
 
 ### Geofac: Geometric Factorization Service
 - **Algorithm:** Resonance-guided factorization via Gaussian kernel + phase-corrected logarithmic snap
-- **Gate:** 10¹⁴ to 10¹⁸ (strict), with whitelist for 127-bit challenge (10³⁸)
+- **Validation Policy:** See `docs/VALIDATION_GATES.md` for the official project gates.
 - **Precision:** Adaptive formula `4 × bitLength + 200` for phase correction stability
 - **Purity:** No classical fallbacks, ever
 - **Target:** Balanced semiprimes (|p - q| small, narrow resonance peaks)
@@ -303,16 +302,15 @@ Do NOT defend complexity. If it's not minimal, it's wrong.
 - `GaussianKernel.java` - A(θ) = exp(-θ²/(2σ²)), no singularities
 - `DirichletKernel.java` - Legacy, kept for comparison, has singularity guards
 - `SnapKernel.java` - Phase-corrected factor snap with Newton refinement
-- `FactorizerServiceTest.java` - Validates 127-bit challenge (OUT-OF-GATE)
+- `FactorizerServiceTest.java` - Validates the Gate 1 challenge number.
 
 ### Critical Invariants
+The project's validation gates are defined in `docs/VALIDATION_GATES.md`. The constants in `FactorizerService.java` reflect this policy.
 ```java
-// Validation gate
-private static final BigInteger GATE_MIN = new BigInteger("100000000000000");       // 1e14
-private static final BigInteger GATE_MAX = new BigInteger("1000000000000000000");   // 1e18
-
-// Whitelist for 127-bit benchmark
-private static final BigInteger CHALLENGE_127 = new BigInteger("137524771864208156028430259349934309717");
+// See docs/VALIDATION_GATES.md for the policy behind these constants.
+private static final BigInteger GATE_2_MIN = ...;
+private static final BigInteger GATE_2_MAX = ...;
+private static final BigInteger GATE_1_CHALLENGE = ...;
 
 // Adaptive precision formula
 int adaptivePrecision = Math.max(configuredPrecision, N.bitLength() * 4 + 200);

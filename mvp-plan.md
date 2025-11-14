@@ -1,14 +1,12 @@
-# MVP Plan: Geometric Resonance Factorizer - Spring Boot Shell
-
 ## Goal
-Get a working Spring Boot terminal application that can factor the 127-bit test case using Spring Shell - **minimal complexity, maximum speed**.
+Get a working Spring Boot terminal application that can factor the official 127-bit test case (see `docs/VALIDATION_GATES.md`) using Spring Shell - **minimal complexity, maximum speed**.
 
 ## Functional Requirements (MVP Scope)
-✅ Factor 127-bit semiprime: N = 137524771864208156028430259349934309717
-✅ Produce identical results to z-sandbox Java implementation
-✅ Interactive shell with `factor` command
-✅ Basic configuration via YAML
-✅ Structured logging (no System.out)
+✅ Factor the official 127-bit semiprime challenge number.
+✅ Produce identical results to z-sandbox Java implementation.
+✅ Interactive shell with `factor` command.
+✅ Basic configuration via YAML.
+✅ Structured logging (no System.out).
 
 ## Out of Scope (Future Enhancements)
 - ❌ Complex domain models
@@ -360,17 +358,13 @@ cd /Users/velocityworks/IdeaProjects/geofac
 ```
 
 **6.3 Test in Shell**
+Get the official challenge number from `docs/VALIDATION_GATES.md`.
 ```
-shell> factor 137524771864208156028430259349934309717
+shell> factor <the-challenge-number>
 ```
 
 **Expected Output:**
-```
-✓ SUCCESS
-p = 10508623501177419659
-q = 13086849276577416863
-Time: ~180 seconds
-```
+A success message with the correct factors `p` and `q`.
 
 ---
 
@@ -392,8 +386,8 @@ Time: ~180 seconds
 - [ ] Application starts without errors
 - [ ] Shell prompt appears: `shell>`
 - [ ] `help` command shows available commands
-- [ ] `factor 137524771864208156028430259349934309717` succeeds
-- [ ] Results match z-sandbox: p=10508623501177419659, q=13086849276577416863
+- [ ] `factor <the-challenge-number>` succeeds
+- [ ] Results match the factors defined in `docs/VALIDATION_GATES.md`
 - [ ] Logs show INFO level messages (no System.out)
 
 ---

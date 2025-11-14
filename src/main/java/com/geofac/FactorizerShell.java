@@ -28,12 +28,6 @@ public class FactorizerShell {
             // Parse input
             BigInteger N = parseBigInteger(n);
 
-            // Enforce strict target policy
-            if (Policy.STRICT_GEOMETRIC_ONLY && !N.equals(Policy.TARGET)) {
-                System.err.println("TARGET_MISMATCH: Repo factors only the designated N.");
-                System.exit(Policy.EXIT_TARGET_MISMATCH);
-            }
-
             // Validate
             if (N.bitLength() < 10) {
                 return formatError("Number too small (must be at least 10 bits)");
@@ -63,9 +57,8 @@ public class FactorizerShell {
 
         } catch (NumberFormatException e) {
             return formatError(
-                "Invalid number format\n" +
-                "Expected: decimal integer (e.g., 137524771864208156028430259349934309717)\n" +
-                "Got: " + n
+                "Invalid number format. Expected a decimal integer.\n" +
+                "See docs/VALIDATION_GATES.md for the official challenge number."
             );
         } catch (IllegalArgumentException e) {
             return formatError(e.getMessage());
@@ -90,21 +83,18 @@ public class FactorizerShell {
         return """
             === Geometric Factorizer - Example Usage ===
 
-            1. Factor 127-bit test case (validated):
+            This project follows a two-gate validation policy. See docs/VALIDATION_GATES.md for details.
+
+            1. Run Gate 1 Validation (127-bit challenge):
                > factor 137524771864208156028430259349934309717
 
-            2. Factor a smaller semiprime:
-               > factor 1073676287
+            2. Run a number within the Gate 2 Operational Range [1e14, 1e18] (after Gate 1 is passed):
+               > factor 214748364799999999
 
             3. View this help:
                > help factor
 
-            Expected runtime:
-            - 64-bit: ~30 seconds
-            - 127-bit: ~3 minutes
-            - 192-bit: ~10-30 minutes (may not succeed)
-
-            Note: This method is experimental. Success rate varies by number size.
+            Note: This method is experimental. Success is only guaranteed for the Gate 1 challenge.
             """;
     }
 

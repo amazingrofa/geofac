@@ -161,8 +161,8 @@ com.geofac/
 ./gradlew bootRun
 
 # Shell commands
-shell> factor 137524771864208156028430259349934309717
-shell> factor --n 137524771864208156028430259349934309717 --precision 300
+shell> factor <official-challenge-number>
+shell> factor --n <official-challenge-number> --precision 300
 shell> config set samples 5000
 shell> config show
 shell> export results/latest
@@ -202,19 +202,19 @@ public class FactorizerCommands {
 - `GeometricResonanceServiceTest.java`: Test factorization logic with mock data
 
 ### 5.2 Integration Tests
-- `GeometricResonanceIntegrationTest.java`: Test full 127-bit factorization
+- `GeometricResonanceIntegrationTest.java`: Test full factorization of the official challenge number.
 - `ShellCommandsIntegrationTest.java`: Test Spring Shell commands
 
 ### 5.3 Test Data
+The official test case is defined in `docs/VALIDATION_GATES.md`. Test classes will reference this data.
 ```java
 @TestConfiguration
 class TestFactorizationData {
-    public static final BigInteger N_127_BIT =
-        new BigInteger("137524771864208156028430259349934309717");
-    public static final BigInteger P_EXPECTED =
-        new BigInteger("10508623501177419659");
-    public static final BigInteger Q_EXPECTED =
-        new BigInteger("13086849276577416863");
+    // Values will be loaded from a test resource or constant file
+    // that reflects the definitions in VALIDATION_GATES.md
+    public static final BigInteger N_CHALLENGE = ...;
+    public static final BigInteger P_EXPECTED = ...;
+    public static final BigInteger Q_EXPECTED = ...;
 }
 ```
 
@@ -238,13 +238,13 @@ class TestFactorizationData {
 - [ ] Implement Spring Shell commands
 - [ ] Add logging configuration
 - [ ] Write unit tests
-- [ ] Write integration test (127-bit factorization)
+- [ ] Write integration test (for the official challenge number)
 
 ### 6.2 Validation
 
 - [ ] Run test suite: `./gradlew test`
 - [ ] Start interactive shell: `./gradlew bootRun`
-- [ ] Factor 127-bit test case via shell
+- [ ] Factor the official challenge number via shell
 - [ ] Verify output artifacts in `results/` directory
 - [ ] Compare results with z-sandbox Java version (should match exactly)
 
@@ -324,11 +324,11 @@ class TestFactorizationData {
 ## Success Criteria
 
 ### Functional Requirements
-✅ Factor 127-bit semiprime: N = 137524771864208156028430259349934309717
-✅ Produce identical results to z-sandbox Java implementation
-✅ Interactive shell with help, factor, config, export commands
-✅ Configuration via YAML (no hardcoded values)
-✅ Structured logging (no System.out in production code)
+✅ Factor the official 127-bit challenge semiprime.
+✅ Produce identical results to z-sandbox Java implementation.
+✅ Interactive shell with help, factor, config, export commands.
+✅ Configuration via YAML (no hardcoded values).
+✅ Structured logging (no System.out in production code).
 
 ### Technical Requirements
 ✅ Spring Boot 3.2+ with Spring Shell
@@ -354,9 +354,9 @@ class TestFactorizationData {
 
 ### Alignment with z-sandbox Mission Charter
 - Research focus: Understanding and refining existing techniques
-- No breakthrough claims: Validated on 1 example (127-bit)
-- Honest limitations: Parameters may be overfit to single test case
-- Reproducibility: Java implementation for cross-platform determinism
+- No breakthrough claims: Validated on the Gate 1 challenge number.
+- Honest limitations: Parameters may be overfit to single test case.
+- Reproducibility: Java implementation for cross-platform determinism.
 
 ### Future Research Integration
 This Spring Boot application can serve as the foundation for:
