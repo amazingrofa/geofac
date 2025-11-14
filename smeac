@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# SMEAC generator: writes markdown to .orders/smeac-yyyymmdd-<short-desc>.md
+# and prints a <=500 char summary to stdout.
+# Usage: ./smeac [optional additional details]
+
+DETAILS="${*:-}"
+NOW_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+DATE_YMD="$(date -u +%Y%m%d)"
+BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+SHA="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+JAVA_VER="$(java -version 2>&1 | head -n1 | tr -d '"')"
+
+# Derive short description from DETAILS (first 5 words, lowercase, hyphenated)
+if [[ -n "$DETAILS" ]]; then
+  SHORT_DESC_RAW=$(printf "%s" "$DETAILS" | awk '{for(i=1;i<=NF && i<=5;i++) printf (i>1?" ":"") $i}')
+else
+  SHORT_DESC_RAW="session-context"
+fi
+SHORT_DESC=$(printf "%s" "$SHORT_DESC_RAW" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//; s/-+/-/g')
+[[ -z "$SHORT_DESC" ]] && SHORT_DESC="session-context"
+
+OUT_DIR=".orders"
+mkdir -p "$OUT_DIR"
+FNAME="smeac-${DATE_YMD}-${SHORT_DESC}.md"
+FPATH="${OUT_DIR}/${FNAME}"
+
+cat > "$FPATH" <<EOF
+# SMEAC Brief: ${SHORT_DESC}
+
+Timestamp: ${NOW_UTC}  
+Branch: ${BRANCH}  
+Commit: ${SHA}  
+Java: ${JAVA_VER}
+
+## S (Situation → Context & Problem)
+Summarize the current problem, constraints, and signals. Include why this matters now.
+
+## M (Mission → Objective)
+Define the single, measurable outcome. State explicit success criteria and validation gates.
+
+## E (Execution → Plan & Tasks)
+Ordered steps (minimal diffs). Deterministic methods only; no classical fallbacks. Include parameters, thresholds, and stop conditions.
+
+## A&L (Administration & Logistics → Artifacts & Repro)
+List artifacts to write (logs, JSON, CSV), exact commands to repro, precision rule, timestamps, and where outputs are stored (.orders, results/...).
+
+## C&S (Command & Signal → Coordination & Interfaces)
+Point to issues/PRs, owner/assignees, and interfaces (files/classes) to modify. Include how contributors report results.
+
+---
+Details:
+${DETAILS:-(none)}
+EOF
+
+# 500-char summary
+SUMMARY="Created ${FPATH}. SMEAC sections: Situation, Mission, Execution, Administration & Logistics, Command & Signal. Timestamp ${NOW_UTC}, branch ${BRANCH}, commit ${SHA}. Short description '${SHORT_DESC}'. Details: ${DETAILS:-none}."
+# Trim to 500 chars
+if (( ${#SUMMARY} > 500 )); then SUMMARY="${SUMMARY:0:500}"; fi
+printf "%s\n" "$SUMMARY"
