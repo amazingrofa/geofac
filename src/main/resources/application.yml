@@ -13,6 +13,7 @@ geofac:
   threshold: 0.92
   k-lo: 0.25
   k-hi: 0.45
+  search-timeout-ms: 600000
 
 logging:
   level:

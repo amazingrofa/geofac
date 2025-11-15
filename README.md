@@ -57,7 +57,7 @@ If no factors are found within the configured budget, the run exits cleanly. No 
 | `j` | `6` | Dirichlet kernel order. |
 | `threshold` | `0.92` | Normalized amplitude gate before evaluating a candidate. |
 | `k-lo`, `k-hi` | `0.25`, `0.45` | Fractional k-sampling range. |
-| `search-timeout-ms` | `15000` | Max time per attempt; on timeout the command exits (no fallback). |
+| `search-timeout-ms` | `600000` | Max time per attempt; on timeout the command exits (no fallback). |
 
 Override via Spring config (profiles, env vars, command-line args) as needed.
 

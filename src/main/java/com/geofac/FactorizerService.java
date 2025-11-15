@@ -55,7 +55,7 @@ public class FactorizerService {
     @Value("${geofac.k-hi}")
     private double kHi;
 
-    @Value("${geofac.search-timeout-ms:15000}")
+    @Value("${geofac.search-timeout-ms:600000}")
     private long searchTimeoutMs;
 
     @Value("${geofac.enable-fast-path:false}")
