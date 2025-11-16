@@ -10,7 +10,7 @@ This project implements a deterministic factorization algorithm using geometric 
 
 ## Problem Statement
 
-After fixing a double-2π bug in the SnapKernel (which caused invalid p0 values), the algorithm now generates valid factor candidates (~√N for m=0). However, it fails to converge to the correct factors within the configured computational budget. The issue persists despite extended timeouts and increased samples, suggesting the geometric resonance approach needs refinement beyond the bug fix.
+After fixing a double-2π bug in the SnapKernel (which caused invalid p0 values), the algorithm now generates valid factor candidates (~√N for m=0); however, this only resolves the p0 validity issue. The algorithm still fails to converge to the correct factors within the configured computational budget. The issue persists despite extended timeouts and increased samples, suggesting the geometric resonance approach needs refinement beyond the bug fix.
 
 - **Symptoms**: High amplitude peaks detected, but snap projections yield invalid p0 (0 or >> N) before the fix; now valid but no divisibility lock.
 - **Hypothesis**: Insufficient computational budget or fundamental flaw in the resonance model/sampling strategy.
@@ -25,7 +25,7 @@ After fixing a double-2π bug in the SnapKernel (which caused invalid p0 values)
    - For each dm in [-mSpan, mSpan]:
      - theta = twoPi * m / k (where m = m0 + dm, m0=0).
      - Amplitude = DirichletKernel.normalizedAmplitude(theta, J).
-     - If amplitude > threshold: p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, k).
+      - If amplitude > threshold: p0 = SnapKernel.phaseCorrectedSnap(lnN, theta).
      - Guard: reject p0 <=1 or p0 >=N.
      - Test p0 and neighbors (±1) for divisibility.
 3. **Termination**: On success, return factors; else timeout.
@@ -39,7 +39,7 @@ After fixing a double-2π bug in the SnapKernel (which caused invalid p0 values)
 
 ### SnapKernel.java (Fixed)
 ```java
-public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, BigDecimal k, MathContext mc) {
+public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, MathContext mc) {
     BigDecimal expo = lnN.subtract(theta, mc).divide(BigDecimal.valueOf(2), mc);
     BigDecimal pHat = BigDecimalMath.exp(expo, mc);
     BigDecimal correctedPHat = applyPhaseCorrection(pHat, mc);
@@ -53,7 +53,7 @@ public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, Bi
 BigDecimal theta = twoPi.multiply(new BigDecimal(m), mc).divide(k, mc);
 BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
-    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, k, mc);
+    BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
     // Guards and testing...
 }
 ```

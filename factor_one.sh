@@ -55,8 +55,14 @@ if grep -q "SUCCESS" "$OUT_DIR/run.log"; then
     echo "=== Factorization Successful ==="
     
     # Extract p and q from the output
-    p=$(grep "p =" "$OUT_DIR/run.log" | sed 's/.*p = //' | sed 's/[^0-9]//g')
-    q=$(grep "q =" "$OUT_DIR/run.log" | sed 's/.*q = //' | sed 's/[^0-9]//g')
+    p=$(grep -Eo 'p = [0-9]+' "$OUT_DIR/run.log" | grep -Eo '[0-9]+')
+    q=$(grep -Eo 'q = [0-9]+' "$OUT_DIR/run.log" | grep -Eo '[0-9]+')
+
+    # Validate extraction
+    if [ -z "$p" ] || [ -z "$q" ]; then
+        echo "Error: Could not extract factors from output"
+        exit 1
+    fi
     
     # Save factors to plaintext files
     echo "$p" > "$OUT_DIR/p.txt"
