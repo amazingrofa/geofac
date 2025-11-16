@@ -4,7 +4,7 @@
 # Executes the Technical Program Manager (TPM) stand-up workflow autonomously.
 #
 # Usage: .pm/run-tpm-standup.sh
-# Must be run from the repository root.
+# Can be run from anywhere within the repository.
 #
 # This script pre-approves all necessary tools to avoid permission prompts:
 # - gh operations (viewing/creating issues, posting comments)
