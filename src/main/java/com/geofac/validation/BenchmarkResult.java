@@ -33,7 +33,9 @@ public record BenchmarkResult(
         map.put("actualP", actualP != null ? actualP.toString() : null);
         map.put("actualQ", actualQ != null ? actualQ.toString() : null);
         map.put("success", success);
-        map.put("factorsMatch", success && actualP != null && actualQ != null 
+        map.put("factorsMatch", success
+            && actualP != null && actualQ != null
+            && expectedP != null && expectedQ != null
             && actualP.multiply(actualQ).equals(N));
         map.put("durationMs", durationMs);
         map.put("errorMessage", errorMessage);

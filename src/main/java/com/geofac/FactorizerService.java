@@ -176,6 +176,86 @@ public class FactorizerService {
         }
     }
 
+    /**
+     * Factor a semiprime N into p × q using custom configuration.
+     * Used by validation framework for parameter sweeps.
+     *
+     * @param N The number to factor. Must conform to project validation gates.
+     * @param customConfig Custom configuration to use instead of injected values.
+     * @return A FactorizationResult containing the factors if successful.
+     * @throws IllegalArgumentException if N does not meet validation gate criteria.
+     */
+    public FactorizationResult factor(BigInteger N, FactorizerConfig customConfig) {
+        // Initialize diagnostic queues as method-local variables
+        Queue<BigDecimal> amplitudeDistribution = null;
+        Queue<String> candidateLogs = null;
+        if (enableDiagnostics) {
+            amplitudeDistribution = new ConcurrentLinkedQueue<>();
+            candidateLogs = new ConcurrentLinkedQueue<>();
+        }
+        if (N.compareTo(BigInteger.TEN) < 0) {
+            throw new IllegalArgumentException("N must be at least 10.");
+        }
+
+        // Use the provided custom config, but still apply adaptive precision
+        int adaptivePrecision = Math.max(customConfig.precision(), N.bitLength() * 4 + 200);
+        FactorizerConfig config = new FactorizerConfig(
+                adaptivePrecision,
+                customConfig.samples(),
+                customConfig.mSpan(),
+                customConfig.J(),
+                customConfig.threshold(),
+                customConfig.kLo(),
+                customConfig.kHi(),
+                customConfig.searchTimeoutMs()
+        );
+
+        // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
+        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
+        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+
+        if (!isGate1Challenge && !isInGate2Range) {
+            throw new IllegalArgumentException(
+                String.format("N=%s violates validation gates. Must be Gate 1 challenge or in Gate 2 range [%s, %s]",
+                    N, GATE_2_MIN, GATE_2_MAX));
+        }
+
+        if (isGate1Challenge && allowGate1Benchmark) {
+            log.info("Gate 1 challenge factorization: N={} ({} bits)", N, N.bitLength());
+        } else if (isInGate2Range) {
+            log.info("Gate 2 factorization: N={} ({} bits)", N, N.bitLength());
+        }
+
+        long startTime = System.currentTimeMillis();
+
+        try {
+            BigInteger[] factors = search(N, new MathContext(adaptivePrecision), BigDecimalMath.log(new BigDecimal(N), new MathContext(adaptivePrecision)),
+                    BigDecimalMath.pi(new MathContext(adaptivePrecision)).multiply(BigDecimal.valueOf(2), new MathContext(adaptivePrecision)),
+                    BigDecimal.valueOf((1 + Math.sqrt(5)) / 2), startTime, config, amplitudeDistribution, candidateLogs);
+
+            if (factors != null) {
+                // Verification: ensure p × q = N
+                BigInteger product = factors[0].multiply(factors[1]);
+                if (!product.equals(N)) {
+                    throw new IllegalStateException("Product check failed");
+                }
+                log.info("Verification: p × q = N ✓");
+                long totalDuration = System.currentTimeMillis() - startTime;
+                return new FactorizationResult(N, factors[0], factors[1], true, totalDuration, config, null);
+            } else {
+                long totalDuration = System.currentTimeMillis() - startTime;
+                String errorMsg = "No factors found within timeout";
+                log.warn("Factorization failed: {}", errorMsg);
+                return new FactorizationResult(N, null, null, false, totalDuration, config, errorMsg);
+            }
+        } catch (Exception e) {
+            long totalDuration = System.currentTimeMillis() - startTime;
+            String errorMsg = e.getMessage();
+            log.error("Factorization error: {}", errorMsg, e);
+            return new FactorizationResult(N, null, null, false, totalDuration, config, errorMsg);
+        }
+    }
+
     private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config,
                                 Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {

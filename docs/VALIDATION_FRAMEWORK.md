@@ -78,13 +78,13 @@ Record holding benchmark results for a single run.
 
 The validation framework applies two key optimization principles:
 
-### Parallel Execution (Vectorization)
+### Parallel Execution (Multi-threaded Parallelism)
 
-Benchmark runs are executed in parallel using Java parallel streams. Instead of processing semiprimes and configurations sequentially (O(n×m) serial time), the framework exploits CPU parallelism to process multiple benchmark runs simultaneously. This provides asymptotic improvement similar to vectorized operations, where multiple data elements are processed concurrently via SIMD lanes.
+Benchmark runs are executed in parallel using Java parallel streams. Instead of processing semiprimes and configurations sequentially (O(n×m) serial time), the framework exploits multi-threaded parallelism to process multiple benchmark runs simultaneously. This provides significant throughput improvement by distributing tasks across available CPU cores, leveraging task-level concurrency rather than SIMD vectorization.
 
 ### Memoization (Result Caching)
 
-The framework caches benchmark results based on N and configuration parameters. If the same semiprime with identical configuration is tested multiple times, the cached result is returned instantly rather than recomputing. This applies the ergodic sampling principle: once a computation is performed, reuse it rather than regenerating identical stochastic calculations.
+The framework caches benchmark results based on N and configuration parameters. If the same semiprime with identical configuration is tested multiple times, the cached result is returned instantly rather than recomputing. This applies the ergodic sampling principle: once a computation is performed, reuse it rather than regenerating identical deterministic calculations.
 
 **Cache management:**
 ```java
@@ -312,7 +312,6 @@ public class MyValidationExperiment {
 ## Future Enhancements
 
 Potential additions (out of scope for initial implementation):
-- Parallel sweep execution for faster runs
 - Statistical analysis (confidence intervals, hypothesis tests)
 - Visualization generation (success rate heatmaps, duration distributions)
 - Automated boundary detection (binary search for minimum effective precision)

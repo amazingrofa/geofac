@@ -10,6 +10,8 @@ import org.springframework.test.context.TestPropertySource;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,7 +77,7 @@ class ValidationBenchmarkTest {
     
     @Test
     void testBenchmarkResultToMap() {
-        BigInteger N = new BigInteger("140737488355327"); // ~1e14
+        BigInteger N = new BigInteger("140737863163397"); // ~1e14
         BigInteger p = new BigInteger("11863301");
         BigInteger q = new BigInteger("11863297");
         
@@ -104,18 +106,35 @@ class ValidationBenchmarkTest {
         // This test validates the framework infrastructure without actually
         // running the expensive factorization. Full parameter sweeps should
         // be run manually outside of unit tests.
-        
+
         // Verify the benchmark service is wired up
         assertNotNull(validationBenchmark, "ValidationBenchmark should be autowired");
-        
-        // Note: Actual sweep testing would call:
-        // List<SemiprimeGenerator.Semiprime> semiprimes = ...
-        // List<ValidationBenchmark.ParamConfig> configs = ...
-        // List<BenchmarkResult> results = validationBenchmark.runSweep(semiprimes, configs, outputDir);
-        //
-        // But we skip this in unit tests because it invokes the actual factorizer,
-        // which is time-intensive. Manual validation should use the framework
-        // as documented in docs/VALIDATION_FRAMEWORK.md
+
+        // Verify cache management methods work
+        validationBenchmark.clearCache();
+        assertEquals(0, validationBenchmark.getCacheSize(), "Cache should be empty after clear");
+
+        // Generate small test data
+        List<SemiprimeGenerator.Semiprime> semiprimes = SemiprimeGenerator.generateSemiprimes(12345L, 1);
+        List<ValidationBenchmark.ParamConfig> configs = List.of(
+            new ValidationBenchmark.ParamConfig(240, 50, 10, 3, 0.85, 0.25, 0.45)
+        );
+
+        // Run a minimal sweep (should complete quickly with small parameters)
+        List<BenchmarkResult> results = validationBenchmark.runSweep(semiprimes, configs, tempDir.toString());
+
+        // Verify results
+        assertNotNull(results, "Results should not be null");
+        assertEquals(1, results.size(), "Should have one result for 1 semiprime × 1 config");
+
+        // Verify artifacts were created (find files with benchmark_ prefix)
+        boolean csvExists = Files.list(tempDir)
+            .anyMatch(p -> p.getFileName().toString().startsWith("benchmark_") && p.getFileName().toString().endsWith(".csv"));
+        boolean jsonExists = Files.list(tempDir)
+            .anyMatch(p -> p.getFileName().toString().startsWith("benchmark_") && p.getFileName().toString().endsWith(".json"));
+
+        assertTrue(csvExists, "CSV artifact should be created");
+        assertTrue(jsonExists, "JSON artifact should be created");
     }
     
     @Test

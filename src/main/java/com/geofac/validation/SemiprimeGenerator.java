@@ -1,7 +1,6 @@
 package com.geofac.validation;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -65,17 +64,23 @@ public class SemiprimeGenerator {
             // Use deterministic seed derived from main seed and iteration
             long iterSeed = seed + i * 1000L;
             
-            BigInteger p = generatePrimeWithSeed(pBits, iterSeed);
-            BigInteger q = generatePrimeWithSeed(qBits, iterSeed + 1);
-            
-            BigInteger N = p.multiply(q);
-            
-            // Validate it's in the gate 2 range
-            if (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0) {
-                semiprimes.add(new Semiprime(N, p, q));
-            } else {
-                // Adjust and retry
-                i--;
+            boolean found = false;
+            int maxRetries = 20;
+            for (int attempt = 0; attempt < maxRetries; attempt++) {
+                BigInteger p = generatePrimeWithSeed(pBits, iterSeed + attempt * 10L);
+                BigInteger q = generatePrimeWithSeed(qBits, iterSeed + 1 + attempt * 10L);
+
+                BigInteger N = p.multiply(q);
+
+                // Validate it's in the gate 2 range
+                if (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0) {
+                    semiprimes.add(new Semiprime(N, p, q));
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new IllegalStateException("Unable to generate semiprime in gate 2 range after " + maxRetries + " attempts (targetBitLength=" + targetBitLength + ", seed=" + iterSeed + ")");
             }
         }
         

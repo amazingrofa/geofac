@@ -24,6 +24,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
+ * Internal record for benchmark run data to avoid race conditions in logging.
+ */
+record BenchmarkRun(
+    SemiprimeGenerator.Semiprime semiprime,
+    ValidationBenchmark.ParamConfig paramConfig,
+    BenchmarkResult result
+) {}
+
+/**
  * Validation benchmark service for systematic testing of geometric resonance factorization.
  * 
  * Runs parameter sweeps against known semiprimes in [1e14, 1e18] range.
@@ -81,8 +90,8 @@ public class ValidationBenchmark {
     /**
      * Run a parameter sweep against a list of semiprimes.
      * Tests each semiprime against each configuration using parallel execution.
-     * 
-     * Applies vectorization principle: exploits parallelism via parallel streams
+     *
+     * Applies parallelization principle: exploits parallelism via parallel streams
      * to process multiple benchmark runs simultaneously instead of sequentially.
      * 
      * @param semiprimes List of known semiprimes to test
@@ -102,21 +111,24 @@ public class ValidationBenchmark {
         
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         
-        // Parallel execution: process benchmark runs in parallel to exploit SIMD-like parallelism
-        List<BenchmarkResult> results = semiprimes.parallelStream()
+        // Parallel execution: process benchmark runs in parallel using multi-threaded parallelism
+        List<BenchmarkRun> runs = semiprimes.parallelStream()
             .flatMap(semiprime -> configs.stream()
-                .map(paramConfig -> {
-                    log.info("Testing N={} ({} bits) with precision={}, samples={}, threshold={}",
-                        semiprime.N(), semiprime.bitLength(), 
-                        paramConfig.precision, paramConfig.samples, paramConfig.threshold);
-                    
-                    BenchmarkResult result = runSingleBenchmark(semiprime, paramConfig);
-                    
-                    log.info("Result: success={}, duration={}ms, error={}",
-                        result.success(), result.durationMs(), result.errorMessage());
-                    
-                    return result;
-                }))
+                .map(paramConfig -> new BenchmarkRun(semiprime, paramConfig, runSingleBenchmark(semiprime, paramConfig))))
+            .collect(Collectors.toList());
+
+        // Sequential logging after parallel computation to avoid race conditions
+        for (BenchmarkRun run : runs) {
+            log.info("Testing N={} ({} bits) with precision={}, samples={}, threshold={}",
+                run.semiprime().N(), run.semiprime().bitLength(),
+                run.paramConfig().precision, run.paramConfig().samples, run.paramConfig().threshold);
+
+            log.info("Result: success={}, duration={}ms, error={}",
+                run.result().success(), run.result().durationMs(), run.result().errorMessage());
+        }
+
+        List<BenchmarkResult> results = runs.stream()
+            .map(BenchmarkRun::result)
             .collect(Collectors.toList());
         
         // Export artifacts
@@ -163,10 +175,18 @@ public class ValidationBenchmark {
         FactorizationResult factResult;
         
         try {
-            // Call existing factorizer service
-            // Note: This uses the service's current configuration
-            // For true parameter sweeps, we'd need to inject custom configs
-            factResult = factorizerService.factor(N);
+            // Call factorizer service with custom configuration
+            FactorizerConfig customConfig = new FactorizerConfig(
+                paramConfig.precision,
+                paramConfig.samples,
+                paramConfig.mSpan,
+                paramConfig.J,
+                paramConfig.threshold,
+                paramConfig.kLo,
+                paramConfig.kHi,
+                15000L // default timeout for validation runs
+            );
+            factResult = factorizerService.factor(N, customConfig);
             
             long duration = System.currentTimeMillis() - startTime;
             
