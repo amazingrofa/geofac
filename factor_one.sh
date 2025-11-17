@@ -38,17 +38,17 @@ echo ""
 # Based on user feedback that original timeouts were insufficient
 # Adaptive precision = max(configured, N.bitLength()*4 + 200) = 708
 java \
-  -Dgeofac.allow-gate1-benchmark=true \
+  -Dgeofac.allow-127bit-benchmark=true \
   -Dgeofac.enable-fast-path=false \
   -Dgeofac.enable-diagnostics=true \
-  -Dgeofac.precision=708 \
-  -Dgeofac.samples=7500 \
-  -Dgeofac.m-span=200 \
-  -Dgeofac.j=8 \
-  -Dgeofac.threshold=0.85 \
-  -Dgeofac.k-lo=0.15 \
-  -Dgeofac.k-hi=0.65 \
-  -Dgeofac.search-timeout-ms=300000 \
+   -Dgeofac.precision=2000 \
+   -Dgeofac.samples=30000 \
+   -Dgeofac.m-span=600 \
+   -Dgeofac.j=8 \
+   -Dgeofac.threshold=0.7 \
+   -Dgeofac.k-lo=0.15 \
+   -Dgeofac.k-hi=0.65 \
+   -Dgeofac.search-timeout-ms=600000 \
   -jar build/libs/geofac-0.1.0-SNAPSHOT.jar factor "$TARGET_N" 2>&1 | tee "$OUT_DIR/run.log"
 
 # Check for success in the log
