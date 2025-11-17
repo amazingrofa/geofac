@@ -358,8 +358,10 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Extended neighbor search to handle candidates moderately close to exact factors
-        // Fast path: immediate neighbors (±10)
+        // Multi-resolution neighbor search using Fermat-style dual approach
+        // Checks both p0 and q0 = N/p0 to leverage the factorization relationship
+        
+        // Level 1: Immediate neighbors (±10) - fast path for very accurate candidates
         for (int off = -10; off <= 10; off++) {
             BigInteger candidate = pCenter.add(BigInteger.valueOf(off));
             if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
@@ -369,8 +371,7 @@ public class FactorizerService {
             }
         }
         
-        // Fermat-style dual search: if p0 ≈ p, then q0 = N/p0 ≈ q
-        // This leverages the relationship N = p×q to search around both factors
+        // Compute q0 for dual search
         BigInteger q0 = N.divide(pCenter);
         for (int off = -10; off <= 10; off++) {
             BigInteger candidate = q0.add(BigInteger.valueOf(off));
@@ -381,24 +382,45 @@ public class FactorizerService {
             }
         }
         
-        // Extended search: ±100,000 to handle slightly wider gaps
-        // For p~10^19, this covers ~0.000001% which may catch some near-misses
-        for (int off = -100000; off <= 100000; off += 100) {
-            BigInteger candidate = pCenter.add(BigInteger.valueOf(off));
-            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
-                    && N.mod(candidate).equals(BigInteger.ZERO)) {
-                BigInteger q = N.divide(candidate);
-                return ordered(candidate, q);
-            }
-        }
+        // Level 2: Extended search with logarithmic steps
+        // Step sizes: 1K, 10K, 100K up to ±1M total radius
+        // This balances coverage with performance (~2K total checks per candidate)
+        long[] steps = {1000L, 10000L, 100000L};
+        long[] limits = {10000L, 100000L, 1000000L};
         
-        // Extended search on q0
-        for (int off = -100000; off <= 100000; off += 100) {
-            BigInteger candidate = q0.add(BigInteger.valueOf(off));
-            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
-                    && N.mod(candidate).equals(BigInteger.ZERO)) {
-                BigInteger p = N.divide(candidate);
-                return ordered(p, candidate);
+        for (int level = 0; level < steps.length; level++) {
+            long step = steps[level];
+            long start = (level == 0) ? step : limits[level - 1] + step;
+            long limit = limits[level];
+            
+            for (long offset = start; offset <= limit; offset += step) {
+                // Check p0 + offset
+                BigInteger candidate = pCenter.add(BigInteger.valueOf(offset));
+                if (candidate.compareTo(N) < 0 && N.mod(candidate).equals(BigInteger.ZERO)) {
+                    BigInteger q = N.divide(candidate);
+                    return ordered(candidate, q);
+                }
+                
+                // Check p0 - offset
+                candidate = pCenter.subtract(BigInteger.valueOf(offset));
+                if (candidate.compareTo(BigInteger.ONE) > 0 && N.mod(candidate).equals(BigInteger.ZERO)) {
+                    BigInteger q = N.divide(candidate);
+                    return ordered(candidate, q);
+                }
+                
+                // Check q0 + offset
+                candidate = q0.add(BigInteger.valueOf(offset));
+                if (candidate.compareTo(N) < 0 && N.mod(candidate).equals(BigInteger.ZERO)) {
+                    BigInteger p = N.divide(candidate);
+                    return ordered(p, candidate);
+                }
+                
+                // Check q0 - offset
+                candidate = q0.subtract(BigInteger.valueOf(offset));
+                if (candidate.compareTo(BigInteger.ONE) > 0 && N.mod(candidate).equals(BigInteger.ZERO)) {
+                    BigInteger p = N.divide(candidate);
+                    return ordered(p, candidate);
+                }
             }
         }
         
