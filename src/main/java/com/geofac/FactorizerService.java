@@ -335,8 +335,8 @@ public class FactorizerService {
                         candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));
                     }
                     
-                    // Refine candidate using Newton-Raphson
-                    BigInteger p = newtonRefinement(p0, N, 20);
+                    // Refine candidate using binary search
+                    BigInteger p = binarySearchRefinement(p0, N, BigDecimal.valueOf(5.0));
                     if (p != null) {
                         BigInteger q = N.divide(p);
                         result.compareAndSet(null, ordered(p, q));
@@ -361,57 +361,36 @@ public class FactorizerService {
     }
 
     /**
-     * Refine candidate p0 using Newton-Raphson iteration.
+     * Refine candidate p0 using linear search within error percentage range.
      *
-     * For balanced semiprime N = p×q where p ≈ q ≈ √N, iteratively refine p0
-     * toward exact factor by solving f(p) = N - p×(N/p) = 0.
+     * Searches for exact factor within ±errorPercent of p0 with step 10^15.
      *
      * @param p0 Initial candidate (from phase-corrected snap)
      * @param N Semiprime to factor
-     * @param maxIterations Maximum refinement iterations (typically 10-20)
+     * @param errorPercent Error percentage for search radius (e.g., 1.0 for 1.0%)
      * @return Exact factor if found, or null
      */
-    private static BigInteger newtonRefinement(BigInteger p0, BigInteger N, int maxIterations) {
-        BigDecimal p = new BigDecimal(p0);
-        BigDecimal n = new BigDecimal(N);
+    private static BigInteger binarySearchRefinement(BigInteger p0, BigInteger N, BigDecimal errorPercent) {
+        // Calculate search range based on error percentage
+        BigDecimal p0Dec = new BigDecimal(p0);
+        BigDecimal delta = p0Dec.multiply(errorPercent).divide(BigDecimal.valueOf(100));
+        BigInteger searchRadius = delta.toBigInteger();
 
-        for (int i = 0; i < maxIterations; i++) {
-            // Check if current p is exact factor (convert to BigInteger and check)
-            BigInteger pInt = p.toBigInteger();
-            if (N.mod(pInt).equals(BigInteger.ZERO)) {
-                return pInt;  // Found exact factor!
-            }
+        BigInteger lo = p0.subtract(searchRadius);
+        BigInteger hi = p0.add(searchRadius);
+        BigInteger step = BigInteger.valueOf(100000000000000L); // 10^14
 
-            // Newton step: p_new = (p + N/p) / 2
-            BigDecimal q = n.divide(p, MathContext.DECIMAL128);
-            BigDecimal pNew = p.add(q).divide(BigDecimal.valueOf(2), MathContext.DECIMAL128);
-
-            // Check convergence
-            if (pNew.subtract(p).abs().compareTo(BigDecimal.ONE) < 0) {
-                break;  // Converged (no more progress)
-            }
-
-            p = pNew;
-        }
-
-        // After convergence, check p and its neighbors
-        BigInteger pFinal = p.toBigInteger();
-        return testNeighbors(N, pFinal);
-    }
-
-    private static BigInteger testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Test p-5 to p+5
-        for (int off = -5; off <= 5; off++) {
-            BigInteger p = pCenter.add(BigInteger.valueOf(off));
-            if (p.compareTo(BigInteger.ONE) <= 0 || p.compareTo(N) >= 0) {
-                continue;
-            }
-            if (N.mod(p).equals(BigInteger.ZERO)) {
-                return p;
+        for (BigInteger i = lo; i.compareTo(hi) <= 0; i = i.add(step)) {
+            if (i.compareTo(BigInteger.ONE) <= 0 || i.compareTo(N) >= 0) continue;
+            if (N.mod(i).equals(BigInteger.ZERO)) {
+                return i;
             }
         }
+
         return null;
     }
+
+
 
     private static BigInteger[] ordered(BigInteger a, BigInteger b) {
         return (a.compareTo(b) <= 0) ? new BigInteger[]{a, b} : new BigInteger[]{b, a};

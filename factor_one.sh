@@ -41,14 +41,14 @@ java \
   -Dgeofac.allow-127bit-benchmark=true \
   -Dgeofac.enable-fast-path=false \
   -Dgeofac.enable-diagnostics=true \
-  -Dgeofac.precision=400 \
-   -Dgeofac.samples=10000 \
-  -Dgeofac.m-span=100 \
-  -Dgeofac.j=6 \
-  -Dgeofac.threshold=0.50 \
-  -Dgeofac.k-lo=0.25 \
-  -Dgeofac.k-hi=0.65 \
-  -Dgeofac.search-timeout-ms=300000 \
+   -Dgeofac.precision=500 \
+    -Dgeofac.samples=10000 \
+   -Dgeofac.m-span=100 \
+   -Dgeofac.j=6 \
+   -Dgeofac.threshold=0.50 \
+   -Dgeofac.k-lo=0.25 \
+   -Dgeofac.k-hi=0.65 \
+   -Dgeofac.search-timeout-ms=300000 \
   -jar build/libs/geofac-0.1.0-SNAPSHOT.jar factor "$TARGET_N" 2>&1 | tee "$OUT_DIR/run.log"
 
 # Check for success in the log
