@@ -358,17 +358,41 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Test p-10 to p+10
-        for (int off = -10; off <= 10; off++) {
-            BigInteger p = pCenter.add(BigInteger.valueOf(off));
-            if (p.compareTo(BigInteger.ONE) <= 0 || p.compareTo(N) >= 0) {
-                continue;
+        // Binary search refinement to handle candidates ~0.37% away from exact factors
+        // Calculate 0.5% search radius to cover typical geometric resonance candidate errors
+        BigDecimal pCenterDec = new BigDecimal(pCenter);
+        BigDecimal searchRadiusDec = pCenterDec.multiply(BigDecimal.valueOf(0.005)); // 0.5%
+        BigInteger searchRadius = searchRadiusDec.toBigInteger();
+        
+        BigInteger lo = pCenter.subtract(searchRadius);
+        BigInteger hi = pCenter.add(searchRadius);
+        
+        // Ensure bounds are valid
+        if (lo.compareTo(BigInteger.ONE) <= 0) {
+            lo = BigInteger.TWO;
+        }
+        if (hi.compareTo(N) >= 0) {
+            hi = N.subtract(BigInteger.ONE);
+        }
+        
+        // Binary search for exact divisor
+        while (lo.compareTo(hi) <= 0) {
+            BigInteger mid = lo.add(hi).divide(BigInteger.TWO);
+            
+            if (N.mod(mid).equals(BigInteger.ZERO)) {
+                BigInteger q = N.divide(mid);
+                return ordered(mid, q);
             }
-            if (N.mod(p).equals(BigInteger.ZERO)) {
-                BigInteger q = N.divide(p);
-                return ordered(p, q);
+            
+            // Decide which half to search based on whether mid² < N or mid² > N
+            BigInteger midSquared = mid.multiply(mid);
+            if (midSquared.compareTo(N) < 0) {
+                lo = mid.add(BigInteger.ONE);
+            } else {
+                hi = mid.subtract(BigInteger.ONE);
             }
         }
+        
         return null;
     }
 
