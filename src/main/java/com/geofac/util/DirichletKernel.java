@@ -23,7 +23,7 @@ public final class DirichletKernel {
      */
     public static BigDecimal normalizedAmplitude(BigDecimal theta, int J, MathContext mc) {
         // Reduce to [-π, π] for stability
-        BigDecimal t = principalAngle(theta, mc);
+        BigDecimal t = PrecisionUtil.principalAngle(theta, mc);
 
         BigDecimal half = BigDecimal.valueOf(0.5);
         BigDecimal th2 = t.multiply(half, mc); // θ/2
@@ -43,29 +43,5 @@ public final class DirichletKernel {
         BigDecimal amplitude = num.divide(den, mc).abs(mc);
 
         return amplitude;
-    }
-
-    /**
-     * Principal remainder mod 2π into [-π, π]
-     */
-    private static BigDecimal principalAngle(BigDecimal x, MathContext mc) {
-        BigDecimal twoPi = BigDecimalMath.pi(mc).multiply(BigDecimal.valueOf(2), mc);
-        BigDecimal invTwoPi = BigDecimal.ONE.divide(twoPi, mc);
-
-        // r = x - floor(x / 2π) * 2π
-        BigDecimal k = floor(x.multiply(invTwoPi, mc), mc);
-        BigDecimal r = x.subtract(twoPi.multiply(k, mc), mc);
-
-        // Shift to [-π, π]
-        BigDecimal pi = BigDecimalMath.pi(mc);
-        if (r.compareTo(pi) > 0) r = r.subtract(twoPi, mc);
-        if (r.compareTo(pi.negate()) < 0) r = r.add(twoPi, mc);
-
-        return r;
-    }
-
-    private static BigDecimal floor(BigDecimal x, MathContext mc) {
-        // Always round toward negative infinity to maintain periodicity math
-        return x.setScale(0, java.math.RoundingMode.FLOOR);
     }
 }

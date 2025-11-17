@@ -21,7 +21,7 @@ public final class SnapKernel {
       * Unreduced theta values (e.g., 2πm/k for large m or small k) can cause exp() to
       * produce wildly incorrect values (either huge or tiny/zero).
       *
-      * Formula: p̂ = exp((ln(N) - θ')/2) where θ' = theta mod 2π in [-π, π]
+      * Formula: p̂ = exp((ln(N) - θ')/2) where θ' = principal angle of theta in [-π, π]
       *
       * @param lnN ln(N) at given precision
       * @param theta Angular parameter θ (2π*m/k from caller, possibly > 2π)
@@ -31,7 +31,7 @@ public final class SnapKernel {
      public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, MathContext mc) {
         // CRITICAL: Reduce theta to principal angle [-π, π] before snap
         // Without this, large theta values cause exp((ln(N) - theta)/2) to be wildly wrong
-        BigDecimal thetaPrincipal = principalAngle(theta, mc);
+        BigDecimal thetaPrincipal = PrecisionUtil.principalAngle(theta, mc);
 
         // p̂ = exp((ln(N) - θ')/2)
         BigDecimal expo = lnN.subtract(thetaPrincipal, mc).divide(BigDecimal.valueOf(2), mc);
@@ -39,30 +39,6 @@ public final class SnapKernel {
 
           // Nearest integer with tolerance
           return roundToBigInteger(pHat, mc);
-    }
-
-    /**
-     * Reduce angle to principal value in [-π, π].
-     * This is essential for phase-corrected snap to work correctly.
-     */
-    private static BigDecimal principalAngle(BigDecimal x, MathContext mc) {
-        BigDecimal pi = BigDecimalMath.pi(mc);
-        BigDecimal twoPi = pi.multiply(BigDecimal.valueOf(2), mc);
-        BigDecimal invTwoPi = BigDecimal.ONE.divide(twoPi, mc);
-
-        // r = x - floor(x / 2π) * 2π
-        BigDecimal k = floor(x.multiply(invTwoPi, mc), mc);
-        BigDecimal r = x.subtract(twoPi.multiply(k, mc), mc);
-
-        // Shift to [-π, π]
-        if (r.compareTo(pi) > 0) r = r.subtract(twoPi, mc);
-        if (r.compareTo(pi.negate()) < 0) r = r.add(twoPi, mc);
-
-        return r;
-    }
-
-    private static BigDecimal floor(BigDecimal x, MathContext mc) {
-        return x.setScale(0, RoundingMode.FLOOR);
     }
 
 
