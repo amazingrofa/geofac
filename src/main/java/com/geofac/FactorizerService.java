@@ -118,8 +118,8 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate1Challenge = N.equals(CHALLENGE_127);
+        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
 
         if (!isInGate2Range && !(allow127bitBenchmark && isGate1Challenge)) {
             throw new IllegalArgumentException(
@@ -235,13 +235,13 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate1Challenge = N.equals(CHALLENGE_127);
+        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
 
         if (!isGate1Challenge && !isInGate2Range) {
             throw new IllegalArgumentException(
                 String.format("N=%s violates validation gates. Must be Gate 1 challenge or in Gate 2 range [%s, %s]",
-                    N, GATE_2_MIN, GATE_2_MAX));
+                    N, MIN, MAX));
         }
 
         if (isGate1Challenge && allow127bitBenchmark) {
@@ -363,10 +363,9 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Test p, p-1, p+1
-        BigInteger[] offsets = { BigInteger.ZERO, BigInteger.valueOf(-1), BigInteger.ONE };
-        for (BigInteger off : offsets) {
-            BigInteger p = pCenter.add(off);
+        // Test p-10 to p+10
+        for (int off = -10; off <= 10; off++) {
+            BigInteger p = pCenter.add(BigInteger.valueOf(off));
             if (p.compareTo(BigInteger.ONE) <= 0 || p.compareTo(N) >= 0) {
                 continue;
             }

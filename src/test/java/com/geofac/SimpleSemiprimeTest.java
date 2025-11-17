@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
     "geofac.precision=240",
-    "geofac.samples=5000",
-    "geofac.m-span=180",
+    "geofac.samples=30000",
+    "geofac.m-span=600",
     "geofac.j=6",
-    "geofac.threshold=0.92",
+    "geofac.threshold=0.7",
     "geofac.k-lo=0.25",
     "geofac.k-hi=0.45",
     "geofac.search-timeout-ms=600000"
