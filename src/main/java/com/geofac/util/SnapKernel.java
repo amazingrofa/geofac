@@ -17,21 +17,24 @@ public final class SnapKernel {
      /**
       * Compute candidate factor using phase-corrected snap.
       *
-      * Fixed double-2π bug: theta is already 2π*m/k from the caller,
-      * so we use it directly without additional 2π multiplication.
+      * CRITICAL FIX: Reduce theta to principal angle [-π, π] before using in snap formula.
+      * Unreduced theta values (e.g., 2πm/k for large m or small k) can cause exp() to
+      * produce wildly incorrect values (either huge or tiny/zero).
       *
-      * Formula: p̂ = exp((ln(N) - θ)/2)
+      * Formula: p̂ = exp((ln(N) - θ')/2) where θ' = principal angle of theta in [-π, π]
       *
       * @param lnN ln(N) at given precision
-      * @param theta Angular parameter θ (already 2π*m/k from caller)
+      * @param theta Angular parameter θ (2π*m/k from caller, possibly > 2π)
       * @param mc MathContext for precision
       * @return Candidate factor p
       */
      public static BigInteger phaseCorrectedSnap(BigDecimal lnN, BigDecimal theta, MathContext mc) {
-        // theta is already the full 2π-phase from the search kernel.
-        // Use it directly to avoid the double-2π bug.
-        // p̂ = exp((ln(N) - θ)/2)
-        BigDecimal expo = lnN.subtract(theta, mc).divide(BigDecimal.valueOf(2), mc);
+        // CRITICAL: Reduce theta to principal angle [-π, π] before snap
+        // Without this, large theta values cause exp((ln(N) - theta)/2) to be wildly wrong
+        BigDecimal thetaPrincipal = PrecisionUtil.principalAngle(theta, mc);
+
+        // p̂ = exp((ln(N) - θ')/2)
+        BigDecimal expo = lnN.subtract(thetaPrincipal, mc).divide(BigDecimal.valueOf(2), mc);
          BigDecimal pHat = BigDecimalMath.exp(expo, mc);
 
           // Nearest integer with tolerance
