@@ -77,11 +77,6 @@ public class FactorizerService {
     private static final BigInteger GATE_2_MAX = new BigInteger("1000000000000000000"); // 10^18
     private static final BigInteger GATE_1_CHALLENGE = new BigInteger("137524771864208156028430259349934309717");
 
-    // Legacy constant names for backward compatibility
-    private static final BigInteger MIN = GATE_2_MIN;
-    private static final BigInteger MAX = GATE_2_MAX;
-    private static final BigInteger CHALLENGE_127 = GATE_1_CHALLENGE;
-
     /**
      * Factor a semiprime N into p × q.
      *
@@ -101,7 +96,7 @@ public class FactorizerService {
             throw new IllegalArgumentException("N must be at least 10.");
         }
 
-        // Adaptive precision based on bit length (using PrecisionUtil formula)
+        // Adaptive precision based on bit length (using the PrecisionUtil formula)
         // Fixed: Was using 4x + 200, now using 2x + 150 as per PrecisionUtil
         int adaptivePrecision = Math.max(precision, N.bitLength() * 2 + 150);
 
@@ -118,8 +113,8 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(CHALLENGE_127);
-        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
+        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
+        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
 
         if (!isInGate2Range && !(allow127bitBenchmark && isGate1Challenge)) {
             throw new IllegalArgumentException(
@@ -128,8 +123,8 @@ public class FactorizerService {
         }
 
         // Gate enforcement with property-gated exception for 127-bit benchmark
-        boolean outOfGate = (N.compareTo(MIN) < 0 || N.compareTo(MAX) > 0);
-        boolean isChallenge = N.equals(CHALLENGE_127);
+        boolean outOfGate = (N.compareTo(GATE_2_MIN) < 0 || N.compareTo(GATE_2_MAX) > 0);
+        boolean isChallenge = N.equals(GATE_1_CHALLENGE);
         if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
             throw new IllegalArgumentException("N must be in [1e14, 1e18]");
         }
@@ -221,7 +216,7 @@ public class FactorizerService {
         }
 
         // Use the provided custom config, but still apply adaptive precision
-        // Fixed: Was using 4x + 200, now using 2x + 150 as per PrecisionUtil
+        // Fixed: Was using 4x + 200, now using 2x + 150 as per the PrecisionUtil formula
         int adaptivePrecision = Math.max(customConfig.precision(), N.bitLength() * 2 + 150);
         FactorizerConfig config = new FactorizerConfig(
                 adaptivePrecision,
@@ -235,13 +230,13 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(CHALLENGE_127);
-        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
+        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
+        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
 
         if (!isGate1Challenge && !isInGate2Range) {
             throw new IllegalArgumentException(
                 String.format("N=%s violates validation gates. Must be Gate 1 challenge or in Gate 2 range [%s, %s]",
-                    N, MIN, MAX));
+                    N, GATE_2_MIN, GATE_2_MAX));
         }
 
         if (isGate1Challenge && allow127bitBenchmark) {
