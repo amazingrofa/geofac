@@ -41,13 +41,13 @@ public final class SnapKernel {
 
 
     private static BigInteger roundToBigInteger(BigDecimal x, RoundingMode mode, MathContext mc) {
-        // Use HALF_UP rounding for nearest integer
-        // This is the standard rounding approach for finding the closest integer factor candidate
+        // Use FLOOR rounding to get the largest integer less than or equal to x
+        // This may help with unstable projections
         try {
-            return x.setScale(0, RoundingMode.HALF_UP).toBigIntegerExact();
+            return x.setScale(0, RoundingMode.FLOOR).toBigIntegerExact();
         } catch (ArithmeticException e) {
             // Fallback if exact conversion fails
-            return x.setScale(0, RoundingMode.HALF_UP).toBigInteger();
+            return x.setScale(0, RoundingMode.FLOOR).toBigInteger();
         }
     }
 }

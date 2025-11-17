@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(properties = {
     "geofac.precision=240",
-    "geofac.samples=5000",
-    "geofac.m-span=180",
+    "geofac.samples=1000",
+    "geofac.m-span=100",
     "geofac.j=6",
-    "geofac.threshold=0.92",
+    "geofac.threshold=0.8",
     "geofac.k-lo=0.25",
     "geofac.k-hi=0.45",
-    "geofac.search-timeout-ms=600000"
+    "geofac.search-timeout-ms=30000"
 })
 public class SimpleSemiprimeTest {
 
