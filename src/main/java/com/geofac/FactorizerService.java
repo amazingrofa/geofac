@@ -358,38 +358,47 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Binary search refinement to handle candidates ~0.37% away from exact factors
-        // Calculate 0.5% search radius to cover typical geometric resonance candidate errors
-        BigDecimal pCenterDec = new BigDecimal(pCenter);
-        BigDecimal searchRadiusDec = pCenterDec.multiply(BigDecimal.valueOf(0.005)); // 0.5%
-        BigInteger searchRadius = searchRadiusDec.toBigInteger();
-        
-        BigInteger lo = pCenter.subtract(searchRadius);
-        BigInteger hi = pCenter.add(searchRadius);
-        
-        // Ensure bounds are valid
-        if (lo.compareTo(BigInteger.ONE) <= 0) {
-            lo = BigInteger.TWO;
-        }
-        if (hi.compareTo(N) >= 0) {
-            hi = N.subtract(BigInteger.ONE);
-        }
-        
-        // Binary search for exact divisor
-        while (lo.compareTo(hi) <= 0) {
-            BigInteger mid = lo.add(hi).divide(BigInteger.TWO);
-            
-            if (N.mod(mid).equals(BigInteger.ZERO)) {
-                BigInteger q = N.divide(mid);
-                return ordered(mid, q);
+        // Extended neighbor search to handle candidates moderately close to exact factors
+        // Fast path: immediate neighbors (±10)
+        for (int off = -10; off <= 10; off++) {
+            BigInteger candidate = pCenter.add(BigInteger.valueOf(off));
+            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
+                    && N.mod(candidate).equals(BigInteger.ZERO)) {
+                BigInteger q = N.divide(candidate);
+                return ordered(candidate, q);
             }
-            
-            // Decide which half to search based on whether mid² < N or mid² > N
-            BigInteger midSquared = mid.multiply(mid);
-            if (midSquared.compareTo(N) < 0) {
-                lo = mid.add(BigInteger.ONE);
-            } else {
-                hi = mid.subtract(BigInteger.ONE);
+        }
+        
+        // Fermat-style dual search: if p0 ≈ p, then q0 = N/p0 ≈ q
+        // This leverages the relationship N = p×q to search around both factors
+        BigInteger q0 = N.divide(pCenter);
+        for (int off = -10; off <= 10; off++) {
+            BigInteger candidate = q0.add(BigInteger.valueOf(off));
+            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
+                    && N.mod(candidate).equals(BigInteger.ZERO)) {
+                BigInteger p = N.divide(candidate);
+                return ordered(p, candidate);
+            }
+        }
+        
+        // Extended search: ±100,000 to handle slightly wider gaps
+        // For p~10^19, this covers ~0.000001% which may catch some near-misses
+        for (int off = -100000; off <= 100000; off += 100) {
+            BigInteger candidate = pCenter.add(BigInteger.valueOf(off));
+            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
+                    && N.mod(candidate).equals(BigInteger.ZERO)) {
+                BigInteger q = N.divide(candidate);
+                return ordered(candidate, q);
+            }
+        }
+        
+        // Extended search on q0
+        for (int off = -100000; off <= 100000; off += 100) {
+            BigInteger candidate = q0.add(BigInteger.valueOf(off));
+            if (candidate.compareTo(BigInteger.ONE) > 0 && candidate.compareTo(N) < 0
+                    && N.mod(candidate).equals(BigInteger.ZERO)) {
+                BigInteger p = N.divide(candidate);
+                return ordered(p, candidate);
             }
         }
         
