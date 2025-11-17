@@ -38,7 +38,7 @@ echo ""
 # Based on user feedback that original timeouts were insufficient
 # Adaptive precision = max(configured, N.bitLength()*4 + 200) = 708
 java \
-  -Dgeofac.allow-gate1-benchmark=true \
+  -Dgeofac.allow-127bit-benchmark=true \
   -Dgeofac.enable-fast-path=false \
   -Dgeofac.enable-diagnostics=true \
    -Dgeofac.precision=2000 \

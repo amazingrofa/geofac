@@ -76,9 +76,6 @@ public class FactorizerService {
     private static final BigInteger MIN = new BigInteger("100000000000000"); // 10^14
     private static final BigInteger MAX = new BigInteger("1000000000000000000"); // 10^18
     private static final BigInteger CHALLENGE_127 = new BigInteger("137524771864208156028430259349934309717");
-    private static final BigInteger GATE_1_CHALLENGE = CHALLENGE_127;
-    private static final BigInteger GATE_2_MIN = MIN;
-    private static final BigInteger GATE_2_MAX = MAX;
 
     /**
      * Factor a semiprime N into p × q.
@@ -115,8 +112,8 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate1Challenge = N.equals(CHALLENGE_127);
+        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
 
         if (!isInGate2Range && !(allow127bitBenchmark && isGate1Challenge)) {
             throw new IllegalArgumentException(
@@ -231,13 +228,13 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate1Challenge = N.equals(CHALLENGE_127);
+        boolean isInGate2Range = (N.compareTo(MIN) >= 0 && N.compareTo(MAX) <= 0);
 
         if (!isGate1Challenge && !isInGate2Range) {
             throw new IllegalArgumentException(
                 String.format("N=%s violates validation gates. Must be Gate 1 challenge or in Gate 2 range [%s, %s]",
-                    N, GATE_2_MIN, GATE_2_MAX));
+                    N, MIN, MAX));
         }
 
         if (isGate1Challenge && allow127bitBenchmark) {
