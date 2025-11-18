@@ -358,17 +358,37 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Test p-10 to p+10
-        for (int off = -10; off <= 10; off++) {
-            BigInteger p = pCenter.add(BigInteger.valueOf(off));
-            if (p.compareTo(BigInteger.ONE) <= 0 || p.compareTo(N) >= 0) {
-                continue;
-            }
-            if (N.mod(p).equals(BigInteger.ZERO)) {
-                BigInteger q = N.divide(p);
-                return ordered(p, q);
-            }
+        // Expanding ring search: check all integers within expanding radii
+        // Radii: 10, 100, 1K, 10K, 100K, 1M, 10M, 100M
+        // This covers arbitrary offsets up to ±100M from the geometric resonance candidate
+        final long[] SEARCH_RADII = {10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L, 100_000_000L};
+        
+        // Test pCenter itself first
+        if (N.mod(pCenter).equals(BigInteger.ZERO)) {
+            return ordered(pCenter, N.divide(pCenter));
         }
+        
+        long prevRadius = 0L;
+        for (long radius : SEARCH_RADII) {
+            // Check all integers in the ring from prevRadius+1 to radius
+            for (long d = prevRadius + 1; d <= radius; d++) {
+                BigInteger offset = BigInteger.valueOf(d);
+                
+                // Test pCenter - d
+                BigInteger pLower = pCenter.subtract(offset);
+                if (pLower.compareTo(BigInteger.TWO) >= 0 && N.mod(pLower).equals(BigInteger.ZERO)) {
+                    return ordered(pLower, N.divide(pLower));
+                }
+                
+                // Test pCenter + d
+                BigInteger pUpper = pCenter.add(offset);
+                if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
+                    return ordered(pUpper, N.divide(pUpper));
+                }
+            }
+            prevRadius = radius;
+        }
+        
         return null;
     }
 
