@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 
-    "geofac.allow-gate1-benchmark=true" // Allow numbers outside the default gate for testing
+    "geofac.allow-127bit-benchmark=true" // Allow numbers outside the default gate for testing
 
 
 

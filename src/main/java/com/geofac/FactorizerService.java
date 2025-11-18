@@ -67,6 +67,12 @@ public class FactorizerService {
     @Value("${geofac.enable-diagnostics:false}")
     private boolean enableDiagnostics;
 
+    @Value("${geofac.search-radius-percentage:0.012}")
+    private double searchRadiusPercentage;
+
+    @Value("${geofac.max-search-radius:1000000000}")
+    private long maxSearchRadius;
+
     // Constants for benchmark fast-path (disabled by default)
     private static final BigInteger BENCHMARK_N = new BigInteger("137524771864208156028430259349934309717");
     private static final BigInteger BENCHMARK_P = new BigInteger("10508623501177419659");
@@ -358,35 +364,55 @@ public class FactorizerService {
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
-        // Expanding ring search: check all integers within expanding radii
-        // Radii: 10, 100, 1K, 10K, 100K, 1M, 10M, 100M
-        // This covers arbitrary offsets up to ±100M from the geometric resonance candidate
-        final long[] SEARCH_RADII = {10L, 100L, 1_000L, 10_000L, 100_000L, 1_000_000L, 10_000_000L, 100_000_000L};
+        // Dynamic expanding ring search based on geometric resonance error envelope
+        // The documented error bound for Gate 2 targets is approximately 0.37-1.19% of the candidate center
+        // We compute the search radius as: min(pCenter × searchRadiusPercentage, maxSearchRadius)
+        
+        // Calculate dynamic radius based on candidate magnitude
+        BigDecimal pCenterDecimal = new BigDecimal(pCenter);
+        BigDecimal dynamicRadiusDecimal = pCenterDecimal.multiply(BigDecimal.valueOf(searchRadiusPercentage));
+        
+        // Apply the configured maximum to ensure computational feasibility
+        BigInteger dynamicRadius = dynamicRadiusDecimal.toBigInteger();
+        long searchRadius;
+        boolean capped = false;
+        
+        if (dynamicRadius.compareTo(BigInteger.valueOf(maxSearchRadius)) > 0) {
+            searchRadius = maxSearchRadius;
+            capped = true;
+            log.warn("Search radius capped at {} (dynamic radius would be {})", 
+                     maxSearchRadius, dynamicRadius);
+        } else {
+            searchRadius = dynamicRadius.longValue();
+        }
+        
+        // Log the actual search parameters
+        log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}", 
+                 pCenter, searchRadius, searchRadiusPercentage * 100, 
+                 capped ? " [CAPPED]" : "");
         
         // Test pCenter itself first
         if (N.mod(pCenter).equals(BigInteger.ZERO)) {
             return ordered(pCenter, N.divide(pCenter));
         }
         
-        long prevRadius = 0L;
-        for (long radius : SEARCH_RADII) {
-            // Check all integers in the ring from prevRadius+1 to radius
-            for (long d = prevRadius + 1; d <= radius; d++) {
-                BigInteger offset = BigInteger.valueOf(d);
-                
-                // Test pCenter - d
-                BigInteger pLower = pCenter.subtract(offset);
-                if (pLower.compareTo(BigInteger.TWO) >= 0 && N.mod(pLower).equals(BigInteger.ZERO)) {
-                    return ordered(pLower, N.divide(pLower));
-                }
-                
-                // Test pCenter + d
-                BigInteger pUpper = pCenter.add(offset);
-                if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
-                    return ordered(pUpper, N.divide(pUpper));
-                }
+        // Exhaustive expanding ring search from 1 to searchRadius
+        // We test all integers in the range [pCenter - searchRadius, pCenter + searchRadius]
+        // This preserves the gap-free, deterministic coverage property
+        for (long d = 1; d <= searchRadius; d++) {
+            BigInteger offset = BigInteger.valueOf(d);
+            
+            // Test pCenter - d
+            BigInteger pLower = pCenter.subtract(offset);
+            if (pLower.compareTo(BigInteger.TWO) >= 0 && N.mod(pLower).equals(BigInteger.ZERO)) {
+                return ordered(pLower, N.divide(pLower));
             }
-            prevRadius = radius;
+            
+            // Test pCenter + d
+            BigInteger pUpper = pCenter.add(offset);
+            if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
+                return ordered(pUpper, N.divide(pUpper));
+            }
         }
         
         return null;

@@ -64,13 +64,44 @@ Parameters:
      * amplitude ← |D_J(θ)|
      * if amplitude > 0.92:
        - p₀ ← snap(ln_N, θ)
-       - test p₀ ± {0, 1, -1}
-       - if N mod p₀ = 0: return (p₀, N/p₀)
+       - test expanding ring: p₀ ± d for d ∈ [1, radius]
+         where radius = min(p₀ × 0.012, max_radius)
+       - if N mod p = 0: return (p, N/p)
 
 3. Return failure if no factors found
 ```
 
-### 2.3 Quasi-Monte Carlo Enhancement
+### 2.3 Expanding Ring Search Refinement
+
+When a geometric resonance candidate p₀ is identified (amplitude > threshold), it may not be the exact factor due to numerical precision limits and phase quantization. The **expanding ring search** provides deterministic, gap-free coverage around the candidate to find the true factor within the documented error envelope.
+
+**Error Envelope:** For Gate 2 targets (10^14 to 10^18), the documented geometric resonance error bound is approximately 0.37-1.19% of the candidate center value, roughly √N/2 on average. For a 127-bit semiprime with √N ≈ 10^19, a 1.19% error corresponds to an absolute offset of up to ~1.19 × 10^17.
+
+**Dynamic Radius Calculation:**
+```
+radius = min(p₀ × search_radius_percentage, max_search_radius)
+```
+
+Where:
+- `search_radius_percentage`: Default 0.012 (1.2%) to cover the full error envelope
+- `max_search_radius`: Default 10^9 to ensure computational feasibility
+
+**Search Algorithm:**
+```
+for d = 1 to radius:
+  test if N mod (p₀ - d) = 0
+  test if N mod (p₀ + d) = 0
+```
+
+This approach provides:
+- **Completeness**: All integers within ±radius are tested exhaustively
+- **Determinism**: No probabilistic sampling or gaps
+- **Scalability**: Radius adapts to candidate magnitude
+- **Practicality**: Configurable cap prevents unbounded searches
+
+For typical Gate 2 targets with √N ≈ 10^7, the 1.2% radius is ~1.2 × 10^5, requiring ~2.4 × 10^5 divisibility checks in the worst case—a computationally feasible operation.
+
+### 2.4 Quasi-Monte Carlo Enhancement
 
 Traditional pseudo-random sampling introduces clustering artifacts that reduce coverage efficiency. We employ low-discrepancy sequences for quasi-Monte Carlo sampling, which provides:
 
