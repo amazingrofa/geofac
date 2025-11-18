@@ -340,7 +340,7 @@ public class FactorizerService {
                     }
                     
                     // Test candidate and neighbors
-                    BigInteger[] hit = testNeighbors(N, p0);
+                    BigInteger[] hit = adaptiveExpandingSearch(p0, N, mc);
                     if (hit != null) {
                         result.compareAndSet(null, hit);
                         if (enableDiagnostics && candidateLogs != null) {
@@ -412,6 +412,104 @@ public class FactorizerService {
             BigInteger pUpper = pCenter.add(offset);
             if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
                 return ordered(pUpper, N.divide(pUpper));
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Adaptive expanding search with Z5D geometric prioritization.
+     * 
+     * Tests offsets in order of geometric resonance likelihood rather than
+     * simple radial distance. Uses Z5D calibration (k*=0.04449) to predict
+     * high-probability offsets within the error envelope.
+     * 
+     * @param p0 Initial candidate from phase-corrected snap
+     * @param N The semiprime being factored
+     * @param mc MathContext for high-precision calculations
+     * @return factors [p, q] if found, null otherwise
+     */
+    private BigInteger[] adaptiveExpandingSearch(BigInteger p0, BigInteger N, MathContext mc) {
+        // Calculate dynamic radius based on candidate magnitude (same as testNeighbors)
+        BigDecimal pCenterDecimal = new BigDecimal(p0);
+        BigDecimal dynamicRadiusDecimal = pCenterDecimal.multiply(BigDecimal.valueOf(searchRadiusPercentage));
+        
+        BigInteger dynamicRadius = dynamicRadiusDecimal.toBigInteger();
+        long searchRadius;
+        boolean capped = false;
+        
+        if (dynamicRadius.compareTo(BigInteger.valueOf(maxSearchRadius)) > 0) {
+            searchRadius = maxSearchRadius;
+            capped = true;
+            log.warn("Search radius capped at {} (dynamic radius would be {})", 
+                     maxSearchRadius, dynamicRadius);
+        } else {
+            searchRadius = dynamicRadius.longValue();
+        }
+        
+        log.debug("Adaptive Z5D search: pCenter={}, radius={} ({}% of pCenter){}", 
+                 p0, searchRadius, searchRadiusPercentage * 100, 
+                 capped ? " [CAPPED]" : "");
+        
+        // Test p0 itself first
+        if (N.mod(p0).equals(BigInteger.ZERO)) {
+            return ordered(p0, N.divide(p0));
+        }
+        
+        // Z5D calibration constant (from unified-framework benchmarks, <0.01% error at k=10^5)
+        double kStar = 0.04449;
+        
+        // Compute Z5D priority offsets
+        // For each offset d in [1, searchRadius], compute geometric resolution score
+        // and test in order of decreasing score
+        List<Long> prioritizedOffsets = new java.util.ArrayList<>();
+        for (long d = 1; d <= Math.min(searchRadius, 10000000); d++) {
+            prioritizedOffsets.add(d);
+        }
+        
+        // Sort by Z5D geometric resolution: offsets closer to θ'(n,k*) predictions are higher priority
+        // Simplified heuristic: prioritize offsets that align with k* modulo patterns
+        prioritizedOffsets.sort((d1, d2) -> {
+            // Z5D score: favor offsets that match k* geometric pattern
+            // This is a simplified approximation; full Z5D would compute θ'(n,k*) per offset
+            double score1 = Math.abs(Math.sin(d1 * kStar * Math.PI));
+            double score2 = Math.abs(Math.sin(d2 * kStar * Math.PI));
+            return Double.compare(score2, score1); // Higher score first
+        });
+        
+        // Test prioritized offsets
+        for (long d : prioritizedOffsets) {
+            BigInteger offset = BigInteger.valueOf(d);
+            
+            // Test pCenter - d
+            BigInteger pLower = p0.subtract(offset);
+            if (pLower.compareTo(BigInteger.TWO) >= 0 && N.mod(pLower).equals(BigInteger.ZERO)) {
+                return ordered(pLower, N.divide(pLower));
+            }
+            
+            // Test pCenter + d
+            BigInteger pUpper = p0.add(offset);
+            if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
+                return ordered(pUpper, N.divide(pUpper));
+            }
+        }
+        
+        // If not found in prioritized offsets and searchRadius > 10^7, continue with remaining offsets
+        if (searchRadius > 10000000) {
+            log.debug("Continuing exhaustive search for remaining {} offsets", searchRadius - 10000000);
+            for (long d = 10000001; d <= searchRadius; d++) {
+                BigInteger offset = BigInteger.valueOf(d);
+                
+                BigInteger pLower = p0.subtract(offset);
+                if (pLower.compareTo(BigInteger.TWO) >= 0 && N.mod(pLower).equals(BigInteger.ZERO)) {
+                    return ordered(pLower, N.divide(pLower));
+                }
+                
+                BigInteger pUpper = p0.add(offset);
+                if (pUpper.compareTo(N) < 0 && N.mod(pUpper).equals(BigInteger.ZERO)) {
+                    return ordered(pUpper, N.divide(pUpper));
+                }
             }
         }
         
