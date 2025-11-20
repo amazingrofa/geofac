@@ -51,7 +51,7 @@ class ValidationBenchmarkTest {
             // Verify p * q = N
             assertEquals(sp.N(), sp.p().multiply(sp.q()), "p * q must equal N");
             
-            // Verify in Gate 2 range
+            // Verify in Gate 4 range
             assertTrue(SemiprimeGenerator.isInGate2Range(sp.N()), 
                 "N must be in [1e14, 1e18] range");
             
@@ -71,7 +71,7 @@ class ValidationBenchmarkTest {
         for (SemiprimeGenerator.Semiprime sp : curated) {
             assertEquals(sp.N(), sp.p().multiply(sp.q()), "p * q must equal N");
             assertTrue(SemiprimeGenerator.isInGate2Range(sp.N()), 
-                "N must be in Gate 2 range");
+                "N must be in Gate 4 range");
         }
     }
     

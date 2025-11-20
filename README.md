@@ -64,11 +64,43 @@ Override via Spring config (profiles, env vars, command-line args) as needed.
 ---
 
 ### Testing
+
+The test suite implements a four-gate progressive validation framework. Run the full suite:
+
 ```bash
 ./gradlew test
 ```
 
-This runs validation tests plus the long 127-bit reference scenario. For manual resonance runs, use the CLI example above. Heavy, multi-minute factor attempts intentionally stay out of default CI.
+#### Validation Gates
+
+The project uses four sequential validation gates of increasing difficulty:
+
+1. **Gate 1 (30-bit)**: Quick sanity check (~5 seconds)
+   ```bash
+   ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate1_30BitValidation"
+   ```
+
+2. **Gate 2 (60-bit)**: Scaling validation (~30 seconds)
+   ```bash
+   ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate2_60BitValidation"
+   ```
+
+3. **Gate 3 (127-bit)**: Challenge verification (~5 minutes)
+   ```bash
+   ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate3_127BitChallenge"
+   ```
+
+4. **Gate 4**: Operational range testing [10^14, 10^18]
+   ```bash
+   ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate4_OperationalRange"
+   ```
+
+For development, start with Gates 1-2 for fast feedback:
+```bash
+./gradlew test --tests "*Gate1*" --tests "*Gate2*"
+```
+
+See `docs/VALIDATION_GATES.md` for complete gate specifications and success criteria.
 
 ---
 

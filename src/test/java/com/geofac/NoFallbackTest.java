@@ -59,7 +59,7 @@ class NoFallbackTest {
 
 
 
-        // Given the official Gate 1 challenge number (see docs/VALIDATION_GATES.md)
+        // Given the official Gate 3 (127-bit) challenge number (see docs/VALIDATION_GATES.md)
 
 
 

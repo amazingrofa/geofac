@@ -32,7 +32,7 @@ public class ExpandingRingSearchTest {
     private FactorizerService service;
 
     /**
-     * Test factoring a semiprime in Gate 2 range where expanding ring search is needed.
+     * Test factoring a semiprime in Gate 4 range where expanding ring search is needed.
      * This uses N = 100,000,980,001,501 = 10,000,019 × 10,000,079
      * 
      * The expanding ring search should find factors even if the geometric resonance
@@ -40,7 +40,7 @@ public class ExpandingRingSearchTest {
      */
     @Test
     void testExpandingRingFindsArbitraryOffsets() {
-        // Gate 2 range semiprime (in [1e14, 1e18])
+        // Gate 4 range semiprime (in [1e14, 1e18])
         BigInteger N = new BigInteger("100000980001501");
         BigInteger p = new BigInteger("10000019");
         BigInteger q = new BigInteger("10000079");
@@ -81,11 +81,11 @@ public class ExpandingRingSearchTest {
     }
     
     /**
-     * Test a Gate 2 range semiprime to ensure the algorithm works in the validation window.
+     * Test a Gate 4 range semiprime to ensure the algorithm works in the validation window.
      */
     @Test
     void testGate2Semiprime() {
-        // Another semiprime in the Gate 2 range [1e14, 1e18]
+        // Another semiprime in the Gate 4 range [1e14, 1e18]
         // N = 100,019,001,989 = 10,001,023 × 10,000,973
         BigInteger N = new BigInteger("100019001989979");
         BigInteger p = new BigInteger("10001023");
@@ -94,7 +94,7 @@ public class ExpandingRingSearchTest {
         // Verify test data
         assertEquals(N, p.multiply(q), "Test data should be valid: p × q = N");
         
-        System.out.println("\n=== Testing Gate 2 Range Semiprime ===");
+        System.out.println("\n=== Testing Gate 4 Range Semiprime ===");
         System.out.println("N = " + N + " (" + N.bitLength() + " bits)");
         
         long startTime = System.currentTimeMillis();

@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Simple test to verify the algorithm can factor a semiprime in the Gate 2 range.
+ * Simple test to verify the algorithm can factor a semiprime in the Gate 4 range.
  * This test uses a small balanced semiprime to validate basic functionality.
  */
 @SpringBootTest
@@ -30,7 +30,7 @@ public class SimpleSemiprimeTest {
     private FactorizerService service;
 
     /**
-     * Test factoring a small semiprime in the Gate 2 range.
+     * Test factoring a small semiprime in the Gate 4 range.
      * This demonstrates the algorithm works on semiprimes.
      * 
      * N = 100000980001501 = 10000019 * 10000079 (47 bits, in range [1e14, 1e18])

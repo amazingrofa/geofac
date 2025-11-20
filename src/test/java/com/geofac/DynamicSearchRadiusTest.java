@@ -40,12 +40,12 @@ public class DynamicSearchRadiusTest {
      * Uses a synthetic semiprime where the factor is at a known large offset.
      * 
      * For this test, we construct N = p × q where:
-     * - p and q are in the Gate 2 range
+     * - p and q are in the Gate 4 (operational) range
      * - The geometric resonance might produce a candidate with large error
      */
     @Test
     void testDynamicRadiusScaling() {
-        // Gate 2 semiprime: N = 1000003 × 100000007 = 100000307000021
+        // Gate 4 semiprime: N = 1000003 × 100000007 = 100000307000021
         BigInteger p = new BigInteger("1000003");
         BigInteger q = new BigInteger("100000007");
         BigInteger N = p.multiply(q);
@@ -53,9 +53,9 @@ public class DynamicSearchRadiusTest {
         // Verify test data
         assertEquals(N, p.multiply(q), "Test data should be valid: p × q = N");
         assertTrue(N.compareTo(new BigInteger("100000000000000")) >= 0, 
-                   "N should be in Gate 2 range (≥ 10^14)");
+                   "N should be in Gate 4 range (≥ 10^14)");
         assertTrue(N.compareTo(new BigInteger("1000000000000000000")) <= 0, 
-                   "N should be in Gate 2 range (≤ 10^18)");
+                   "N should be in Gate 4 range (≤ 10^18)");
         
         System.out.println("\n=== Testing Dynamic Search Radius Scaling ===");
         System.out.println("N = " + N + " (" + N.bitLength() + " bits)");
@@ -91,11 +91,11 @@ public class DynamicSearchRadiusTest {
     }
     
     /**
-     * Test with a larger Gate 2 semiprime to verify radius scaling at higher magnitudes.
+     * Test with a larger Gate 4 semiprime to verify radius scaling at higher magnitudes.
      */
     @Test
-    void testLargerGate2Semiprime() {
-        // Larger Gate 2 semiprime: N = 10000019 × 10000079 = 100000980001501
+    void testLargerGate4Semiprime() {
+        // Larger Gate 4 semiprime: N = 10000019 × 10000079 = 100000980001501
         BigInteger p = new BigInteger("10000019");
         BigInteger q = new BigInteger("10000079");
         BigInteger N = p.multiply(q);
@@ -103,7 +103,7 @@ public class DynamicSearchRadiusTest {
         // Verify test data
         assertEquals(N, p.multiply(q), "Test data should be valid: p × q = N");
         
-        System.out.println("\n=== Testing Larger Gate 2 Semiprime ===");
+        System.out.println("\n=== Testing Larger Gate 4 Semiprime ===");
         System.out.println("N = " + N + " (" + N.bitLength() + " bits)");
         System.out.println("Expected factors: p = " + p + ", q = " + q);
         System.out.println("√N ≈ " + sqrtApprox(N));
