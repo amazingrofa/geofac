@@ -8,7 +8,7 @@ This whitepaper documents the deterministic factorization of the official 127-bi
 
 Integer factorization remains a computationally intensive problem. This work presents an empirical investigation of geometric resonance factorization, a deterministic approach that factors semiprimes by analyzing resonance patterns in a transformed geometric space.
 
-The central contribution is a verifiable, reproducible factorization of the project's Gate 1 challenge number. The exact value and its factors are defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
+The central contribution is a verifiable, reproducible factorization of the project's Gate 3 (127-bit) challenge number. The exact value and its factors are defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 
 This factorization is achieved through:
 - **Dirichlet kernel gating**: Amplitude filtering in resonance space
@@ -40,7 +40,7 @@ The geometric resonance method transforms the factorization problem into a searc
 ### 2.2 Algorithm Flow
 
 ```
-Input: N (The Gate 1 challenge semiprime)
+Input: N (The Gate 3 (127-bit) challenge semiprime)
 Parameters:
   - precision: 240 decimal digits
   - samples: 3000
@@ -75,7 +75,7 @@ Parameters:
 
 When a geometric resonance candidate p₀ is identified (amplitude > threshold), it may not be the exact factor due to numerical precision limits and phase quantization. The **expanding ring search** provides deterministic, gap-free coverage around the candidate to find the true factor within the documented error envelope.
 
-**Error Envelope:** For Gate 2 targets (10^14 to 10^18), the documented geometric resonance error bound is approximately 0.37-1.19% of the candidate center value, roughly √N/2 on average. For a 127-bit semiprime with √N ≈ 10^19, a 1.19% error corresponds to an absolute offset of up to ~1.19 × 10^17.
+**Error Envelope:** For Gate 4 (operational range) targets (10^14 to 10^18), the documented geometric resonance error bound is approximately 0.37-1.19% of the candidate center value, roughly √N/2 on average. For a 127-bit semiprime with √N ≈ 10^19, a 1.19% error corresponds to an absolute offset of up to ~1.19 × 10^17.
 
 **Dynamic Radius Calculation:**
 ```
@@ -99,7 +99,7 @@ This approach provides:
 - **Scalability**: Radius adapts to candidate magnitude
 - **Practicality**: Configurable cap prevents unbounded searches
 
-For typical Gate 2 targets with √N ≈ 10^7, the 1.2% radius is ~1.2 × 10^5, requiring ~2.4 × 10^5 divisibility checks in the worst case—a computationally feasible operation.
+For typical Gate 4 (operational range) targets with √N ≈ 10^7, the 1.2% radius is ~1.2 × 10^5, requiring ~2.4 × 10^5 divisibility checks in the worst case—a computationally feasible operation.
 
 ### 2.4 Quasi-Monte Carlo Enhancement
 
@@ -120,7 +120,7 @@ Reference: Owen, A.B. (1995). "Randomly Permuted (t,m,s)-Nets and (t,s)-Sequence
 
 ### 3.1 Test Case: Gate 1 Factorization
 
-The test case is the successful factorization of the Gate 1 challenge number as defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
+The test case is the successful factorization of the Gate 3 (127-bit) challenge number as defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 
 **Verification:**
 ```python
@@ -161,7 +161,7 @@ cd geofac
 ./gradlew bootRun
 
 # At shell prompt, use the 'example' command to see usage
-# or 'factor <N>' with the Gate 1 challenge number.
+# or 'factor <N>' with the Gate 3 (127-bit) challenge number.
 shell:> example
 ```
 
@@ -229,7 +229,7 @@ References:
 
 ### 4.4 Scaling Considerations
 
-Current empirical results are focused on the Gate 1 challenge number. Scaling to other numbers (e.g., 256-bit or 2048-bit) is considered future work and would require further validation.
+Current empirical results are focused on the Gate 3 (127-bit) challenge number. Scaling to other numbers (e.g., 256-bit or 2048-bit) is considered future work and would require further validation.
 
 A parameterizable test harness is available in the `z-sandbox` repository for bit-length scaling experiments.
 
@@ -237,10 +237,10 @@ A parameterizable test harness is available in the `z-sandbox` repository for bi
 
 ### 5.1 Experimental Setup
 
-To quantify the benefit of quasi-Monte Carlo sampling over pseudo-random number generation, we conducted parameter-matched experiments using the Gate 1 challenge number.
+To quantify the benefit of quasi-Monte Carlo sampling over pseudo-random number generation, we conducted parameter-matched experiments using the Gate 3 (127-bit) challenge number.
 
 **Fixed parameters:**
-- N: The Gate 1 challenge number from `docs/VALIDATION_GATES.md`.
+- N: The Gate 3 (127-bit) challenge number from `docs/VALIDATION_GATES.md`.
 - precision = 240
 - m_span = 180
 - J = 6
@@ -293,11 +293,11 @@ Reference: Niederreiter, H. (1992). "Random Number Generation and Quasi-Monte Ca
 - **Balanced assumption**: Method assumes m₀ ≈ 0; skewed cases require extended m-span.
 - **Sample budget**: Success not guaranteed within a fixed sample count for arbitrary numbers.
 - **Precision requirements**: High-precision BigDecimal math imposes computational overhead.
-- **Scaling validation**: Requires empirical testing beyond the Gate 1 challenge.
+- **Scaling validation**: Requires empirical testing beyond the Gate 3 (127-bit) challenge.
 
 ## 7. Acceptance Criteria Verification
 
-This section validates the acceptance criteria specified in the original user story, which centered on documenting the factorization of the Gate 1 challenge number.
+This section validates the acceptance criteria specified in the original user story, which centered on documenting the factorization of the Gate 3 (127-bit) challenge number.
 
 ### A1 — Artifact Presence ✓
 
@@ -369,7 +369,7 @@ This section validates the acceptance criteria specified in the original user st
 ## 8. Future Work
 
 ### 8.1 Immediate Next Steps
-1. Complete validation for the Gate 1 challenge.
+1. Complete validation for the Gate 3 (127-bit) challenge.
 2. Begin exploration of Gate 2 operational range targets.
 3. Formal complexity analysis of the algorithm's runtime growth.
 
@@ -437,7 +437,7 @@ logging:
 
 ### Appendix B: Factor Verification
 
-Mathematical verification for the Gate 1 challenge number is detailed in `docs/VALIDATION_GATES.md`. The process involves confirming that `p * q = N` and that `p` and `q` are prime.
+Mathematical verification for the Gate 3 (127-bit) challenge number is detailed in `docs/VALIDATION_GATES.md`. The process involves confirming that `p * q = N` and that `p` and `q` are prime.
 
 ### Appendix C: Sobol Sequence Implementation Notes
 

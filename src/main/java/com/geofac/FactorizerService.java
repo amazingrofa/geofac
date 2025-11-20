@@ -79,9 +79,9 @@ public class FactorizerService {
     private static final BigInteger BENCHMARK_Q = new BigInteger("13086849276577416863");
 
     // Gate constants (see docs/VALIDATION_GATES.md)
-    private static final BigInteger GATE_2_MIN = new BigInteger("100000000000000"); // 10^14
-    private static final BigInteger GATE_2_MAX = new BigInteger("1000000000000000000"); // 10^18
-    private static final BigInteger GATE_1_CHALLENGE = new BigInteger("137524771864208156028430259349934309717");
+    private static final BigInteger GATE_4_MIN = new BigInteger("100000000000000"); // 10^14 - Operational range minimum
+    private static final BigInteger GATE_4_MAX = new BigInteger("1000000000000000000"); // 10^18 - Operational range maximum
+    private static final BigInteger GATE_3_CHALLENGE = new BigInteger("137524771864208156028430259349934309717"); // 127-bit challenge
 
     /**
      * Factor a semiprime N into p × q.
@@ -119,18 +119,18 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate3Challenge = N.equals(GATE_3_CHALLENGE);
+        boolean isInGate4Range = (N.compareTo(GATE_4_MIN) >= 0 && N.compareTo(GATE_4_MAX) <= 0);
 
-        if (!isInGate2Range && !(allow127bitBenchmark && isGate1Challenge)) {
+        if (!isInGate4Range && !(allow127bitBenchmark && isGate3Challenge)) {
             throw new IllegalArgumentException(
                 "Input N does not conform to project validation gates. See docs/VALIDATION_GATES.md for policy."
             );
         }
 
-        // Gate enforcement with property-gated exception for 127-bit benchmark
-        boolean outOfGate = (N.compareTo(GATE_2_MIN) < 0 || N.compareTo(GATE_2_MAX) > 0);
-        boolean isChallenge = N.equals(GATE_1_CHALLENGE);
+        // Gate enforcement with property-gated exception for 127-bit benchmark (Gate 3)
+        boolean outOfGate = (N.compareTo(GATE_4_MIN) < 0 || N.compareTo(GATE_4_MAX) > 0);
+        boolean isChallenge = N.equals(GATE_3_CHALLENGE);
         if (outOfGate && !(allow127bitBenchmark && isChallenge)) {
             throw new IllegalArgumentException("N must be in [1e14, 1e18]");
         }
@@ -236,19 +236,19 @@ public class FactorizerService {
         );
 
         // Enforce project validation gates. See docs/VALIDATION_GATES.md for details.
-        boolean isGate1Challenge = N.equals(GATE_1_CHALLENGE);
-        boolean isInGate2Range = (N.compareTo(GATE_2_MIN) >= 0 && N.compareTo(GATE_2_MAX) <= 0);
+        boolean isGate3Challenge = N.equals(GATE_3_CHALLENGE);
+        boolean isInGate4Range = (N.compareTo(GATE_4_MIN) >= 0 && N.compareTo(GATE_4_MAX) <= 0);
 
-        if (!isGate1Challenge && !isInGate2Range) {
+        if (!isGate3Challenge && !isInGate4Range) {
             throw new IllegalArgumentException(
-                String.format("N=%s violates validation gates. Must be Gate 1 challenge or in Gate 2 range [%s, %s]",
-                    N, GATE_2_MIN, GATE_2_MAX));
+                String.format("N=%s violates validation gates. Must be Gate 3 (127-bit) challenge or in Gate 4 range [%s, %s]",
+                    N, GATE_4_MIN, GATE_4_MAX));
         }
 
-        if (isGate1Challenge && allow127bitBenchmark) {
-            log.info("Gate 1 challenge factorization: N={} ({} bits)", N, N.bitLength());
-        } else if (isInGate2Range) {
-            log.info("Gate 2 factorization: N={} ({} bits)", N, N.bitLength());
+        if (isGate3Challenge && allow127bitBenchmark) {
+            log.info("Gate 3 (127-bit) challenge factorization: N={} ({} bits)", N, N.bitLength());
+        } else if (isInGate4Range) {
+            log.info("Gate 4 (operational range) factorization: N={} ({} bits)", N, N.bitLength());
         }
 
         long startTime = System.currentTimeMillis();

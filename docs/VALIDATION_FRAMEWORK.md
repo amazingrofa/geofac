@@ -5,7 +5,7 @@ Empirical validation framework for systematic testing of geometric resonance fac
 ## Purpose
 
 This framework provides infrastructure to:
-1. Generate known semiprimes in the [1e14, 1e18] validation window (Gate 2)
+1. Generate known semiprimes in the [1e14, 1e18] operational range (Gate 4)
 2. Run parameter sweeps with different configurations
 3. Track success/failure rates, timing, and accuracy
 4. Export reproducible artifacts (CSV, JSON, summaries)
@@ -265,7 +265,7 @@ Document in sweep results:
 
 Per [CODING_STYLE.md](../CODING_STYLE.md) and [VALIDATION_GATES.md](VALIDATION_GATES.md):
 
-1. **Gate 2 validation window**: All tests must use N in [1e14, 1e18]
+1. **Gate 4 (operational range) validation window**: All tests must use N in [1e14, 1e18]
 2. **No classical fallbacks**: Only geometric resonance methods
 3. **Deterministic methods**: Use Sobol/Halton, not random sampling
 4. **Explicit precision**: Log precision settings and adapt to N.bitLength()

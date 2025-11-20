@@ -83,18 +83,24 @@ public class FactorizerShell {
         return """
             === Geometric Factorizer - Example Usage ===
 
-            This project follows a two-gate validation policy. See docs/VALIDATION_GATES.md for details.
+            This project follows a four-gate validation policy. See docs/VALIDATION_GATES.md for details.
 
-            1. Run Gate 1 Validation (127-bit challenge):
+            1. Run Gate 1 (30-bit quick sanity check):
+               > factor 1073676287
+
+            2. Run Gate 2 (60-bit scaling validation):
+               > factor 1152921504606846883
+
+            3. Run Gate 3 (127-bit challenge verification):
                > factor 137524771864208156028430259349934309717
 
-            2. Run a number within the Gate 2 Operational Range [1e14, 1e18] (after Gate 1 is passed):
+            4. Run Gate 4 (operational range [1e14, 1e18]):
                > factor 214748364799999999
 
-            3. View this help:
+            5. View this help:
                > help factor
 
-            Note: This method is experimental. Success is only guaranteed for the Gate 1 challenge.
+            Note: This method is experimental. Success varies by gate and input complexity.
             """;
     }
 

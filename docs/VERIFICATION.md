@@ -6,7 +6,7 @@ This document provides exact verification details for the deterministic factoriz
 
 ## Test Case Specification
 
-The test case is the successful factorization of the Gate 1 challenge number.
+The test case is the successful factorization of the Gate 3 (127-bit) challenge number.
 
 **For the exact target number (N), its factors (p, q), and their properties, please refer to the canonical validation policy document:**
 
@@ -81,7 +81,7 @@ cd geofac
 
 #### 2. Verify configuration
 
-The default configuration is set up for the Gate 1 challenge.
+The default configuration is set up for the Gate 3 (127-bit) challenge.
 ```bash
 cat src/main/resources/application.yml
 ```
@@ -101,7 +101,7 @@ Wait for the Spring Shell prompt: `shell:>`
 
 #### 5. Execute factorization
 
-At the shell prompt, use the `example` command to see the command for the Gate 1 challenge number.
+At the shell prompt, use the `example` command to see the command for the Gate 3 (127-bit) challenge number.
 ```
 shell:> example
 ```
@@ -131,7 +131,7 @@ You can manually verify that `p * q == N`.
 
 ## Configuration Parameters
 
-The core parameters for the Gate 1 challenge are set in `application.yml`.
+The core parameters for the Gate 3 (127-bit) challenge are set in `application.yml`.
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
@@ -151,7 +151,7 @@ Use this checklist to verify reproduction:
 - [ ] JDK 17+ confirmed (`java -version`).
 - [ ] Build completes without errors (`./gradlew build`).
 - [ ] Application starts and shows `shell:>` prompt.
-- [ ] `factor` command with the Gate 1 challenge number runs successfully.
+- [ ] `factor` command with the Gate 3 (127-bit) challenge number runs successfully.
 - [ ] Output shows the correct factors `p` and `q` as defined in `docs/VALIDATION_GATES.md`.
 - [ ] Manual verification: `p * q = N`.
 - [ ] Artifacts are written to the `results/` directory.
@@ -192,11 +192,11 @@ print("✓ All verifications passed")
 
 ### Wolfram Alpha
 
-Query: `factor <N>` (where `<N>` is the Gate 1 challenge number).
+Query: `factor <N>` (where `<N>` is the Gate 3 (127-bit) challenge number).
 
 ### GNU Factor (coreutils)
 
-Command: `factor <N>` (where `<N>` is the Gate 1 challenge number). Note that this may be very slow.
+Command: `factor <N>` (where `<N>` is the Gate 3 (127-bit) challenge number). Note that this may be very slow.
 
 ## Summary
 

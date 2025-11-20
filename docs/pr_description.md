@@ -43,7 +43,7 @@ if (factors == null) {
 ### ✅ New Test: NoFallbackTest
 - **Status**: PASS
 - **Purpose**: Verifies that factorization fails without fallback for hard-to-factor numbers
-- **Test Data**: Uses the Gate 1 challenge number from `docs/VALIDATION_GATES.md`.
+- **Test Data**: Uses the Gate 3 (127-bit) challenge number from `docs/VALIDATION_GATES.md`.
 - **Configuration**: 1ms search timeout to force resonance failure
 - **Result**: Correctly returns failure with expected error message
 
