@@ -85,22 +85,22 @@ public class FactorizerShell {
 
             This project follows a four-gate validation policy. See docs/VALIDATION_GATES.md for details.
 
-            1. Run Gate 1 (30-bit quick sanity check):
-               > factor 1073676287
+            1. Gate 1 (30-bit quick check):
+               > factor 1073217479   # 32749 × 32771
 
-            2. Run Gate 2 (60-bit scaling validation):
-               > factor 1152921504606846883
+            2. Gate 2 (60-bit scaling):
+               > factor 1152921470247108503   # 1073741789 × 1073741827
 
-            3. Run Gate 3 (127-bit challenge verification):
+            3. Gate 3 (127-bit challenge):
                > factor 137524771864208156028430259349934309717
 
-            4. Run Gate 4 (operational range [1e14, 1e18]):
+            4. Gate 4 (operational range [1e14, 1e18]) after Gate 3 is passed:
                > factor 214748364799999999
 
             5. View this help:
                > help factor
 
-            Note: This method is experimental. Success varies by gate and input complexity.
+            Note: Gates are sequential; claims require passing each in order with logged, deterministic runs.
             """;
     }
 

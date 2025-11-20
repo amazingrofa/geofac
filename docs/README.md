@@ -8,8 +8,10 @@ This directory contains comprehensive documentation for the geometric resonance 
 **Official Project Policy** — Defines the four-gate validation policy for the project.
 
 **Contents:**
-- **Gate 1:** The 127-bit challenge number, its factors, and success criteria.
-- **Gate 2:** The operational range for the algorithm after Gate 1 is passed.
+- **Gate 1:** 30-bit quick check (plumbing sanity)
+- **Gate 2:** 60-bit scaling validation
+- **Gate 3:** 127-bit challenge, factors, and success criteria
+- **Gate 4:** Operational range after Gate 3 is passed (10^14–10^18)
 - This is the canonical source for the project's official targets.
 
 ---

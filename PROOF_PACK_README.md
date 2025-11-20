@@ -96,10 +96,12 @@ The script automatically detects and documents your hardware configuration in th
 
 This project follows a strict four-gate validation policy defined in `docs/VALIDATION_GATES.md`:
 
-- **Gate 1**: The 127-bit challenge number (137524771864208156028430259349934309717)
-- **Gate 2**: Operational range [1e14, 1e18] for general semiprimes
+- **Gate 1**: 30-bit quick sanity check (N=1,073,217,479 = 32,749 × 32,771)
+- **Gate 2**: 60-bit scaling validation (N=1,152,921,470,247,108,503 = 1,073,741,789 × 1,073,741,827)
+- **Gate 3**: 127-bit challenge number (137524771864208156028430259349934309717)
+- **Gate 4**: Operational range [1e14, 1e18] for general semiprimes
 
-This proof pack targets Gate 2 as a demonstration of the algorithm's capabilities.
+This proof pack targets Gate 4 as a demonstration of the algorithm's capabilities.
 
 ## Troubleshooting
 
