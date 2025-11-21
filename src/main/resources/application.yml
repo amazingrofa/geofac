@@ -7,19 +7,19 @@ spring:
 geofac:
   enable-diagnostics: false
   precision: 240
-  samples: 3000
+  samples: 2000
   m-span: 180
   j: 6
-  threshold: 0.92
+  threshold: 0.95
   k-lo: 0.25
   k-hi: 0.45
-  search-timeout-ms: 600000
+  search-timeout-ms: 1200000
   # Expanding ring search configuration
   # search-radius-percentage: Percentage of pCenter to search (e.g., 0.012 = 1.2% for full error envelope)
   search-radius-percentage: 0.012
   # max-search-radius: Maximum absolute search radius to prevent impractical searches
-  # Default: 10^9 provides reasonable coverage while remaining computationally feasible
-  max-search-radius: 1000000000
+  # Updated: 10^8 reduces bottleneck while maintaining coverage for Gate 3
+  max-search-radius: 100000000
 
 logging:
   level:
