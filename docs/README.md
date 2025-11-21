@@ -65,6 +65,16 @@ This directory contains comprehensive documentation for the geometric resonance 
 
 ---
 
+### [padic_topology_geofac.md](padic_topology_geofac.md)
+**Terminology normalization** — Maps geofac's legacy names to standard p-adic / adelic terms and links to a deterministic demo.
+
+**Contents:**
+- Definitions for `v_p`, `|.|_p`, `d_p`, truncated expansions, Hensel lifting, and truncated adele view.
+- Mapping table from spine / residue tunneling / cluster island / negative index to their p-adic equivalents.
+- Pointer to `docs/experiments/padic_spine_demo.py` (deterministic) showing the correspondence empirically.
+
+---
+
 ### [ACCEPTANCE_VALIDATION.md](ACCEPTANCE_VALIDATION.md)
 **Acceptance criteria summary** — Points to the canonical `VALIDATION_GATES.md` which superseded its original content.
 

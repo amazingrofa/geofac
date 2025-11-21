@@ -27,6 +27,9 @@ import ch.obermuhlner.math.big.BigDecimalMath;
  * - Golden-ratio QMC sampling
  * - High-precision BigDecimal arithmetic
  *
+ * Terminology: legacy "spine" / "residue tunnel" names in older docs map to
+ * p-adic expansion / Hensel lift language; see docs/padic_topology_geofac.md.
+ *
  * Ported from: z-sandbox GeometricResonanceFactorizer
  */
 @Service

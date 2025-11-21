@@ -20,6 +20,11 @@ Geofac is a Spring Boot + Spring Shell application that implements the geometric
 - **Spring Shell CLI** – run `factor <N>` inside the embedded shell with deterministic logs.
 - **Proof artifacts** – each run writes `factors.json`, `search_log.txt`, `config.json`, and `env.txt`.
 
+### P-adic topology (normalized terminology)
+Geofac's per-prime structures align with standard p-adic language: spines are truncated `Z_p` expansions, "residue tunnels" are Hensel lifts, and cluster strata are p-adic balls. The global real + per-prime snapshot is a truncated adele; behavior is unchanged, only the vocabulary is standardized.
+
+See `docs/padic_topology_geofac.md` for the mapping and definitions. A deterministic demo lives at `python docs/experiments/padic_spine_demo.py` and logs the adaptive precision it uses (formula: `max(configured, bitlength * 4 + 200)`).
+
 ---
 
 ### Getting started
