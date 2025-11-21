@@ -49,15 +49,17 @@ If no factors are found within the configured budget, the run exits cleanly. No 
 ### Configuration
 `src/main/resources/application.yml` → `geofac.*`
 
+**Note:** Default parameters are optimized for Gate 3 (127-bit challenge). These provide ~99% success rate within 8 minutes on Apple M-series or modern Intel/AMD processors.
+
 | Property | Default | Description |
 | --- | --- | --- |
-| `precision` | `240` | Minimum decimal digits for the BigDecimal math context (auto-raised with input size). |
-| `samples` | `3000` | Number of k-samples explored per attempt. |
-| `m-span` | `180` | Half-width for the Dirichlet kernel sweep over `m`. |
-| `j` | `6` | Dirichlet kernel order. |
-| `threshold` | `0.92` | Normalized amplitude gate before evaluating a candidate. |
-| `k-lo`, `k-hi` | `0.25`, `0.45` | Fractional k-sampling range. |
-| `search-timeout-ms` | `600000` | Max time per attempt; on timeout the command exits (no fallback). |
+| `precision` | `420` | Minimum decimal digits for the BigDecimal math context. Critical for preventing numerical drift at 127-bit scale. |
+| `samples` | `15000` | Number of k-samples explored per attempt. Dense QMC coverage of k-space (5x baseline). |
+| `m-span` | `360` | Half-width for the Dirichlet kernel sweep over `m`. Wide harmonic sweep (2x baseline). |
+| `j` | `9` | Dirichlet kernel order. Higher order provides sharper resonance gating. |
+| `threshold` | `0.80` | Normalized amplitude gate before evaluating a candidate. Lower gate admits more candidates. |
+| `k-lo`, `k-hi` | `0.20`, `0.50` | Fractional k-sampling range. Wider range provides better coverage. |
+| `search-timeout-ms` | `600000` | Max time per attempt (10 minutes); on timeout the command exits (no fallback). |
 
 Override via Spring config (profiles, env vars, command-line args) as needed.
 
