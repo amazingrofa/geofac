@@ -22,6 +22,22 @@ Always follow these rules.
 - Do not refactor, generalize, or future-proof unless the user asks for it.
 - Prefer deleting code and simplifying control flow over adding new branches, files, or abstractions.
 
+## Response format
+
+All responses and PR comments **must** begin with the conclusion as the headline:
+
+- Start with a **bold** headline that states the conclusion clearly.
+- Use **ALL CAPS** when the conclusion is critical or warrants emphasis.
+- Follow the headline with a detailed explanation.
+- Examples of headlines:
+  - **Hypothesis Validated**
+  - **Test Succeeded**
+  - **Hypothesis Falsified**
+  - **PRECISION VIOLATION DETECTED**
+  - **Change Approved**
+
+This format ensures immediate clarity and allows readers to quickly understand the outcome before diving into details.
+
 ## Validation gates
 
 ### First gate — 127-bit challenge number
