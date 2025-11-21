@@ -197,7 +197,7 @@ public class FactorizerService {
 
         log.info("Precision: {} decimal digits", adaptivePrecision);
         log.info("Configuration: samples={}, m-span={}, J={}, threshold={}",
-                 samples, mSpan, J, threshold);
+                 samples, mSpan, J, config.threshold());
 
         // Initialize constants
         BigDecimal bdN = new BigDecimal(N, mc);
@@ -221,7 +221,10 @@ public class FactorizerService {
             long totalDuration = System.currentTimeMillis() - startTime;
             String failureMessage = "NO_FACTOR_FOUND: resonance search failed within the configured timeout.";
             log.error(failureMessage);
-            if (diagnosticsEnabled) logDiagnostics(amplitudeDistribution, candidateLogs);            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
+            if (diagnosticsEnabled) {
+                logDiagnostics(amplitudeDistribution, candidateLogs);
+            }
+            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -562,7 +565,8 @@ public class FactorizerService {
     }
 
     /**
-     * Compute percentile from a sorted list.
+     * Compute percentile from a sorted list using linear interpolation.
+     * This is the standard method used by most statistical packages.
      * 
      * @param sortedList Sorted list of values
      * @param percentile Percentile to compute (0.0 to 1.0)
@@ -570,8 +574,25 @@ public class FactorizerService {
      */
     private double percentile(List<Double> sortedList, double percentile) {
         if (sortedList.isEmpty()) return 0.0;
-        int index = (int) Math.ceil(percentile * sortedList.size()) - 1;
-        index = Math.max(0, Math.min(index, sortedList.size() - 1));
-        return sortedList.get(index);
+        if (sortedList.size() == 1) return sortedList.get(0);
+        
+        // Linear interpolation method (R-7, used by Excel, NumPy default)
+        // Position is (n-1) * percentile, where n is list size
+        double position = (sortedList.size() - 1) * percentile;
+        int lower = (int) Math.floor(position);
+        int upper = (int) Math.ceil(position);
+        
+        // Clamp to valid range
+        lower = Math.max(0, Math.min(lower, sortedList.size() - 1));
+        upper = Math.max(0, Math.min(upper, sortedList.size() - 1));
+        
+        // If position is exact integer, return that element
+        if (lower == upper) {
+            return sortedList.get(lower);
+        }
+        
+        // Linear interpolation between lower and upper
+        double weight = position - lower;
+        return sortedList.get(lower) * (1 - weight) + sortedList.get(upper) * weight;
     }
 }
