@@ -160,16 +160,6 @@ public class FactorizerServiceTest {
     /**
      * Gate 3: 127-bit challenge verification test
      *
-     * Validates that gate enforcement with property-gated exception works correctly.
-     * Expected runtime: 3-5 minutes
-     *
-     * This test validates the geometric resonance algorithm against the official
-     * 127-bit semiprime defined in the project's validation policy.
-     * See docs/VALIDATION_GATES.md for complete specification.
-     */
-    /**
-     * Gate 3: 127-bit challenge verification test
-     *
      * With corrected k-range [0.08, 0.15] to match geometric positioning (k/√N ≈ 0.11),
      * the algorithm should successfully factor the 127-bit challenge.
      * Expected runtime: < 10 minutes with optimized parameters.
