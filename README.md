@@ -58,7 +58,7 @@ If no factors are found within the configured budget, the run exits cleanly. No 
 | `m-span` | `360` | Half-width for the Dirichlet kernel sweep over `m`. Wide harmonic sweep (2x baseline). |
 | `j` | `9` | Dirichlet kernel order. Higher order provides sharper resonance gating. |
 | `threshold` | `0.80` | Normalized amplitude gate before evaluating a candidate. Lower gate admits more candidates. |
-| `k-lo`, `k-hi` | `0.20`, `0.50` | Fractional k-sampling range. Wider range provides better coverage. |
+| `k-lo`, `k-hi` | `0.08`, `0.15` | Fractional k-sampling range. Critical geometric positioning for 127-bit factors (k/√N ≈ 0.11). |
 | `search-timeout-ms` | `600000` | Max time per attempt (10 minutes); on timeout the command exits (no fallback). |
 
 Override via Spring config (profiles, env vars, command-line args) as needed.
