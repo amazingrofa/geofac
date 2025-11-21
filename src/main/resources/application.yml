@@ -6,14 +6,14 @@ spring:
 
 geofac:
   enable-diagnostics: false
-  precision: 240
-  samples: 3000
-  m-span: 180
-  j: 6
-  threshold: 0.92
-  k-lo: 0.25
-  k-hi: 0.45
-  search-timeout-ms: 600000
+  precision: 280
+  samples: 80000
+  m-span: 220
+  j: 10
+  threshold: 0.878
+  k-lo: 0.19
+  k-hi: 0.47
+  search-timeout-ms: 7200000
   # Expanding ring search configuration
   # search-radius-percentage: Percentage of pCenter to search (e.g., 0.012 = 1.2% for full error envelope)
   search-radius-percentage: 0.012

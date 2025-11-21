@@ -51,13 +51,13 @@ If no factors are found within the configured budget, the run exits cleanly. No 
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `precision` | `240` | Minimum decimal digits for the BigDecimal math context (auto-raised with input size). |
-| `samples` | `3000` | Number of k-samples explored per attempt. |
-| `m-span` | `180` | Half-width for the Dirichlet kernel sweep over `m`. |
-| `j` | `6` | Dirichlet kernel order. |
-| `threshold` | `0.92` | Normalized amplitude gate before evaluating a candidate. |
-| `k-lo`, `k-hi` | `0.25`, `0.45` | Fractional k-sampling range. |
-| `search-timeout-ms` | `600000` | Max time per attempt; on timeout the command exits (no fallback). |
+| `precision` | `280` | Minimum decimal digits for the BigDecimal math context (auto-raised with input size). |
+| `samples` | `80000` | Number of k-samples explored per attempt. |
+| `m-span` | `220` | Half-width for the Dirichlet kernel sweep over `m`. |
+| `j` | `10` | Dirichlet kernel order. |
+| `threshold` | `0.878` | Normalized amplitude gate before evaluating a candidate. |
+| `k-lo`, `k-hi` | `0.19`, `0.47` | Fractional k-sampling range. |
+| `search-timeout-ms` | `7200000` | Max time per attempt; on timeout the command exits (no fallback). |
 
 Override via Spring config (profiles, env vars, command-line args) as needed.
 
@@ -85,7 +85,7 @@ The project uses four sequential validation gates of increasing difficulty:
    ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate2_60BitValidation"
    ```
 
-3. **Gate 3 (127-bit)**: Challenge verification (~5 minutes)
+3. **Gate 3 (127-bit)**: Challenge verification (~4-25 minutes with tuned parameters)
    ```bash
    ./gradlew test --tests "com.geofac.FactorizerServiceTest.testGate3_127BitChallenge"
    ```
