@@ -101,9 +101,11 @@ public class FactorizerService {
      */
     public FactorizationResult factor(BigInteger N) {
         // Initialize diagnostic queues as method-local variables
+        // Enable diagnostics automatically for 127-bit challenge
+        boolean diagnosticsEnabled = enableDiagnostics || N.bitLength() >= 127;
         Queue<BigDecimal> amplitudeDistribution = null;
         Queue<String> candidateLogs = null;
-        if (enableDiagnostics) {
+        if (diagnosticsEnabled) {
             amplitudeDistribution = new ConcurrentLinkedQueue<>();
             candidateLogs = new ConcurrentLinkedQueue<>();
         }
@@ -115,15 +117,24 @@ public class FactorizerService {
         // Fixed: Was using 4x + 200, now using 2x + 150 as per PrecisionUtil
         int adaptivePrecision = Math.max(precision, N.bitLength() * 2 + 150);
 
+        // Adaptive threshold and k-range based on scale
+        int bitLength = N.bitLength();
+        double adaptiveThresh = adaptiveThreshold(bitLength);
+        double[] adaptiveK = adaptiveKRange(bitLength);
+        
+        // Log adaptive parameters for reproducibility
+        log.info("Adaptive parameters: bitLength={}, threshold={} (base={}), k-range=[{}, {}] (base=[{}, {}])",
+                 bitLength, adaptiveThresh, threshold, adaptiveK[0], adaptiveK[1], kLo, kHi);
+
         // Create config snapshot for reproducibility
         FactorizerConfig config = new FactorizerConfig(
                 adaptivePrecision, // Use adaptivePrecision here
                 samples,
                 mSpan,
                 J,
-                threshold,
-                kLo,
-                kHi,
+                adaptiveThresh,    // Use adaptive threshold
+                adaptiveK[0],      // Use adaptive kLo
+                adaptiveK[1],      // Use adaptive kHi
                 searchTimeoutMs
         );
 
@@ -210,7 +221,7 @@ public class FactorizerService {
             long totalDuration = System.currentTimeMillis() - startTime;
             String failureMessage = "NO_FACTOR_FOUND: resonance search failed within the configured timeout.";
             log.error(failureMessage);
-            if (enableDiagnostics) logDiagnostics(amplitudeDistribution, candidateLogs);            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
+            if (diagnosticsEnabled) logDiagnostics(amplitudeDistribution, candidateLogs);            return new FactorizationResult(N, null, null, false, totalDuration, config, failureMessage);
         } else {
             log.info("=== SUCCESS ===");
             log.info("p = {}", factors[0]);
@@ -237,9 +248,11 @@ public class FactorizerService {
      */
     public FactorizationResult factor(BigInteger N, FactorizerConfig customConfig) {
         // Initialize diagnostic queues as method-local variables
+        // Enable diagnostics automatically for 127-bit challenge
+        boolean diagnosticsEnabled = enableDiagnostics || N.bitLength() >= 127;
         Queue<BigDecimal> amplitudeDistribution = null;
         Queue<String> candidateLogs = null;
-        if (enableDiagnostics) {
+        if (diagnosticsEnabled) {
             amplitudeDistribution = new ConcurrentLinkedQueue<>();
             candidateLogs = new ConcurrentLinkedQueue<>();
         }
@@ -454,6 +467,44 @@ public class FactorizerService {
         return sqrt5.subtract(BigDecimal.ONE, mc).divide(BigDecimal.valueOf(2), mc);
     }
 
+    /**
+     * Compute adaptive threshold based on input bit length.
+     * Larger inputs require lower thresholds as resonance peaks become sharper.
+     * 
+     * @param bitLength The bit length of N
+     * @return Adaptive threshold value
+     */
+    private double adaptiveThreshold(int bitLength) {
+        // Scale threshold down for larger inputs
+        // 30-bit: 0.92, 60-bit: ~0.89, 127-bit: 0.85
+        if (bitLength <= 30) {
+            return 0.92;
+        } else if (bitLength <= 60) {
+            return 0.89;
+        } else {
+            return 0.85;
+        }
+    }
+
+    /**
+     * Compute adaptive k-range based on input bit length.
+     * Larger inputs require wider search ranges.
+     * 
+     * @param bitLength The bit length of N
+     * @return Array [kLo, kHi]
+     */
+    private double[] adaptiveKRange(int bitLength) {
+        // Expand k-range for larger inputs
+        // 30-bit: [0.25, 0.45], 60-bit: [0.23, 0.47], 127-bit: [0.20, 0.50]
+        if (bitLength <= 30) {
+            return new double[]{0.25, 0.45};
+        } else if (bitLength <= 60) {
+            return new double[]{0.23, 0.47};
+        } else {
+            return new double[]{0.20, 0.50};
+        }
+    }
+
     // Package-private getters for testing
     long getSamples() {
         return samples;
@@ -470,11 +521,30 @@ public class FactorizerService {
         }
         // Compute stats on amplitudes (convert to double for simplicity)
         List<Double> amps = amplitudeDistribution.stream().map(BigDecimal::doubleValue).sorted().collect(Collectors.toList());
+        int count = amps.size();
         double minAmp = amps.get(0);
-        double maxAmp = amps.get(amps.size() - 1);
+        double maxAmp = amps.get(count - 1);
         double meanAmp = amps.stream().mapToDouble(d -> d).average().orElse(0.0);
-        long count = amps.size();
-        log.info("Diagnostics - Amplitude Distribution: count={}, min={}, max={}, mean={}", count, String.format("%.6f", minAmp), String.format("%.6f", maxAmp), String.format("%.6f", meanAmp));
+        
+        // Compute percentiles
+        double p25 = percentile(amps, 0.25);
+        double p50 = percentile(amps, 0.50); // median
+        double p75 = percentile(amps, 0.75);
+        double p90 = percentile(amps, 0.90);
+        double p95 = percentile(amps, 0.95);
+        double p99 = percentile(amps, 0.99);
+        
+        log.info("Diagnostics - Amplitude Distribution: count={}, min={}, p25={}, p50={}, p75={}, p90={}, p95={}, p99={}, max={}, mean={}", 
+                 count, 
+                 String.format("%.6f", minAmp), 
+                 String.format("%.6f", p25),
+                 String.format("%.6f", p50),
+                 String.format("%.6f", p75),
+                 String.format("%.6f", p90),
+                 String.format("%.6f", p95),
+                 String.format("%.6f", p99),
+                 String.format("%.6f", maxAmp), 
+                 String.format("%.6f", meanAmp));
         
         // Log candidate evaluations (limit to first 50 for brevity)
         if (candidateLogs != null && !candidateLogs.isEmpty()) {
@@ -489,5 +559,19 @@ public class FactorizerService {
                 logged++;
             }
         }
+    }
+
+    /**
+     * Compute percentile from a sorted list.
+     * 
+     * @param sortedList Sorted list of values
+     * @param percentile Percentile to compute (0.0 to 1.0)
+     * @return The percentile value
+     */
+    private double percentile(List<Double> sortedList, double percentile) {
+        if (sortedList.isEmpty()) return 0.0;
+        int index = (int) Math.ceil(percentile * sortedList.size()) - 1;
+        index = Math.max(0, Math.min(index, sortedList.size() - 1));
+        return sortedList.get(index);
     }
 }
