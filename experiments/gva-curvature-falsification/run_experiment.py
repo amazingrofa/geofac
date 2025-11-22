@@ -78,7 +78,7 @@ def compute_amplitude(N_coords: List[mp.mpf], candidate: int, k: float) -> mp.mp
 
 def compute_curvature(
     N_coords: List[mp.mpf], candidate: int, k: float, h: int
-) -> Tuple[float, float, float, float]:
+) -> Tuple[mp.mpf, mp.mpf, mp.mpf, mp.mpf]:
     """
     Compute discrete curvature (second-order difference) of amplitude.
 
@@ -97,7 +97,7 @@ def compute_curvature(
     A_plus = compute_amplitude(N_coords, c_plus, k)
 
     # Second-order central difference
-    curvature = (A_plus - 2 * A_center + A_minus) / (h * h)
+    curvature = (A_plus - mp.mpf(2) * A_center + A_minus) / (mp.mpf(h) ** 2)
 
     return curvature, A_minus, A_center, A_plus
 
@@ -119,6 +119,7 @@ def sample_shell_curvature(
         "amplitude_min": float("inf"),
         "amplitude_max": float("-inf"),
         "amplitude_values": [],
+        "candidates": [],
         "peak_locations": [],  # (candidate, curvature, amplitude)
         "factor_p_offset": EXPECTED_P - sqrt_N,
         "factor_q_offset": EXPECTED_Q - sqrt_N,
@@ -157,18 +158,20 @@ def sample_shell_curvature(
             N_coords, candidate, k, h
         )
 
-        metrics["curvature_values"].append(curvature)
-        metrics["amplitude_values"].append(A_center)
+        curvature_f = float(curvature)
+        A_center_f = float(A_center)
+        metrics["curvature_values"].append(curvature_f)
+        metrics["amplitude_values"].append(A_center_f)
 
-        if curvature < metrics["curvature_min"]:
-            metrics["curvature_min"] = curvature
-        if curvature > metrics["curvature_max"]:
-            metrics["curvature_max"] = curvature
+        if curvature_f < metrics["curvature_min"]:
+            metrics["curvature_min"] = curvature_f
+        if curvature_f > metrics["curvature_max"]:
+            metrics["curvature_max"] = curvature_f
 
-        if A_center < metrics["amplitude_min"]:
-            metrics["amplitude_min"] = A_center
-        if A_center > metrics["amplitude_max"]:
-            metrics["amplitude_max"] = A_center
+        if A_center_f < metrics["amplitude_min"]:
+            metrics["amplitude_min"] = A_center_f
+        if A_center_f > metrics["amplitude_max"]:
+            metrics["amplitude_max"] = A_center_f
 
         samples_collected += 1
         metrics["candidates"].append(candidate)
@@ -206,7 +209,7 @@ def sample_shell_curvature(
         curv_with_idx.sort(reverse=True)
 
         for abs_curv, idx, curv in curv_with_idx[:100]:
-            candidate = start + idx * stride
+            candidate = metrics["candidates"][idx]
             delta = candidate - sqrt_N
             # Distance to nearest factor (in delta space)
             dist_to_p = abs(delta - metrics["factor_p_offset"])
