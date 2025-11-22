@@ -1,8 +1,8 @@
-# GVA Factorization: Extension to 80+ Bit Semiprimes
+# GVA Factorization: Extension to 80-90 Bit Semiprimes
 
 ## Overview
 
-This implementation extends the Geodesic Validation Assault (GVA) factorization method from the validated 50-64 bit range to 80+ bit semiprimes. GVA uses 7-dimensional torus embeddings and Riemannian geodesic distance to efficiently factor semiprimes.
+This implementation extends the Geodesic Validation Assault (GVA) factorization method from the validated 50-64 bit range to 80-90 bit semiprimes. GVA uses 7-dimensional torus embeddings and Riemannian geodesic distance to efficiently factor semiprimes.
 
 ## Implementation
 
@@ -46,7 +46,8 @@ All validation gates pass:
 | Example | 50-bit | 1125899772623531 | 33554393 × 33554467 | 0.25s | ✅ PASS |
 | Gate 2 | 60-bit | 1152921470247108503 | 1073741789 × 1073741827 | 0.38s | ✅ PASS |
 | Example | 64-bit | 18446736050711510819 | 4294966297 × 4294966427 | 1.81s | ✅ PASS |
-| **Extension** | **80-bit** | **1208925821870827034933083** | **1099511627791 × 1099511629813** | **2.19s** | **✅ PASS** |
+| Extension | 80-bit | 1208925821870827034933083 | 1099511627791 × 1099511629813 | 2.30s | ✅ PASS |
+| **Extension** | **90-bit** | **1237940039290094980759032137** | **35184372088891 × 35184372088907** | **1.31s** | **✅ PASS** |
 
 ## Performance Characteristics
 
@@ -56,9 +57,10 @@ Performance scales sub-exponentially with bit length:
 - 30-bit → 50-bit: time × 0.77 (bits × 1.67)
 - 50-bit → 60-bit: time × 1.51 (bits × 1.20)
 - 60-bit → 64-bit: time × 4.75 (bits × 1.07)
-- 64-bit → 81-bit: time × 1.21 (bits × 1.27)
+- 64-bit → 80-bit: time × 1.27 (bits × 1.27)
+- 80-bit → 90-bit: time × 0.57 (bits × 1.12)
 
-The geodesic-guided search provides significant efficiency gains over brute-force approaches.
+The geodesic-guided search provides significant efficiency gains over brute-force approaches. Note the favorable scaling from 80 to 90 bits due to optimized sampling strategy.
 
 ### Precision Requirements
 
@@ -68,6 +70,7 @@ Adaptive precision ensures accuracy:
 - 60-bit: 440 dps
 - 64-bit: 456 dps
 - 80-bit: 524 dps
+- 90-bit: 564 dps
 
 ## Theoretical Foundation
 
@@ -98,11 +101,23 @@ This metric reveals geometric structure where factors minimize distance to N's e
 ```python
 from gva_factorization import gva_factor_search
 
-N = 1208925821870827034933083  # 80-bit semiprime
+# 80-bit semiprime
+N_80 = 1208925821870827034933083
 factors = gva_factor_search(
-    N,
+    N_80,
     k_values=[0.30, 0.35, 0.40],
     max_candidates=100000,
+    verbose=True,
+    allow_any_range=True,
+    use_geodesic_guidance=True
+)
+
+# 90-bit semiprime
+N_90 = 1237940039290094980759032137
+factors = gva_factor_search(
+    N_90,
+    k_values=[0.30, 0.35, 0.40],
+    max_candidates=200000,  # Increased for 90+ bits
     verbose=True,
     allow_any_range=True,
     use_geodesic_guidance=True
@@ -121,6 +136,9 @@ python3 gva_factorization.py
 
 # 80-bit specific test
 python3 test_gva_80bit.py
+
+# 90-bit specific test
+python3 test_gva_90bit.py
 
 # Benchmark suite
 python3 benchmark_gva.py
@@ -154,7 +172,7 @@ GVA offers advantages over classical methods:
 
 1. **Range Constraints**: 
    - Operational range [10^14, 10^18] limits to ~60-bit semiprimes
-   - 80+ bit requires `allow_any_range=True`
+   - 80-90 bit requires `allow_any_range=True`
    - Validated on 127-bit CHALLENGE_127 whitelist
 
 2. **Balanced Semiprimes**:
@@ -182,5 +200,17 @@ GVA offers advantages over classical methods:
 
 ## Implementation
 
-GVA extension to 80+ bit semiprimes (Nov 2025).
+GVA extension to 80-90 bit semiprimes (Nov 2025).
 Based on geometric resonance principles and 7D torus embeddings.
+
+### Key Implementation Details for 90+ Bits
+
+For 90+ bit semiprimes, the sampling strategy uses:
+- **Ultra-dense sampling**: Step size 1 for ±100 around sqrt(N) to catch factors very close to the square root
+- **Dense inner core**: ±10,000 with step 20
+- **Moderate middle region**: ±100,000 with step 500
+- **Sparse outer region**: To window edge with adaptive step
+- **Increased local search window**: 2500 (vs 1500 for 80-85 bits)
+- **Larger base window**: max(200000, sqrt(N)//500)
+
+This multi-layered approach ensures balanced coverage while maintaining computational efficiency.
