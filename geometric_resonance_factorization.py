@@ -199,6 +199,11 @@ def compute_geodesic_transform(n: int, k: float) -> mpf:
     """
     Compute geometric prime-density mapping: θ′(n,k) = φ·((n mod φ)/φ)^k
     
+    This function implements one of the Z-framework domain-specific forms
+    and is provided for completeness and future extensions. The current
+    factorization algorithm uses the standard phase formula θ = 2π*m/k
+    (see line 389 in factor() method).
+    
     Note: Taking modulo of integer n by irrational φ is intentional for the
     geodesic mapping. This computes the fractional position of n relative to
     the golden ratio scale, which is part of the geometric prime-density
@@ -381,6 +386,10 @@ class GeometricResonanceFactorizer:
             # Sweep over m-span for resonance detection
             # m = 0 assumption (balanced semiprime)
             for m in range(-m_span, m_span + 1):
+                # Guard against division by zero (k should never be 0 from QMC, but defensive)
+                if abs(k) < 1e-10:
+                    continue
+                    
                 # Compute phase angle: θ = 2π*m/k
                 # NOTE: This is the standard formula, not using geodesic transform
                 theta = two_pi * mpf(m) / mpf(k)

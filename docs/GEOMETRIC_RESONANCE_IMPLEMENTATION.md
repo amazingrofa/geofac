@@ -169,13 +169,14 @@ For each QMC sample n ∈ [0, samples):
 
 1. **Generate golden-ratio sample**: `u = golden_ratio_qmc_sample(n, seed)`
 2. **Map to k-range**: `k = k_lo + u × (k_hi - k_lo)`
-3. **Compute geodesic transform**: `θ' = φ·((N mod φ)/φ)^k`
-4. **Sweep m-span**: For m ∈ [-m_span, m_span]:
-   - Compute phase: `θ = 2π × (m + θ'/N)`
+3. **Sweep m-span**: For m ∈ [-m_span, m_span]:
+   - Compute phase angle: `θ = 2π*m/k` (standard formula)
+     * Note: geodesic transform θ'(n,k) is provided for Z-framework completeness
+       but current implementation uses standard phase formula for resonance detection
    - Dirichlet amplitude: `A(θ) = |sin((2J+1)θ/2) / ((2J+1)sin(θ/2))|`
    - If `A(θ) ≥ threshold`:
-     - Snap to integer: `candidate = round(N / (m + θ'/N + 1))`
-     - Verify: if `N % candidate == 0`, return factors
+     - Phase-corrected snap: `candidate = exp((ln(N) - θ)/2)`
+     - Round and verify: if `N % candidate == 0`, return factors
 
 ### Phase 4: Verification
 
