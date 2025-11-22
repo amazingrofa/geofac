@@ -1,0 +1,38 @@
+8D Imbalance-Tuned GVA Hypothesis Falsification - COMPLETE
+============================================================
+
+HYPOTHESIS TESTED:
+Adding an 8th dimension to model imbalance ratio r = ln(q/p) 
+enables GVA to factor unbalanced semiprimes (15-20% gap from √N).
+
+VERDICT: ❌ HYPOTHESIS DEFINITIVELY FALSIFIED
+
+EVIDENCE:
+- Unbalanced cases: 7D = 0/2 success, 8D = 0/2 success (no improvement)
+- Computational overhead: 8D is 50× slower (95.8s vs 0.25s avg)
+- Root cause misidentified: GVA fails on balanced cases too
+
+RESULTS TABLE:
+Test Case              | ln(q/p) | 7D Result | 8D Result | Verdict
+-----------------------------------------------------------------
+47-bit balanced        | 0.000007| FAIL      | FAIL      | Equal
+48-bit unbalanced      | 0.576   | FAIL      | FAIL      | No 8D advantage
+50-bit unbalanced      | 1.386   | FAIL      | FAIL      | No 8D advantage
+Gate 1 (30-bit)        | 0.000672| PASS      | PASS      | Equal
+
+RECOMMENDATION:
+ABANDON 8D GVA and all dimensional extensions using this mechanism.
+Focus on understanding why GVA fails in operational range even for balanced cases.
+
+DELIVERABLES:
+✓ EXECUTIVE_SUMMARY.md - Complete experimental report (8.4 KB)
+✓ FINDINGS.md - Conclusion-up-front summary (5.0 KB)
+✓ README.md - Quick overview (3.2 KB)
+✓ INDEX.md - Metadata and compliance (3.7 KB)
+✓ gva_8d.py - 8D implementation (9.2 KB)
+✓ test_experiment.py - Test harness (9.7 KB)
+✓ raw_results.txt - Raw output (116 lines)
+
+Experiment Date: 2025-11-22
+Status: Complete
+Total Runtime: ~510 seconds

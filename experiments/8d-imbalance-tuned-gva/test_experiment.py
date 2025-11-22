@@ -36,7 +36,7 @@ TEST_CASES = [
     },
     {
         'name': 'Moderately unbalanced 48-bit (ln(q/p) ≈ 0.58)',
-        'N': 177841110036541,  # Unbalanced by ~78%
+        'N': 177841110036541,  # q is 1.78× larger than p
         'p': 10000019,
         'q': 17783087,  # ≈ 1.78× larger
         'expected_r': log(17783087 / 10000019),  # ≈ 0.576
