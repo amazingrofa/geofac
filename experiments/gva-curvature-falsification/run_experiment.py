@@ -136,6 +136,9 @@ def sample_shell_curvature(
     stride = max(1, width // samples_target)
     h = max(1, stride // CURVATURE_H_DIVISOR)
 
+    metrics["stride"] = stride
+    metrics["curvature_h"] = h
+
     if verbose:
         print(f"\nk={k}: Sampling Shell S₅ positive region")
         print(f"  Range: [{start:,}, {end:,}]")
