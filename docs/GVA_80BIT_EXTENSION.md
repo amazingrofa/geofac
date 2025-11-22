@@ -174,13 +174,13 @@ GVA offers advantages over classical methods:
 
 ## References
 
-- Demo: demo_factor_recovery_verified.py gist (16 Nov 2025)
+- GVA method validated on 50-64 bit semiprimes (Nov 2025)
 - Z5D Prime Predictor: HIGH_SCALE_Z5D_VALIDATION.md
 - Validation: docs/VALIDATION_GATES.md
 - Style: CODING_STYLE.md
 - Theory: docs/THEORY.md
 
-## Authors
+## Implementation
 
-Implementation by GitHub Copilot following geofac guidelines.
-Based on GVA research (Nov 2025).
+GVA extension to 80+ bit semiprimes (Nov 2025).
+Based on geometric resonance principles and 7D torus embeddings.

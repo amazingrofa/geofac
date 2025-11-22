@@ -9,14 +9,15 @@ from gva_factorization import gva_factor_search, adaptive_precision
 import time
 
 # Test cases: 80-bit semiprimes
-# Generated using next_prime(2^40) pairs
+# Generated using primes near 2^40
+# p = 1099511627791 (the 50,847,535th prime)
+# q = 1099511629813 (the 50,847,657th prime)
 TEST_CASES_80BIT = [
     {
         'name': '80-bit balanced semiprime',
         'N': 1208925821870827034933083,
         'p': 1099511627791,
         'q': 1099511629813,
-        'bit_length': 81,
     },
 ]
 

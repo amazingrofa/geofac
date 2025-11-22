@@ -36,7 +36,10 @@ RANGE_MAX = 10**18
 def adaptive_precision(N: int) -> int:
     """
     Compute adaptive precision based on N's bit length.
-    Formula: max(configured, N.bitLength() × 4 + 200)
+    Formula: max(50, N.bitLength() × 4 + 200)
+    
+    The minimum precision of 50 dps ensures accuracy for small numbers,
+    while larger numbers scale proportionally to their bit length.
     
     Args:
         N: Integer to factor
@@ -70,8 +73,8 @@ def embed_torus_geodesic(n: int, k: float, dimensions: int = 7) -> List[mp.mpf]:
     for d in range(dimensions):
         # Use powers of φ for quasi-periodic structure
         # Fractional part gives torus coordinate
-        phase = phi ** (d + 1)
-        coord = mp.fmod(n * phase, 1)
+        phi_power = phi ** (d + 1)
+        coord = mp.fmod(n * phi_power, 1)
         
         # Apply geodesic exponent for density warping
         if k != 1.0:
@@ -144,9 +147,12 @@ def gva_factor_search(N: int, k_values: Optional[List[float]] = None,
     if not allow_any_range and N != CHALLENGE_127 and not (RANGE_MIN <= N <= RANGE_MAX):
         raise ValueError(f"N must be in [{RANGE_MIN}, {RANGE_MAX}] or CHALLENGE_127. Use allow_any_range=True for testing.")
     
-    if not (N > 1 and N % 2 == 1):  # Must be odd composite
-        if N % 2 == 0:
-            return (2, N // 2)
+    # Quick check for even numbers
+    if N % 2 == 0:
+        return (2, N // 2)
+    
+    # For production use, caller should verify N is actually composite
+    # This implementation focuses on the factorization algorithm itself
     
     # Set adaptive precision
     required_dps = adaptive_precision(N)
