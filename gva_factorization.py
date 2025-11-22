@@ -183,8 +183,10 @@ def gva_factor_search(N: int, k_values: Optional[List[float]] = None,
             base_window = max(200000, sqrt_N // 500)
         elif bit_length <= 99:  # 95-99 bits
             base_window = max(300000, sqrt_N // 400)
-        else:  # 100+ bits
+        elif bit_length <= 104:  # 100-104 bits
             base_window = max(400000, sqrt_N // 300)
+        else:  # 105+ bits
+            base_window = max(500000, sqrt_N // 250)
         
         if verbose:
             print(f"Search window: ±{base_window} around sqrt(N) = {sqrt_N}")
@@ -377,7 +379,7 @@ def _geodesic_guided_search(N: int, sqrt_N: int, N_coords: List[mp.mpf], k: floa
                 offsets.append(offset)
             for offset in range(middle_bound, window + 1, outer_step):
                 offsets.append(offset)
-    else:  # 100+ bits
+    elif bit_length <= 104:  # 100-104 bits
         # Maximum precision: ultra-dense sampling with expanded regions
         offsets = []
         # Ultra-inner core: step 1 for ±200 (catch factors very close to sqrt)
@@ -402,6 +404,35 @@ def _geodesic_guided_search(N: int, sqrt_N: int, N_coords: List[mp.mpf], k: floa
         outer_sample = 500
         if window > middle_bound and outer_sample > 0:
             outer_step = max(3000, (window - middle_bound) // outer_sample)
+            for offset in range(-window, -middle_bound, outer_step):
+                offsets.append(offset)
+            for offset in range(middle_bound, window + 1, outer_step):
+                offsets.append(offset)
+    else:  # 105+ bits
+        # Extended precision: ultra-dense sampling with further expanded regions
+        offsets = []
+        # Ultra-inner core: step 1 for ±250 (catch factors very close to sqrt)
+        ultra_inner_bound = 250
+        for offset in range(-ultra_inner_bound, ultra_inner_bound + 1):
+            offsets.append(offset)
+        # Inner core: dense ±25000
+        inner_bound = 25000
+        inner_step = 35
+        for offset in range(-inner_bound, -ultra_inner_bound, inner_step):
+            offsets.append(offset)
+        for offset in range(ultra_inner_bound + 1, inner_bound + 1, inner_step):
+            offsets.append(offset)
+        # Middle region: moderate density ±250000
+        middle_bound = 250000
+        middle_step = 800
+        for offset in range(-middle_bound, -inner_bound, middle_step):
+            offsets.append(offset)
+        for offset in range(inner_bound, middle_bound + 1, middle_step):
+            offsets.append(offset)
+        # Outer region: sparse sampling to window
+        outer_sample = 600
+        if window > middle_bound and outer_sample > 0:
+            outer_step = max(3500, (window - middle_bound) // outer_sample)
             for offset in range(-window, -middle_bound, outer_step):
                 offsets.append(offset)
             for offset in range(middle_bound, window + 1, outer_step):
@@ -453,8 +484,10 @@ def _geodesic_guided_search(N: int, sqrt_N: int, N_coords: List[mp.mpf], k: floa
             local_window = 2500
         elif bit_length <= 99:  # 95-99 bits
             local_window = 3000
-        else:  # 100+ bits
+        elif bit_length <= 104:  # 100-104 bits
             local_window = 3500
+        else:  # 105+ bits
+            local_window = 4000
         
         for local_offset in range(-local_window, local_window + 1):
             if candidates_tested >= max_candidates:

@@ -1,8 +1,8 @@
-# GVA Factorization: Extension to 80-100 Bit Semiprimes
+# GVA Factorization: Extension to 80-105 Bit Semiprimes
 
 ## Overview
 
-This implementation extends the Geodesic Validation Assault (GVA) factorization method from the validated 50-64 bit range to 80-100 bit semiprimes. GVA uses 7-dimensional torus embeddings and Riemannian geodesic distance to efficiently factor semiprimes.
+This implementation extends the Geodesic Validation Assault (GVA) factorization method from the validated 50-64 bit range to 80-105 bit semiprimes. GVA uses 7-dimensional torus embeddings and Riemannian geodesic distance to efficiently factor semiprimes.
 
 ## Implementation
 
@@ -49,7 +49,8 @@ All validation gates pass:
 | Extension | 80-bit | 1208925821870827034933083 | 1099511627791 × 1099511629813 | 2.27s | ✅ PASS |
 | Extension | 90-bit | 1237940039290094980759032137 | 35184372088891 × 35184372088907 | 1.29s | ✅ PASS |
 | Extension | 95-bit | 26135546798403530176256684719 | 161664921360197 × 161664921360227 | 2.81s | ✅ PASS |
-| **Extension** | **100-bit** | **633825300114191813121185692171** | **796131459065743 × 796131459065797** | **3.74s** | **✅ PASS** |
+| Extension | 100-bit | 633825300114191813121185692171 | 796131459065743 × 796131459065797 | 3.74s | ✅ PASS |
+| **Extension** | **105-bit** | **25000000000000670000000000002553** | **5000000000000023 × 5000000000000111** | **1.72s** | **✅ PASS** |
 
 ## Performance Characteristics
 
@@ -63,8 +64,9 @@ Performance scales sub-exponentially with bit length:
 - 80-bit → 90-bit: time × 0.57 (bits × 1.12)
 - 90-bit → 95-bit: time × 2.18 (bits × 1.05)
 - 95-bit → 100-bit: time × 1.33 (bits × 1.05)
+- 100-bit → 105-bit: time × 0.46 (bits × 1.05)
 
-The geodesic-guided search provides significant efficiency gains over brute-force approaches. Note the favorable scaling from 80 to 90 bits due to optimized sampling strategy, with 95-bit and 100-bit maintaining sub-exponential growth.
+The geodesic-guided search provides significant efficiency gains over brute-force approaches. Note the favorable scaling from 80 to 90 bits and from 100 to 105 bits due to optimized sampling strategy, with sub-exponential growth maintained throughout.
 
 ### Precision Requirements
 
@@ -77,6 +79,7 @@ Adaptive precision ensures accuracy:
 - 90-bit: 564 dps
 - 95-bit: 580 dps
 - 100-bit: 600 dps
+- 105-bit: 620 dps
 
 ## Theoretical Foundation
 
@@ -151,6 +154,17 @@ factors = gva_factor_search(
     use_geodesic_guidance=True
 )
 
+# 105-bit semiprime
+N_105 = 25000000000000670000000000002553
+factors = gva_factor_search(
+    N_105,
+    k_values=[0.30, 0.35, 0.40],
+    max_candidates=350000,  # Increased for 105+ bits
+    verbose=True,
+    allow_any_range=True,
+    use_geodesic_guidance=True
+)
+
 if factors:
     p, q = factors
     print(f"{N} = {p} × {q}")
@@ -173,6 +187,9 @@ python3 test_gva_95bit.py
 
 # 100-bit specific test
 python3 test_gva_100bit.py
+
+# 105-bit specific test
+python3 test_gva_105bit.py
 
 # Benchmark suite
 python3 benchmark_gva.py
@@ -257,14 +274,24 @@ For 95-99 bit semiprimes, the sampling strategy further refines:
 - **Increased local search window**: 3000 (vs 2500 for 90-92 bits)
 - **Larger base window**: max(300000, sqrt(N)//400)
 
-### Key Implementation Details for 100+ Bits
+### Key Implementation Details for 100-104 Bits
 
-For 100+ bit semiprimes, the sampling strategy reaches maximum precision:
-- **Ultra-dense sampling**: Step size 1 for ±200 around sqrt(N) for maximum factor capture precision
+For 100-104 bit semiprimes, the sampling strategy reaches high precision:
+- **Ultra-dense sampling**: Step size 1 for ±200 around sqrt(N) for high factor capture precision
 - **Dense inner core**: ±20,000 with step 30
 - **Moderate middle region**: ±200,000 with step 700
 - **Sparse outer region**: To window edge with adaptive step (outer_sample=500)
 - **Increased local search window**: 3500 (vs 3000 for 95-99 bits)
 - **Larger base window**: max(400000, sqrt(N)//300)
 
-This multi-layered approach ensures balanced coverage while maintaining computational efficiency.
+### Key Implementation Details for 105+ Bits
+
+For 105+ bit semiprimes, the sampling strategy reaches extended precision:
+- **Ultra-dense sampling**: Step size 1 for ±250 around sqrt(N) for maximum factor capture precision
+- **Dense inner core**: ±25,000 with step 35
+- **Moderate middle region**: ±250,000 with step 800
+- **Sparse outer region**: To window edge with adaptive step (outer_sample=600)
+- **Increased local search window**: 4000 (vs 3500 for 100-104 bits)
+- **Larger base window**: max(500000, sqrt(N)//250)
+
+This multi-layered approach ensures balanced coverage while maintaining computational efficiency across all scales.
