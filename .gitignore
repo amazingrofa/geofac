@@ -18,3 +18,9 @@ geofac.iml
 # Results and proof pack artifacts
 results/
 experiments/*/results/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
