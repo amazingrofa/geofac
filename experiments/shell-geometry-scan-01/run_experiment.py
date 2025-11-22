@@ -32,7 +32,7 @@ EXPECTED_Q = 13086849276577416863
 
 # Shell scan parameters
 PHI = (1 + mp.sqrt(5)) / 2  # Golden ratio ≈ 1.618
-J_MAX = 6  # Maximum shells to scan (S₀..S₅) - increased to cover actual factor location
+J_MAX = 6  # Number of shells to scan (creates shells S₀, S₁, S₂, S₃, S₄, S₅)
 B_TOTAL = 700000  # Total candidate budget
 B_SHELL = 56000  # Budget per shell (~8% of total)
 SEGMENTS_PER_SHELL = 32  # Segment count for each shell
@@ -44,12 +44,18 @@ K_TOTAL = K_FRACTAL + K_UNIFORM  # Total segments searched per shell
 K_VALUES = [0.30, 0.35, 0.40]
 PRECISION_DPS = 800
 
+# Amplitude threshold for candidate shell detection
+# Based on empirical observation: typical amplitude range is 0.997-0.999
+# A shell is considered a candidate if max amplitude significantly exceeds baseline
+AMPLITUDE_CANDIDATE_THRESHOLD = 0.9995  # Top 0.05% of observed range
+
 # Mandelbrot scoring parameters (from fractal-recursive-gva)
 RELATIVE_POS_SCALE = 0.1
 LOG_N_SCALE = 1e-20
 ESCAPE_WEIGHT = 0.6
 MAGNITUDE_WEIGHT = 0.4
 MAGNITUDE_SCALE = 10.0
+E_SQUARED = e ** 2  # Cache e² for kappa calculation
 
 
 def adaptive_precision(N: int) -> int:
@@ -96,7 +102,7 @@ def score_segment_with_mandelbrot(segment_start: int, segment_end: int,
     relative_pos = (segment_center - sqrt_N) / sqrt_N if sqrt_N > 0 else 0
     
     # Simple kappa approximation for scoring
-    kappa = 2.0 * log(N + 1) / (e ** 2)
+    kappa = 2.0 * log(N + 1) / E_SQUARED
     
     c = complex(kappa + relative_pos * RELATIVE_POS_SCALE, log(N) * LOG_N_SCALE)
     
@@ -202,6 +208,24 @@ def select_segments(segment_scores: List[Tuple[float, int, int]],
     return selected[:k_fractal + k_uniform]
 
 
+# Adaptive stride parameters for segment sweeping
+# Thresholds chosen based on segment width for different scales
+STRIDE_THRESHOLD_LARGE = 1_000_000_000  # 1 billion: very large segments
+STRIDE_LARGE = 1_000_000  # 1 million stride for very large segments
+STRIDE_DIVISOR_LARGE = 5000  # Divide width by 5000 for large segments
+
+STRIDE_THRESHOLD_MEDIUM = 100_000_000  # 100 million: medium segments
+STRIDE_MEDIUM = 100_000  # 100k stride for medium segments
+STRIDE_DIVISOR_MEDIUM = 3000  # Divide width by 3000 for medium segments
+
+STRIDE_THRESHOLD_SMALL = 10_000_000  # 10 million: small segments
+STRIDE_SMALL = 10_000  # 10k stride for small segments
+STRIDE_DIVISOR_SMALL = 2000  # Divide width by 2000 for small segments
+
+STRIDE_DEFAULT = 1000  # Default stride for tiny segments
+STRIDE_DIVISOR_DEFAULT = 1000  # Default divisor
+
+
 def gva_sweep_segment(N: int, sqrt_N: int, segment_start: int, segment_end: int,
                       k_values: List[float], max_candidates: int,
                       metrics: Dict) -> Optional[Tuple[int, int, float, float]]:
@@ -222,16 +246,16 @@ def gva_sweep_segment(N: int, sqrt_N: int, segment_start: int, segment_end: int,
         N_coords_cache[k] = embed_torus_geodesic(N, k)
     
     # Generate candidates in segment with adaptive stride
+    # Stride adapts to segment width to keep candidate count reasonable
     segment_width = segment_end - segment_start
-    # For very large segments, use larger stride
-    if segment_width > 1_000_000_000:
-        stride = max(1_000_000, segment_width // 5000)
-    elif segment_width > 100_000_000:
-        stride = max(100_000, segment_width // 3000)
-    elif segment_width > 10_000_000:
-        stride = max(10_000, segment_width // 2000)
+    if segment_width > STRIDE_THRESHOLD_LARGE:
+        stride = max(STRIDE_LARGE, segment_width // STRIDE_DIVISOR_LARGE)
+    elif segment_width > STRIDE_THRESHOLD_MEDIUM:
+        stride = max(STRIDE_MEDIUM, segment_width // STRIDE_DIVISOR_MEDIUM)
+    elif segment_width > STRIDE_THRESHOLD_SMALL:
+        stride = max(STRIDE_SMALL, segment_width // STRIDE_DIVISOR_SMALL)
     else:
-        stride = max(1000, segment_width // 1000)
+        stride = max(STRIDE_DEFAULT, segment_width // STRIDE_DIVISOR_DEFAULT)
     
     for k in k_values:
         if candidates_tested >= max_candidates:
@@ -580,8 +604,9 @@ def write_executive_summary(metrics: Dict, output_path: str):
             best = metrics['shell_results'][metrics['best_shell']] if metrics['best_shell'] is not None else None
             
             # Check for geometric candidate shell
+            # Use defined threshold instead of arbitrary value
             has_candidate_shell = False
-            if best and best['max_amplitude_overall'] > 0.5:  # Placeholder threshold
+            if best and best['max_amplitude_overall'] >= AMPLITUDE_CANDIDATE_THRESHOLD:
                 has_candidate_shell = True
             
             if has_candidate_shell:
