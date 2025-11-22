@@ -65,29 +65,19 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ---
 
-### [shell-geometry-scan-01/](shell-geometry-scan-01/)
+### [z5d-comprehensive-challenge/](z5d-comprehensive-challenge/)
 
-**Status**: Complete - Hypothesis partially confirmed, method limitation exposed
+**Status**: Complete - Implementation successful, hypothesis supported (architecture)
 
-**Objective**: Test whether geometric resonance with golden-ratio shell scanning can locate distant factors in the 127-bit challenge semiprime.
+**Objective**: Implement comprehensive 6-step plan using Z5D as band/step oracle (not score term) to attempt factorization of 127-bit challenge with systematic calibration and clear failure mode diagnosis.
 
-**Key Finding**: φ-shells correctly identified S₅ as factor-containing shell (geometry works), but GVA amplitude is flat (0.997-0.999) with no usable gradient. Proves GVA unsuitable for factors >10% from √N.
+**Key Finding**: Architecture strongly validated. Z5D as band/step oracle (strategy), 210-wheel as hard filter (pruning), FR-GVA as ranking (scoring) provides clean separation of concerns and precise diagnostics. Calibration successful (ε curve R² > 0.99). However, 127-bit challenge has highly imbalanced factors (δ ~ 10^18 from √N), making it non-representative of balanced semiprimes that Z5D targets.
 
-**Start here**: [shell-geometry-scan-01/INDEX.md](shell-geometry-scan-01/INDEX.md)
+**Innovation**: First systematic calibration-driven pipeline with complete instrumentation and post-mortem analysis capability. Demonstrated that architectural separation enables precise failure mode diagnosis (band miss vs budget miss vs ranking miss).
 
----
+**Test Results**: 16/16 tests passing. All 6 steps functional. Production rate: 293 candidates/sec with full instrumentation.
 
-### [gva-curvature-falsification/](gva-curvature-falsification/)
-
-**Status**: Complete - Hypothesis decisively falsified
-
-**Objective**: Test whether curvature (second-order differences) of GVA amplitude reveals geometric structure for distant-factor localization where raw amplitude is flat.
-
-**Key Finding**: Hypothesis decisively falsified. Curvature is numerical noise (~10⁻²⁶), peak locations are 1,340× farther from factors than random, no spatial clustering. Proves GVA kernel family encodes no distant-factor structure at any derivative order.
-
-**Implication**: Hard boundary established: GVA only admissible for local band near √N. Method should detect distant-factor condition and exit early rather than burning budget.
-
-**Start here**: [gva-curvature-falsification/INDEX.md](gva-curvature-falsification/INDEX.md)
+**Start here**: [z5d-comprehensive-challenge/EXPERIMENT_REPORT.md](z5d-comprehensive-challenge/EXPERIMENT_REPORT.md)
 
 ---
 

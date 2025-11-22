@@ -1,0 +1,32 @@
+{
+  "challenge": {
+    "N": "137524771864208156028430259349934309717",
+    "p_true": "10508623501177419659",
+    "q_true": "13086849276577416863",
+    "sqrt_N": "11727095627827384440",
+    "bit_length": 127,
+    "log_sqrt_N": 43.908433703839
+  },
+  "z5d_config": {
+    "epsilon": 0.7432878904438686,
+    "num_bands": 10,
+    "k_value": 0.35
+  },
+  "budget": {
+    "total_budget": 17560,
+    "delta_max": 38418,
+    "split": {
+      "high_priority": 6146,
+      "outer_shells": 1756,
+      "safety_net": 878
+    }
+  },
+  "coverage": {
+    "target": 100.0,
+    "confidence": "95%"
+  },
+  "wheel": {
+    "modulus": 210,
+    "residues": 48
+  }
+}
