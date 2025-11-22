@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-11-22T16:41:01.109223",
+  "n": "100000980001501",
+  "features": {
+    "N": "100000980001501",
+    "bit_length": "47",
+    "approx_sqrt": "10000048",
+    "kappa": "8.725390813191657",
+    "log_N": "32.23620110188363"
+  },
+  "routing_decision": "FR-GVA",
+  "primary_attempt": {
+    "method": "FR-GVA",
+    "time": 0.010641336441040039,
+    "precision": 388,
+    "success": true
+  },
+  "factors": {
+    "p": "10000019",
+    "q": "10000079",
+    "valid": true,
+    "source": "primary"
+  }
+}
