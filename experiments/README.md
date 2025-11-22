@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [signed-scaled-adjustments/](signed-scaled-adjustments/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Falsify the hypothesis that signed or scaled adjustments to the geometric parameter k in θ'(n,k) can reduce search iterations in Fermat-style factorization of balanced semiprimes.
+
+**Key Finding**: Hypothesis decisively falsified. Positive k-adjustments fail universally (0% success rate, 0/30 trials). Negative k-adjustments appear to succeed but only because the guard clause `a ≥ ceil(√n)` clamps them to the optimal baseline - they provide no actual improvement. For balanced semiprimes (p ≈ q), the optimal starting point is mathematically determined as ceil(√n), and θ'(n,k) provides no useful signal for improving this.
+
+**Critical Insight**: The geometric transformation θ'(n,k) = φ·((n mod φ)/φ)^k is designed for prime-density mapping, not for computing factorization starting points. Its application in Fermat-style iteration is a category error. Negative adjustments "succeed" only by being forced back to the trivial baseline.
+
+**Start here**: [signed-scaled-adjustments/INDEX.md](signed-scaled-adjustments/INDEX.md)
+
+---
+
 ### [fractal-recursive-gva-falsification/](fractal-recursive-gva-falsification/)
 
 **Status**: Complete - Hypothesis decisively falsified
