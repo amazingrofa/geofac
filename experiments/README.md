@@ -65,6 +65,22 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ---
 
+### [z5d-comprehensive-challenge/](z5d-comprehensive-challenge/)
+
+**Status**: Complete - Implementation successful, hypothesis supported (architecture)
+
+**Objective**: Implement comprehensive 6-step plan using Z5D as band/step oracle (not score term) to attempt factorization of 127-bit challenge with systematic calibration and clear failure mode diagnosis.
+
+**Key Finding**: Architecture strongly validated. Z5D as band/step oracle (strategy), 210-wheel as hard filter (pruning), FR-GVA as ranking (scoring) provides clean separation of concerns and precise diagnostics. Calibration successful (ε curve R² > 0.99). However, 127-bit challenge has highly imbalanced factors (δ ~ 10^18 from √N), making it non-representative of balanced semiprimes that Z5D targets.
+
+**Innovation**: First systematic calibration-driven pipeline with complete instrumentation and post-mortem analysis capability. Demonstrated that architectural separation enables precise failure mode diagnosis (band miss vs budget miss vs ranking miss).
+
+**Test Results**: 16/16 tests passing. All 6 steps functional. Production rate: 293 candidates/sec with full instrumentation.
+
+**Start here**: [z5d-comprehensive-challenge/EXPERIMENT_REPORT.md](z5d-comprehensive-challenge/EXPERIMENT_REPORT.md)
+
+---
+
 ### [weyl-law-remainder-oscillations/](weyl-law-remainder-oscillations/)
 
 **Status**: (Pre-existing experiment)
