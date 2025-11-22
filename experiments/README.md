@@ -40,6 +40,31 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ---
 
+### [z5d-informed-gva/](z5d-informed-gva/)
+
+**Status**: Framework complete - Ready for execution
+
+**Objective**: Attempt to falsify the hypothesis that integrating Z5D Prime Predictor insights (density oracle, wheel filtering, gap rules, variable stepping) into FR-GVA improves factorization performance on the 127-bit challenge.
+
+**Key Components**:
+- Z5D prime density simulation (PNT-based with realistic clustering)
+- Wheel residue filtering mod 210 (~77% deterministic pruning)
+- Window×wheel gap coverage validation
+- Z5D-shaped variable δ-stepping
+- Comparison framework with 4 ablation experiments
+
+**Hypothesis**: "Fractals × Z5D prior" creates synergy that outperforms either approach alone.
+
+**Falsification Criteria**:
+1. Z5D density doesn't change segment selection
+2. No correlation between amplitude and density
+3. No performance improvement vs. baseline
+4. All improvements attributable to wheel filter alone
+
+**Start here**: [z5d-informed-gva/INDEX.md](z5d-informed-gva/INDEX.md)
+
+---
+
 ### [weyl-law-remainder-oscillations/](weyl-law-remainder-oscillations/)
 
 **Status**: (Pre-existing experiment)

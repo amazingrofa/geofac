@@ -1,0 +1,12 @@
+Z5D Prime Density Simulation Metadata
+==================================================
+N = 137524771864208156028430259349934309717
+sqrt_N = 11727095627827384440
+log(sqrt_N) = 43.908434
+Base PNT density = 2.277467e-02
+Bin width = 1000
+Total bins = 2001
+
+Note: This is a SIMULATED density histogram based on PNT.
+It represents expected prime density behavior but is not
+derived from actual prime enumeration around √N₁₂₇.
