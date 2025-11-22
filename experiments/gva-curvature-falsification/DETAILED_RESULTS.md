@@ -21,7 +21,7 @@
 | R₅ | 867,036,556,394,714,496 | Inner radius (8.67 × 10¹⁴) |
 | R₆ | 1,402,894,617,735,313,152 | Outer radius (1.40 × 10¹⁵) |
 | k-values | [0.30, 0.35, 0.40] | GVA kernel parameters |
-| Samples target | 10,000 per k | Actual: 5,000 per k |
+| Samples target | 10,000 per k | Actual: 5,000 per k (see note below) |
 | Precision | 708 dps | Adaptive precision |
 | Sampling range | [1.26×10¹⁹, 1.31×10¹⁹] | Positive delta region |
 | Stride | 53,585,806,134,059 | Step between samples (~5.36 × 10¹⁰) |
@@ -44,6 +44,13 @@ curvature = (A_plus - 2*A_center + A_minus) / h²
 ```
 
 This is the discrete Laplacian (second-order central difference), measuring local concavity/convexity.
+
+**Note on sample count:** The target was 10,000 samples per k-value, but the actual count is 5,000. This is due to:
+1. Sampling only the positive delta region (not both positive and negative)
+2. Filtering: skipping even candidates (since N is odd)
+3. Stride calculation: width / target ≈ 5.36×10¹⁴ / 10,000 ≈ 5.36×10¹⁰
+
+The 5,000 samples still provide excellent coverage with stride ~5×10¹⁰ across the 5×10¹⁴ width shell.
 
 ## Per-k Results
 

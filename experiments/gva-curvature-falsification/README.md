@@ -47,11 +47,9 @@ A_plus = amplitude(c + h)
 
 # Second-order central difference (discrete Laplacian)
 curvature = (A_plus - 2*A_center + A_minus) / h²
-
-# Also test phase curvature:
-# phase = arg(embedding in complex plane)
-# curvature_phase = (φ_plus - 2*φ_center + φ_minus) / h²
 ```
+
+**Note:** Phase curvature was considered but not implemented since amplitude curvature alone is sufficient to test the hypothesis. If amplitude curvature is flat, phase curvature would provide no additional signal.
 
 ### Sampling Strategy
 
