@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Baseline FR-GVA",
+    "success": false,
+    "verified": false,
+    "elapsed": 34.9030077457428,
+    "p": null,
+    "q": null,
+    "max_candidates": 20000,
+    "delta_window": 500000,
+    "wheel_filter": false,
+    "z5d_prior": false,
+    "z5d_stepping": false
+  },
+  {
+    "name": "Wheel Filter Only",
+    "success": false,
+    "verified": false,
+    "elapsed": 15.983672618865967,
+    "p": null,
+    "q": null,
+    "max_candidates": 20000,
+    "delta_window": 500000,
+    "wheel_filter": true,
+    "z5d_prior": false,
+    "z5d_stepping": false
+  },
+  {
+    "name": "Z5D Prior Only (\u03b2=0.1)",
+    "success": false,
+    "verified": false,
+    "elapsed": 34.641260385513306,
+    "p": null,
+    "q": null,
+    "max_candidates": 20000,
+    "delta_window": 500000,
+    "wheel_filter": false,
+    "z5d_prior": true,
+    "z5d_stepping": false,
+    "z5d_weight_beta": 0.1
+  },
+  {
+    "name": "Full Z5D (\u03b2=0.1)",
+    "success": false,
+    "verified": false,
+    "elapsed": 8.688923835754395,
+    "p": null,
+    "q": null,
+    "max_candidates": 20000,
+    "delta_window": 500000,
+    "wheel_filter": true,
+    "z5d_prior": true,
+    "z5d_stepping": true,
+    "z5d_weight_beta": 0.1
+  }
+]
