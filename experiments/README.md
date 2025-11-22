@@ -65,6 +65,32 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ---
 
+### [shell-geometry-scan-01/](shell-geometry-scan-01/)
+
+**Status**: Complete - Hypothesis partially confirmed, method limitation exposed
+
+**Objective**: Test whether geometric resonance with golden-ratio shell scanning can locate distant factors in the 127-bit challenge semiprime.
+
+**Key Finding**: φ-shells correctly identified S₅ as factor-containing shell (geometry works), but GVA amplitude is flat (0.997-0.999) with no usable gradient. Proves GVA unsuitable for factors >10% from √N.
+
+**Start here**: [shell-geometry-scan-01/INDEX.md](shell-geometry-scan-01/INDEX.md)
+
+---
+
+### [gva-curvature-falsification/](gva-curvature-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether curvature (second-order differences) of GVA amplitude reveals geometric structure for distant-factor localization where raw amplitude is flat.
+
+**Key Finding**: Hypothesis decisively falsified. Curvature is numerical noise (~10⁻²⁶), peak locations are 1,340× farther from factors than random, no spatial clustering. Proves GVA kernel family encodes no distant-factor structure at any derivative order.
+
+**Implication**: Hard boundary established: GVA only admissible for local band near √N. Method should detect distant-factor condition and exit early rather than burning budget.
+
+**Start here**: [gva-curvature-falsification/INDEX.md](gva-curvature-falsification/INDEX.md)
+
+---
+
 ### [weyl-law-remainder-oscillations/](weyl-law-remainder-oscillations/)
 
 **Status**: (Pre-existing experiment)
