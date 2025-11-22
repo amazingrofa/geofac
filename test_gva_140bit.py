@@ -37,7 +37,7 @@ def test_140bit_gva():
     Expected behavior based on PR #97 insights:
     - Runtime should be <5s (potentially faster than 125-bit due to stronger geodesics)
     - Candidate usage should be <2% of budget (5k-15k of 700k candidates)
-    - Precision: 140 × 4 + 200 = 760 dps (adaptive formula)
+    - Precision: 141 × 4 + 200 = 764 dps (adaptive formula)
     """
     print("=" * 70)
     print("GVA Factorization: 140+ Bit Semiprime Test (PR #98)")

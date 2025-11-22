@@ -41,7 +41,7 @@ def test_150bit_gva():
     Expected behavior based on PR #97 insights:
     - Runtime potentially <10s if geodesic convergence continues strengthening
     - Candidate usage should be minimal due to gap=2 (extreme tightness)
-    - Precision: 150 × 4 + 200 = 800 dps (adaptive formula)
+    - Precision: 151 × 4 + 200 = 804 dps (adaptive formula)
     - If successful at this scale, confirms "larger = easier" phenomenon
       extends beyond 140 bits when geometry aligns
     
