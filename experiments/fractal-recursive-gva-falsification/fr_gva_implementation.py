@@ -35,6 +35,23 @@ CHALLENGE_127 = 137524771864208156028430259349934309717
 RANGE_MIN = 10**14
 RANGE_MAX = 10**18
 
+# Segment-based search parameters
+SEGMENTS_PER_WINDOW = 20  # Number of coarse segments to divide window into
+MIN_SEGMENT_SIZE = 1000  # Minimum size for a segment
+DEFAULT_TOP_K = 5  # Number of top-scored segments to search
+STRIDE_DIVISOR = 100  # Divisor for computing candidate stride within segment
+
+# Prefilter parameters
+DEVIATION_DIVISOR = 10  # Factor for computing max deviation from sqrt(N)
+MIN_DEVIATION = 1000  # Minimum allowed deviation for unbalanced cases
+
+# Mandelbrot scoring parameters
+RELATIVE_POS_SCALE = 0.1  # Scale factor for relative position in complex mapping
+LOG_N_SCALE = 1e-20  # Scale factor for log(N) in imaginary component
+ESCAPE_WEIGHT = 0.6  # Weight for escape ratio in score
+MAGNITUDE_WEIGHT = 0.4  # Weight for magnitude in score
+MAGNITUDE_SCALE = 10.0  # Scale factor for normalizing magnitude
+
 
 def adaptive_precision(N: int) -> int:
     """
@@ -119,7 +136,7 @@ def is_valid_candidate(candidate: int, N: int, sqrt_N: int) -> bool:
     # Factor band check: candidate should be within reasonable range of sqrt(N)
     # For balanced semiprimes, factors are near sqrt(N)
     # Allow up to 10x deviation for unbalanced cases
-    max_deviation = max(sqrt_N // 10, 1000)
+    max_deviation = max(sqrt_N // DEVIATION_DIVISOR, MIN_DEVIATION)
     if abs(candidate - sqrt_N) > max_deviation and candidate < sqrt_N:
         return False
     
@@ -161,7 +178,7 @@ def score_segment_with_mandelbrot(segment_start: int, segment_end: int,
     
     # Map to complex plane with kappa influence
     # Use relative position to create a stable, monotone mapping
-    c = complex(kappa + relative_pos * 0.1, log(N) * 1e-20)
+    c = complex(kappa + relative_pos * RELATIVE_POS_SCALE, log(N) * LOG_N_SCALE)
     
     z = 0j
     escape_count = 0
@@ -184,7 +201,8 @@ def score_segment_with_mandelbrot(segment_start: int, segment_end: int,
     escape_ratio = escape_count / max_iterations
     
     # Combine metrics: balance escape behavior with magnitude
-    score = (escape_ratio * 0.6 + min(avg_magnitude / 10.0, 1.0) * 0.4)
+    score = (escape_ratio * ESCAPE_WEIGHT + 
+             min(avg_magnitude / MAGNITUDE_SCALE, 1.0) * MAGNITUDE_WEIGHT)
     
     return min(score, 1.0)
 
@@ -232,7 +250,7 @@ def recursive_window_subdivision(N: int, window_start: int, window_end: int,
             print(f"  Depth {depth}: κ={kappa:.4f} > threshold, using segment-based search")
         
         # Divide window into coarse segments
-        segment_size = max((window_end - window_start) // 20, 1000)
+        segment_size = max((window_end - window_start) // SEGMENTS_PER_WINDOW, MIN_SEGMENT_SIZE)
         segments = []
         
         current = window_start
@@ -253,7 +271,7 @@ def recursive_window_subdivision(N: int, window_start: int, window_end: int,
         
         # Sort by score (descending) and select top-K
         segment_scores.sort(reverse=True, key=lambda x: x[0])
-        top_k = min(5, len(segment_scores))  # Search top 5 segments
+        top_k = min(DEFAULT_TOP_K, len(segment_scores))
         
         if verbose:
             print(f"    Top-{top_k} segments by score:")
@@ -269,7 +287,7 @@ def recursive_window_subdivision(N: int, window_start: int, window_end: int,
             
             # Generate candidates in this segment with stride
             # Use deterministic stride based on segment size
-            stride = max((seg_end - seg_start) // 100, 1)
+            stride = max((seg_end - seg_start) // STRIDE_DIVISOR, 1)
             
             for candidate in range(seg_start, seg_end, stride):
                 # Apply hard prefilters
