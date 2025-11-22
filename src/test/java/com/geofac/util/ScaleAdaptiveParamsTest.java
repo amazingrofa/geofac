@@ -18,6 +18,12 @@ public class ScaleAdaptiveParamsTest {
     private static final BigInteger GATE_1_N = new BigInteger("1073217479"); // 30-bit
     private static final BigInteger GATE_2_N = new BigInteger("1152921470247108503"); // 60-bit
     private static final BigInteger GATE_3_N = new BigInteger("137524771864208156028430259349934309717"); // 127-bit
+    
+    // Test tolerance constants
+    private static final int SAMPLES_TOLERANCE = 100;
+    private static final int MSPAN_TOLERANCE = 10;
+    private static final double THRESHOLD_TOLERANCE = 0.01;
+    private static final long TIMEOUT_TOLERANCE = 60000; // 1 minute
 
     @Test
     void testAdaptiveSamples_ScalesWithBitLength() {
@@ -25,7 +31,7 @@ public class ScaleAdaptiveParamsTest {
         
         // 30-bit baseline
         long samples30 = ScaleAdaptiveParams.adaptiveSamples(GATE_1_N, baseSamples);
-        assertEquals(3000, samples30, 100); // Should be close to baseline
+        assertEquals(3000, samples30, SAMPLES_TOLERANCE); // Should be close to baseline
         
         // 60-bit should be ~2.83x higher (quadratic growth)
         long samples60 = ScaleAdaptiveParams.adaptiveSamples(GATE_2_N, baseSamples);
@@ -44,7 +50,7 @@ public class ScaleAdaptiveParamsTest {
         
         // 30-bit baseline
         int mSpan30 = ScaleAdaptiveParams.adaptiveMSpan(GATE_1_N, baseMSpan);
-        assertEquals(180, mSpan30, 10); // Should be close to baseline
+        assertEquals(180, mSpan30, MSPAN_TOLERANCE); // Should be close to baseline
         
         // 60-bit should be ~2x higher (linear growth)
         int mSpan60 = ScaleAdaptiveParams.adaptiveMSpan(GATE_2_N, baseMSpan);
@@ -64,7 +70,7 @@ public class ScaleAdaptiveParamsTest {
         
         // 30-bit baseline
         double threshold30 = ScaleAdaptiveParams.adaptiveThreshold(GATE_1_N, baseThreshold, attenuation);
-        assertEquals(0.92, threshold30, 0.01); // Should be close to baseline
+        assertEquals(0.92, threshold30, THRESHOLD_TOLERANCE); // Should be close to baseline
         
         // 60-bit should be slightly lower (logarithmic decay)
         double threshold60 = ScaleAdaptiveParams.adaptiveThreshold(GATE_2_N, baseThreshold, attenuation);
@@ -90,7 +96,7 @@ public class ScaleAdaptiveParamsTest {
         // 30-bit baseline
         double[] kRange30 = ScaleAdaptiveParams.adaptiveKRange(GATE_1_N, kLo, kHi);
         double width30 = kRange30[1] - kRange30[0];
-        assertEquals(0.20, width30, 0.01); // Should be close to baseline
+        assertEquals(0.20, width30, THRESHOLD_TOLERANCE); // Should be close to baseline
         
         // 60-bit should be narrower
         double[] kRange60 = ScaleAdaptiveParams.adaptiveKRange(GATE_2_N, kLo, kHi);
@@ -106,9 +112,9 @@ public class ScaleAdaptiveParamsTest {
         
         // All ranges should be centered around the same point
         double center = (kLo + kHi) / 2.0;
-        assertEquals(center, (kRange30[0] + kRange30[1]) / 2.0, 0.01);
-        assertEquals(center, (kRange60[0] + kRange60[1]) / 2.0, 0.01);
-        assertEquals(center, (kRange127[0] + kRange127[1]) / 2.0, 0.01);
+        assertEquals(center, (kRange30[0] + kRange30[1]) / 2.0, THRESHOLD_TOLERANCE);
+        assertEquals(center, (kRange60[0] + kRange60[1]) / 2.0, THRESHOLD_TOLERANCE);
+        assertEquals(center, (kRange127[0] + kRange127[1]) / 2.0, THRESHOLD_TOLERANCE);
     }
 
     @Test
@@ -117,7 +123,7 @@ public class ScaleAdaptiveParamsTest {
         
         // 30-bit baseline
         long timeout30 = ScaleAdaptiveParams.adaptiveTimeout(GATE_1_N, baseTimeout);
-        assertEquals(600000, timeout30, 60000); // Should be close to baseline
+        assertEquals(600000, timeout30, TIMEOUT_TOLERANCE); // Should be close to baseline
         
         // 60-bit should be ~4x higher (quadratic growth)
         long timeout60 = ScaleAdaptiveParams.adaptiveTimeout(GATE_2_N, baseTimeout);

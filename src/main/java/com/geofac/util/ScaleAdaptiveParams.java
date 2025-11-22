@@ -27,12 +27,19 @@ public final class ScaleAdaptiveParams {
     
     private static final Logger LOG = LoggerFactory.getLogger(ScaleAdaptiveParams.class);
     
+    // Baseline bit-length for scaling reference (30-bit is the Gate 1 validation target)
+    private static final double BASELINE_BIT_LENGTH = 30.0;
+    
+    // Threshold bounds to prevent false positives while maintaining sensitivity
+    private static final double MIN_THRESHOLD = 0.5;
+    private static final double MAX_THRESHOLD = 1.0;
+    
     private ScaleAdaptiveParams() {}
     
     /**
      * Compute scale-adaptive samples count.
      * 
-     * Formula: base * (bitLength / 30)^1.5
+     * Formula: base * (bitLength / BASELINE_BIT_LENGTH)^1.5
      * Rationale: Search space grows super-linearly with bit-length.
      * At 30-bit: ~3000 samples (baseline)
      * At 60-bit: ~8485 samples (4x space, 2.83x samples)
@@ -40,7 +47,7 @@ public final class ScaleAdaptiveParams {
      */
     public static long adaptiveSamples(BigInteger N, long baseSamples) {
         int bitLength = N.bitLength();
-        double scaleFactor = Math.pow(bitLength / 30.0, 1.5);
+        double scaleFactor = Math.pow(bitLength / BASELINE_BIT_LENGTH, 1.5);
         long adapted = (long) (baseSamples * scaleFactor);
         LOG.debug("adaptiveSamples: bitLength={}, base={}, factor={:.3f}, adapted={}",
                  bitLength, baseSamples, scaleFactor, adapted);
@@ -50,7 +57,7 @@ public final class ScaleAdaptiveParams {
     /**
      * Compute scale-adaptive m-span.
      * 
-     * Formula: base * (bitLength / 30)
+     * Formula: base * (bitLength / BASELINE_BIT_LENGTH)
      * Rationale: Resonance width scales linearly with number magnitude.
      * At 30-bit: ~180 (baseline)
      * At 60-bit: ~360 (2x width)
@@ -58,7 +65,7 @@ public final class ScaleAdaptiveParams {
      */
     public static int adaptiveMSpan(BigInteger N, int baseMSpan) {
         int bitLength = N.bitLength();
-        double scaleFactor = bitLength / 30.0;
+        double scaleFactor = bitLength / BASELINE_BIT_LENGTH;
         int adapted = (int) (baseMSpan * scaleFactor);
         LOG.debug("adaptiveMSpan: bitLength={}, base={}, factor={:.3f}, adapted={}",
                  bitLength, baseMSpan, scaleFactor, adapted);
@@ -68,7 +75,7 @@ public final class ScaleAdaptiveParams {
     /**
      * Compute scale-adaptive threshold.
      * 
-     * Formula: base - (log2(bitLength / 30) * attenuation)
+     * Formula: base - (log2(bitLength / BASELINE_BIT_LENGTH) * attenuation)
      * Rationale: Signal strength attenuates logarithmically with scale.
      * At 30-bit: ~0.92 (baseline)
      * At 60-bit: ~0.87 (5% reduction)
@@ -76,10 +83,10 @@ public final class ScaleAdaptiveParams {
      */
     public static double adaptiveThreshold(BigInteger N, double baseThreshold, double attenuation) {
         int bitLength = N.bitLength();
-        double scaleFactor = Math.log(bitLength / 30.0) / Math.log(2);
+        double scaleFactor = Math.log(bitLength / BASELINE_BIT_LENGTH) / Math.log(2);
         double adapted = baseThreshold - (scaleFactor * attenuation);
-        // Ensure threshold stays in reasonable range [0.5, 1.0]
-        adapted = Math.max(0.5, Math.min(1.0, adapted));
+        // Ensure threshold stays in reasonable range
+        adapted = Math.max(MIN_THRESHOLD, Math.min(MAX_THRESHOLD, adapted));
         LOG.debug("adaptiveThreshold: bitLength={}, base={:.3f}, attenuation={:.3f}, adapted={:.3f}",
                  bitLength, baseThreshold, attenuation, adapted);
         return adapted;
@@ -89,8 +96,8 @@ public final class ScaleAdaptiveParams {
      * Compute scale-adaptive k-range bounds.
      * 
      * Formula: Center around 0.35 with narrowing window
-     * kLo = center - (baseWidth / sqrt(bitLength / 30))
-     * kHi = center + (baseWidth / sqrt(bitLength / 30))
+     * kLo = center - (baseWidth / sqrt(bitLength / BASELINE_BIT_LENGTH))
+     * kHi = center + (baseWidth / sqrt(bitLength / BASELINE_BIT_LENGTH))
      * 
      * Rationale: Geometric resonance converges with scale.
      * At 30-bit: [0.25, 0.45] (width=0.20, baseline)
@@ -102,7 +109,7 @@ public final class ScaleAdaptiveParams {
         double center = (kLo + kHi) / 2.0;
         double baseWidth = (kHi - kLo) / 2.0;
         
-        double scaleFactor = Math.sqrt(bitLength / 30.0);
+        double scaleFactor = Math.sqrt(bitLength / BASELINE_BIT_LENGTH);
         double adaptedWidth = baseWidth / scaleFactor;
         
         double adaptedKLo = center - adaptedWidth;
@@ -116,7 +123,7 @@ public final class ScaleAdaptiveParams {
     /**
      * Compute scale-adaptive timeout.
      * 
-     * Formula: base * (bitLength / 30)^2
+     * Formula: base * (bitLength / BASELINE_BIT_LENGTH)^2
      * Rationale: Computation time grows quadratically with bit-length.
      * At 30-bit: ~600s (baseline, 10 minutes)
      * At 60-bit: ~2400s (4x, 40 minutes)
@@ -124,7 +131,7 @@ public final class ScaleAdaptiveParams {
      */
     public static long adaptiveTimeout(BigInteger N, long baseTimeout) {
         int bitLength = N.bitLength();
-        double scaleFactor = Math.pow(bitLength / 30.0, 2.0);
+        double scaleFactor = Math.pow(bitLength / BASELINE_BIT_LENGTH, 2.0);
         long adapted = (long) (baseTimeout * scaleFactor);
         LOG.debug("adaptiveTimeout: bitLength={}, base={}, factor={:.3f}, adapted={}",
                  bitLength, baseTimeout, scaleFactor, adapted);
