@@ -86,6 +86,8 @@ python3 run_experiment.py
 
 - `results.json` - Complete experiment metrics in JSON format
 - `EXECUTIVE_SUMMARY.md` - High-level results and verdict
+- `DETAILED_RESULTS.md` - Comprehensive analysis and metrics
+- `experiment_output.log` - Complete console output from run
 
 ## Implementation Notes
 
