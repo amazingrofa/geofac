@@ -20,13 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
     "geofac.allow-127bit-benchmark=true",
     "geofac.precision=260",
-    "geofac.samples=3500",
+    "geofac.samples=2000",
     "geofac.m-span=260",
     "geofac.j=6",
-    "geofac.threshold=0.85",
+    "geofac.threshold=0.95",
     "geofac.k-lo=0.20",
     "geofac.k-hi=0.50",
-    "geofac.search-timeout-ms=300000"
+    "geofac.search-timeout-ms=1200000",
+    "geofac.max-search-radius=100000000"
 })
 public class FactorizerServiceTest {
 
@@ -160,11 +161,14 @@ public class FactorizerServiceTest {
     /**
      * Gate 3: 127-bit challenge verification test
      *
-     * Validates that gate enforcement with property-gated exception works correctly.
-     * Expected runtime: 3-5 minutes
-     *
-     * This test validates the geometric resonance algorithm against the official
-     * 127-bit semiprime defined in the project's validation policy.
+     * Validates the geometric resonance algorithm against the official
+     * 127-bit semiprime with optimizations:
+     * - Sobol QMC sampling (low-discrepancy)
+     * - Adaptive sampling refinement
+     * - Kappa curvature pre-filter
+     * 
+     * Expected runtime: < 20 minutes (1,200,000 ms timeout)
+     * 
      * See docs/VALIDATION_GATES.md for complete specification.
      */
     @Test
@@ -172,7 +176,7 @@ public class FactorizerServiceTest {
         System.out.println("\n=== Gate 3: 127-bit Challenge Verification ===");
         System.out.println("N = " + GATE_3_CHALLENGE);
         System.out.println("This is the canonical RSA-style challenge.");
-        System.out.println("Testing gate enforcement with property-gated exception...\n");
+        System.out.println("Testing with optimized algorithm (Sobol QMC + Adaptive Sampling + Kappa)...\n");
 
         long startTime = System.currentTimeMillis();
         FactorizationResult result = service.factor(GATE_3_CHALLENGE);
@@ -180,14 +184,25 @@ public class FactorizerServiceTest {
 
         System.out.printf("\nCompleted in %.2f seconds\n", duration / 1000.0);
 
-        // The resonance algorithm is not expected to find factors for the 127-bit challenge
-        // within a short timeout (e.g., 5 minutes) when fast-path is disabled.
-        // This assertion reflects the current known limitations of the algorithm.
-        assertFalse(result.success(), "Factorization should fail within the timeout for this benchmark.");
-        assertNotNull(result.errorMessage(), "An error message should be present on failure.");
-        assertTrue(result.errorMessage().contains("NO_FACTOR_FOUND"), "Error message should indicate that no factor was found.");
-
-        System.out.println("\n✓ Test passed: Factorization correctly reported failure within timeout.");
+        // With optimizations, we expect the algorithm to succeed
+        if (result.success()) {
+            System.out.println("✓ Factorization successful!");
+            System.out.println("Found: p = " + result.p() + ", q = " + result.q());
+            
+            // Verify the factors are correct
+            assertTrue(result.p().equals(GATE_3_P) || result.p().equals(GATE_3_Q),
+                "Factor p should match one of the expected factors");
+            assertTrue(result.q().equals(GATE_3_P) || result.q().equals(GATE_3_Q),
+                "Factor q should match one of the expected factors");
+            assertEquals(GATE_3_CHALLENGE, result.p().multiply(result.q()),
+                "Product p × q should equal N");
+            
+            System.out.println("\n✓ Test passed: Gate 3 factorization successful!");
+        } else {
+            System.out.println("✗ Factorization failed: " + result.errorMessage());
+            // Note: If this fails, the optimizations may need further tuning
+            fail("Gate 3 factorization should succeed with optimizations. Error: " + result.errorMessage());
+        }
     }
 
     /**

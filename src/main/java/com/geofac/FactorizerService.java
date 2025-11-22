@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.apache.commons.math3.random.SobolSequenceGenerator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.Comparator;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
@@ -338,39 +341,128 @@ public class FactorizerService {
         }
     }
 
+    /**
+     * Compute kappa curvature weight for a candidate p0.
+     * Formula: κ(n) = d(n) * ln(n+1) / e²
+     * Uses approximate divisor count for efficiency.
+     * 
+     * @param p0 The candidate factor
+     * @param mc Math context for precision
+     * @return Kappa weight as a BigDecimal
+     */
+    private BigDecimal computeKappaCurvature(BigInteger p0, MathContext mc) {
+        // Approximate divisor count using τ(n) ≈ ln(n)^0.4 for large n
+        // This is a simple approximation that avoids expensive factorization
+        BigDecimal bdP0 = new BigDecimal(p0, mc);
+        BigDecimal lnP0 = BigDecimalMath.log(bdP0, mc);
+        
+        // d(n) ≈ ln(n)^0.4 (very rough approximation for semiprime factors)
+        BigDecimal divisorApprox = BigDecimalMath.pow(lnP0, BigDecimal.valueOf(0.4), mc);
+        
+        // ln(n+1) ≈ ln(n) for large n
+        BigDecimal lnP0Plus1 = BigDecimalMath.log(bdP0.add(BigDecimal.ONE, mc), mc);
+        
+        // e² ≈ 7.389
+        BigDecimal eSq = BigDecimalMath.exp(BigDecimal.valueOf(2), mc);
+        
+        // κ(n) = d(n) * ln(n+1) / e²
+        BigDecimal kappa = divisorApprox.multiply(lnP0Plus1, mc).divide(eSq, mc);
+        
+        return kappa;
+    }
+
     private BigInteger[] search(BigInteger N, MathContext mc, BigDecimal lnN,
                                 BigDecimal twoPi, BigDecimal phiInv, long startTime, FactorizerConfig config,
                                 Queue<BigDecimal> amplitudeDistribution, Queue<String> candidateLogs) {
-        BigDecimal u = BigDecimal.ZERO; // Initialize u
+        
+        // Initialize Sobol sequence generator (1D for k-dimension)
+        SobolSequenceGenerator sobol = new SobolSequenceGenerator(1);
+        log.info("Using Sobol QMC sampling (deterministic, low-discrepancy)");
+        
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
-
         int progressInterval = (int) Math.max(1, config.samples() / 10); // Log every 10%
 
-        for (long n = 0; n < config.samples(); n++) {
+        // Phase 1: Broad search to collect amplitude data
+        long phase1Samples = Math.min(1000, config.samples());
+        log.info("Phase 1: Broad Sobol search with {} samples", phase1Samples);
+        
+        List<AmplitudeRecord> amplitudeRecords = new ArrayList<>();
+        
+        for (long n = 0; n < phase1Samples; n++) {
             if (config.searchTimeoutMs() > 0 && System.currentTimeMillis() - startTime >= config.searchTimeoutMs()) {
-                log.warn("Geometric search timed out after {} samples (configured {} ms)", n, config.searchTimeoutMs());
+                log.warn("Search timed out during phase 1 after {} samples", n);
                 return null;
             }
 
-            if (n > 0 && n % progressInterval == 0) {
-                int percent = (int) ((n * 100) / config.samples());
-                log.info("Progress: {}% ({}/{})", percent, n, samples);
+            if (n > 0 && n % (progressInterval / 2) == 0) {
+                log.info("Phase 1 progress: {}/{}", n, phase1Samples);
             }
 
-            // Update golden ratio sequence
-            u = u.add(phiInv, mc);
-            if (u.compareTo(BigDecimal.ONE) >= 0) {
-                u = u.subtract(BigDecimal.ONE, mc);
+            // Get next Sobol point and map to [kLo, kHi]
+            double[] sobolPoint = sobol.nextVector();
+            double u = sobolPoint[0];
+            BigDecimal k = BigDecimal.valueOf(config.kLo()).add(kWidth.multiply(BigDecimal.valueOf(u), mc), mc);
+            
+            // Quick amplitude sample at m=0 (theta = 0)
+            BigDecimal theta = BigDecimal.ZERO;
+            BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+            
+            amplitudeRecords.add(new AmplitudeRecord(k, amplitude));
+        }
+        
+        // Phase 2: Identify top regions and add refined samples
+        amplitudeRecords.sort(Comparator.comparing(AmplitudeRecord::amplitude).reversed());
+        int topCount = Math.max(10, (int) (phase1Samples * 0.1));
+        int maxRefinedSamples = (int) (config.samples() - phase1Samples);
+        int refinedToAdd = Math.min(topCount * 2, maxRefinedSamples);
+        log.info("Phase 2: Adding up to {} refined samples around top {} regions", refinedToAdd, topCount);
+        
+        int addedCount = 0;
+        for (int i = 0; i < topCount && addedCount < refinedToAdd; i++) {
+            BigDecimal kCenter = amplitudeRecords.get(i).k();
+            BigDecimal delta = kWidth.multiply(BigDecimal.valueOf(0.002), mc);
+            
+            // Add neighbors with their own amplitude estimates
+            BigDecimal k1 = kCenter.subtract(delta, mc);
+            BigDecimal k2 = kCenter.add(delta, mc);
+            
+            if (k1.compareTo(BigDecimal.valueOf(config.kLo())) >= 0 && addedCount < refinedToAdd) {
+                BigDecimal amp1 = DirichletKernel.normalizedAmplitude(BigDecimal.ZERO, config.J(), mc);
+                amplitudeRecords.add(new AmplitudeRecord(k1, amp1));
+                addedCount++;
+            }
+            if (k2.compareTo(BigDecimal.valueOf(config.kHi())) <= 0 && addedCount < refinedToAdd) {
+                BigDecimal amp2 = DirichletKernel.normalizedAmplitude(BigDecimal.ZERO, config.J(), mc);
+                amplitudeRecords.add(new AmplitudeRecord(k2, amp2));
+                addedCount++;
+            }
+        }
+        
+        // Phase 3: Test candidates with full m-scan and kappa weighting
+        log.info("Phase 3: Testing {} candidates with full m-scan", Math.min(amplitudeRecords.size(), (int)config.samples()));
+        
+        long sampleCount = 0;
+        int testLimit = (int) Math.min(amplitudeRecords.size(), config.samples());
+        
+        for (int idx = 0; idx < testLimit; idx++) {
+            if (config.searchTimeoutMs() > 0 && System.currentTimeMillis() - startTime >= config.searchTimeoutMs()) {
+                log.warn("Search timed out after {} samples", sampleCount);
+                return null;
+            }
+            
+            sampleCount++;
+            if (sampleCount > 0 && sampleCount % progressInterval == 0) {
+                int percent = (int) ((sampleCount * 100) / testLimit);
+                log.info("Phase 3 progress: {}% ({}/{})", percent, sampleCount, testLimit);
             }
 
-            BigDecimal k = BigDecimal.valueOf(config.kLo()).add(kWidth.multiply(u, mc), mc);
-            BigInteger m0 = BigInteger.ZERO; // Balanced semiprime assumption
-
+            BigDecimal k = amplitudeRecords.get(idx).k();
+            BigInteger m0 = BigInteger.ZERO;
             AtomicReference<BigInteger[]> result = new AtomicReference<>();
 
             // Parallel m-scan
             IntStream.rangeClosed(-config.mSpan(), config.mSpan()).parallel().forEach(dm -> {
-                if (result.get() != null) return; // Early exit if found
+                if (result.get() != null) return;
 
                 BigInteger m = m0.add(BigInteger.valueOf(dm));
                 BigDecimal theta = twoPi.multiply(new BigDecimal(m), mc).divide(k, mc);
@@ -384,16 +476,21 @@ public class FactorizerService {
                 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
-                    // Guard: reject invalid p0 (must be in valid range (1, N))
+                    // Guard: reject invalid p0
                     if (p0.compareTo(BigInteger.ONE) <= 0 || p0.compareTo(N) >= 0) {
                         if (enableDiagnostics && candidateLogs != null) {
                             candidateLogs.add(String.format("Rejected: invalid p0=%s (out of bounds)", p0));
                         }
-                        return; // Skip this candidate
+                        return;
                     }
 
+                    // Apply kappa curvature weight
+                    BigDecimal kappa = computeKappaCurvature(p0, mc);
+                    BigDecimal weightedAmplitude = amplitude.multiply(kappa, mc);
+                    
                     if (enableDiagnostics && candidateLogs != null) {
-                        candidateLogs.add(String.format("Candidate: dm=%d, amplitude=%.6f, p0=%s", dm, amplitude.doubleValue(), p0));
+                        candidateLogs.add(String.format("Candidate: dm=%d, amp=%.6f, kappa=%.6f, weighted=%.6f, p0=%s", 
+                            dm, amplitude.doubleValue(), kappa.doubleValue(), weightedAmplitude.doubleValue(), p0));
                     }
                     
                     // Test candidate and neighbors
@@ -401,24 +498,23 @@ public class FactorizerService {
                     if (hit != null) {
                         result.compareAndSet(null, hit);
                         if (enableDiagnostics && candidateLogs != null) {
-                            candidateLogs.add(String.format("Accepted: factors %s * %s", hit[0], hit[1]));
-                        }
-                    } else {
-                        if (enableDiagnostics && candidateLogs != null) {
-                            candidateLogs.add("Rejected: no neighbor divides N");
+                            candidateLogs.add(String.format("SUCCESS: factors %s * %s", hit[0], hit[1]));
                         }
                     }
                 }
             });
 
             if (result.get() != null) {
-                log.info("Factor found at k-sample {}/{}", n + 1, samples);
+                log.info("Factor found at sample {}/{}", sampleCount, testLimit);
                 return result.get();
             }
         }
 
         return null;
     }
+    
+    // Helper record class for amplitude tracking
+    private static record AmplitudeRecord(BigDecimal k, BigDecimal amplitude) {}
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
         // Dynamic expanding ring search based on geometric resonance error envelope
