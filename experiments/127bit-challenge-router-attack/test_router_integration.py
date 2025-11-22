@@ -27,6 +27,9 @@ from portfolio_router import (
 
 mp.mp.dps = 50
 
+# Test configuration - smaller budget for faster tests
+TEST_MAX_CANDIDATES = 50000  # Reduced from production 700k for integration tests
+
 
 def build_routing_rules():
     """Build routing rules from PR #93 training data."""
@@ -52,7 +55,7 @@ def build_routing_rules():
     return analysis['routing_rules']
 
 
-def test_case(n, label, expected_p, expected_q, routing_rules, max_candidates=50000):
+def test_case(n, label, expected_p, expected_q, routing_rules, max_candidates=TEST_MAX_CANDIDATES):
     """Test a single case with router."""
     print(f"\n{'='*70}")
     print(f"Test Case: {label}")

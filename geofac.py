@@ -39,10 +39,10 @@ from portfolio_router import (
     analyze_correlation
 )
 
-# Validation constants
-CHALLENGE_127 = 137524771864208156028430259349934309717
-RANGE_MIN = 10**14
-RANGE_MAX = 10**18
+# Validation constants (from VALIDATION_GATES.md)
+CHALLENGE_127 = 137524771864208156028430259349934309717  # Gate 3: 127-bit challenge
+RANGE_MIN = 10**14  # Gate 4: Operational range minimum
+RANGE_MAX = 10**18  # Gate 4: Operational range maximum
 
 
 def validate_n(n: int) -> bool:
@@ -185,10 +185,11 @@ def execute_engine(n: int, method: str, config: dict, verbose: bool = True) -> t
     
     try:
         if method == "FR-GVA":
-            # FR-GVA uses max_depth and kappa_threshold
-            # The segment parameters in the CLI are for documentation purposes
-            # matching the tech memo, but the current implementation uses
-            # a different parameter set
+            # NOTE: Current FR-GVA implementation (fr_gva_implementation.py) uses
+            # max_depth and kappa_threshold parameters, not segments/top-k/min-random-segments.
+            # CLI parameters (--segments, --top-k, --min-random-segments) are provided
+            # for compatibility with the tech memo specification but are not currently
+            # used. Future implementations may adopt these parameters.
             factors = fr_gva_factor_search(
                 n,
                 max_depth=5,
