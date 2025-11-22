@@ -9,7 +9,7 @@ from gva_factorization import gva_factor_search
 import time
 
 # Test cases: 120-bit semiprimes
-# Generated using primes near 1.15 × 10^18 (≈ sqrt(2^120))
+# Generated using primes near 1.153 × 10^18 (≈ sqrt(2^120))
 # p = 1150000000000000027 (prime near 1.15 × 10^18)
 # q = 1150000000000000057 (next prime after p)
 TEST_CASES_120BIT = [
