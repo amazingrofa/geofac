@@ -42,16 +42,16 @@ class IsospectraLatticeGenerator:
     
     def generate_even_quadratic_form(self) -> np.ndarray:
         """
-        Generate an even quadratic form basis for dimension 4.
+        Generate an even quadratic form basis for dimensions 4, 6, or 8.
         
         Even quadratic forms provide a standard construction for
-        non-isometric isospectral tori in dimension 4.
+        non-isometric isospectral tori in dimension 4 and higher.
         
         Returns:
             Lattice basis matrix (dimension x dimension)
         """
-        if self.dimension != 4:
-            raise ValueError("Even quadratic forms implemented for dimension 4")
+        if self.dimension not in [4, 6, 8]:
+            raise ValueError(f"Even quadratic forms implemented for dimensions 4, 6, 8, got {self.dimension}")
         
         # Start with diagonal lattice
         basis = np.eye(self.dimension)
@@ -60,12 +60,36 @@ class IsospectraLatticeGenerator:
         # PHASE 1 PLACEHOLDER: Full implementation in Phase 2 will use
         # specific even quadratic forms from Schiemann (1990) and
         # Conway-Sloane (1992) as referenced in the technical spec
-        transform = np.array([
-            [2, 1, 0, 0],
-            [1, 2, 1, 0],
-            [0, 1, 2, 1],
-            [0, 0, 1, 2]
-        ])
+        
+        if self.dimension == 4:
+            transform = np.array([
+                [2, 1, 0, 0],
+                [1, 2, 1, 0],
+                [0, 1, 2, 1],
+                [0, 0, 1, 2]
+            ])
+        elif self.dimension == 6:
+            # Phase 1.5 extension: Simple tridiagonal form for 6D
+            transform = np.array([
+                [2, 1, 0, 0, 0, 0],
+                [1, 2, 1, 0, 0, 0],
+                [0, 1, 2, 1, 0, 0],
+                [0, 0, 1, 2, 1, 0],
+                [0, 0, 0, 1, 2, 1],
+                [0, 0, 0, 0, 1, 2]
+            ])
+        else:  # dimension == 8
+            # Phase 1.5 extension: Simple tridiagonal form for 8D
+            transform = np.array([
+                [2, 1, 0, 0, 0, 0, 0, 0],
+                [1, 2, 1, 0, 0, 0, 0, 0],
+                [0, 1, 2, 1, 0, 0, 0, 0],
+                [0, 0, 1, 2, 1, 0, 0, 0],
+                [0, 0, 0, 1, 2, 1, 0, 0],
+                [0, 0, 0, 0, 1, 2, 1, 0],
+                [0, 0, 0, 0, 0, 1, 2, 1],
+                [0, 0, 0, 0, 0, 0, 1, 2]
+            ])
         
         basis = transform @ basis
         

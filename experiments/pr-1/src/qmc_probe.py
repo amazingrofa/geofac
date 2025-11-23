@@ -108,7 +108,7 @@ class QMCProbe:
         
         # Compute a pseudo-resonance based on sample properties
         # Higher values near sqrt(n)
-        sqrt_n = np.sqrt(n)
+        sqrt_n = float(n) ** 0.5
         
         # Sample represents a potential factor candidate
         candidate = sample[0] if len(sample) > 0 else sqrt_n
@@ -143,7 +143,7 @@ class QMCProbe:
         samples = self.generate_samples(n_samples)
         
         # Scale to search space around sqrt(n)
-        sqrt_n = np.sqrt(n)
+        sqrt_n = float(n) ** 0.5
         search_width = 0.1 * sqrt_n  # 10% window
         
         bounds = [(sqrt_n - search_width, sqrt_n + search_width)] + \

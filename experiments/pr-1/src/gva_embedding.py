@@ -35,12 +35,14 @@ class GVAEmbedding:
         mp.mp.dps = precision
         logger.info(f"Initialized GVA embedding with precision={precision}")
     
-    def compute_divisor_count(self, n: int) -> int:
+    def compute_divisor_count(self, n: int, p: Optional[int] = None, q: Optional[int] = None) -> int:
         """
         Compute the number of divisors d(n).
         
         Args:
             n: Integer to compute divisors for
+            p: Optional first prime factor (for semiprimes)
+            q: Optional second prime factor (for semiprimes)
         
         Returns:
             Number of divisors
@@ -48,21 +50,41 @@ class GVAEmbedding:
         if n <= 0:
             return 0
         
-        count = 0
-        sqrt_n = int(np.sqrt(n))
+        # Fast path for semiprimes with known factors
+        if p is not None and q is not None:
+            if p == q:
+                # n = p^2 has divisors: 1, p, p^2
+                return 3
+            else:
+                # n = p*q has divisors: 1, p, q, p*q
+                return 4
         
-        for i in range(1, sqrt_n + 1):
-            if n % i == 0:
-                count += 1 if i * i == n else 2
+        # For primes, d(p) = 2
+        # Check small range for primality test optimization
+        if n < 1000000:
+            # Only do trial division for smaller numbers
+            count = 0
+            sqrt_n = int(float(n) ** 0.5)
+            
+            for i in range(1, sqrt_n + 1):
+                if n % i == 0:
+                    count += 1 if i * i == n else 2
+            
+            return count
         
-        return count
+        # For large numbers without factors, assume it's prime (d(n) = 2)
+        # This is a placeholder - in Phase 2, this should use proper factorization
+        logger.warning(f"Using placeholder divisor count for large n={n} without known factors")
+        return 2
     
-    def compute_curvature(self, n: int) -> mp.mpf:
+    def compute_curvature(self, n: int, p: Optional[int] = None, q: Optional[int] = None) -> mp.mpf:
         """
         Compute GVA discrete curvature κ(n) = d(n) * ln(n+1) / e².
         
         Args:
             n: Integer to compute curvature for
+            p: Optional first prime factor (for semiprimes)
+            q: Optional second prime factor (for semiprimes)
         
         Returns:
             Curvature value as mpmath high-precision float
@@ -75,7 +97,7 @@ class GVAEmbedding:
             mp.mp.dps = adaptive_precision
             logger.debug(f"Adjusted precision to {adaptive_precision} for {bit_length}-bit number")
         
-        d_n = self.compute_divisor_count(n)
+        d_n = self.compute_divisor_count(n, p, q)
         
         # κ(n) = d(n) * ln(n+1) / e²
         n_mp = mp.mpf(n)
@@ -230,7 +252,7 @@ class GVAEmbedding:
         coords_q = self.embed_in_torus(q, lattice_q)
         
         # Expected relationship: κ(n) should relate to κ(p) and κ(q)
-        kappa_n = float(self.compute_curvature(n))
+        kappa_n = float(self.compute_curvature(n, p, q))
         kappa_p = float(self.compute_curvature(p))
         kappa_q = float(self.compute_curvature(q))
         
@@ -267,7 +289,7 @@ def demonstrate_gva_embedding():
     print(f"\nTesting GVA embedding for n={n} (p={p}, q={q})")
     
     # Compute curvatures
-    kappa_n = gva.compute_curvature(n)
+    kappa_n = gva.compute_curvature(n, p, q)
     kappa_p = gva.compute_curvature(p)
     kappa_q = gva.compute_curvature(q)
     
