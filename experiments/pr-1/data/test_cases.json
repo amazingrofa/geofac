@@ -1,0 +1,64 @@
+{
+  "test_cases": [
+    {
+      "id": "TC-001",
+      "dimension": 4,
+      "lattice_type": "even_quadratic_forms",
+      "target_n": {
+        "description": "2^64 + 1 product (semiprime)",
+        "bit_length": 64,
+        "value": null,
+        "note": "To be generated with known factors"
+      },
+      "expected_choir_number": 2,
+      "baseline_runtime_est_seconds": 10,
+      "parameters": {
+        "lattice_construction": "even_quadratic_4d",
+        "qmc_samples": 10000
+      }
+    },
+    {
+      "id": "TC-002",
+      "dimension": 6,
+      "lattice_type": "product_of_lower_dim_pairs",
+      "target_n": {
+        "description": "2^96 + 1 product (semiprime)",
+        "bit_length": 96,
+        "value": null,
+        "note": "To be generated with known factors"
+      },
+      "expected_choir_number": 3,
+      "baseline_runtime_est_seconds": 30,
+      "parameters": {
+        "lattice_construction": "product_pairs_6d",
+        "qmc_samples": 15000
+      }
+    },
+    {
+      "id": "TC-003",
+      "dimension": 8,
+      "lattice_type": "continuous_family_deformation",
+      "target_n": {
+        "description": "2^128 + 1 product (semiprime)",
+        "bit_length": 128,
+        "value": null,
+        "note": "To be generated with known factors"
+      },
+      "expected_choir_number": 4,
+      "baseline_runtime_est_seconds": 120,
+      "parameters": {
+        "lattice_construction": "continuous_family_8d",
+        "qmc_samples": 20000
+      }
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "NC-001",
+      "dimension": 3,
+      "lattice_type": "isometric",
+      "description": "3D isometric torus (should match baseline)",
+      "expected_behavior": "no_acceleration"
+    }
+  ]
+}

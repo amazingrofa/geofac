@@ -1,0 +1,46 @@
+# Configuration for Isospectral Tori Falsification Experiment
+
+# Experiment parameters
+experiment:
+  name: "isospectral-tori-falsification"
+  version: "1.0"
+  date: "2025-11-23"
+
+# Dimensions to test
+dimensions:
+  min: 4
+  max: 8
+  step: 2
+
+# Geodesic preservation thresholds
+thresholds:
+  metric_preservation: 0.95  # <0.95 falsifies hypothesis
+  runtime_ratio: 1.1         # >1.1 falsifies acceleration claim
+  success_rate: 0.90         # >0.90 success falsifies non-acceleration
+  spectral_overlap: 0.95     # Minimum overlap for resonance validation
+
+# QMC parameters
+qmc:
+  base_samples: 10000
+  scrambling: "owen"          # Owen scrambling for Sobol sequences
+  convergence_error: 0.01     # Target 1% error
+  parallel_probes: true
+
+# GVA curvature parameters
+gva:
+  # κ(n) = d(n) * ln(n+1) / e²
+  use_adaptive_precision: true
+  min_precision: 200          # Minimum decimal places
+  precision_factor: 4         # Precision = max(min_precision, bitLength * factor + 200)
+
+# Statistical validation
+statistics:
+  ks_test_alpha: 0.05         # Kolmogorov-Smirnov significance level
+  poisson_consistency: true
+
+# Logging and output
+output:
+  results_dir: "data/results"
+  log_level: "INFO"
+  export_plots: true
+  export_artifacts: true
