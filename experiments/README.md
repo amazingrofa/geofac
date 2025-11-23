@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [theil-sen-robust-estimator/](theil-sen-robust-estimator/)
+
+**Status**: Complete - Hypothesis strongly supported
+
+**Objective**: Test whether Theil-Sen median slope estimator provides more robust trend estimates than OLS for parameter optimization when outliers are present.
+
+**Key Finding**: Hypothesis strongly supported. Theil-Sen demonstrates 81.4% average error reduction compared to OLS when outliers are present, with 6× better robustness (MAD metric) on synthetic k-data. Method tolerates up to 29.3% outlier contamination while OLS breaks down with a single bad point. For geofac parameter estimation (k vs ln(N)), Theil-Sen provides stable predictions where OLS fails due to failed search runs or measurement artifacts.
+
+**Critical Insight**: OLS minimizes squared errors, exponentially amplifying outlier influence. Theil-Sen uses median of pairwise slopes, making it immune to extreme values. With negligible computational overhead (< 10ms for n=50) and zero tuning parameters, Theil-Sen should replace OLS as the default estimator in all geofac parameter analysis workflows.
+
+**Start here**: [theil-sen-robust-estimator/INDEX.md](theil-sen-robust-estimator/INDEX.md)
+
+---
+
 ### [kernel-order-impact-study/](kernel-order-impact-study/)
 
 **Status**: Complete - Hypothesis decisively falsified

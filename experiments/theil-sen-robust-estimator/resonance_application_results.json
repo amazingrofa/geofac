@@ -1,0 +1,37 @@
+{
+  "experiment": "Theil-Sen Application to Resonance Parameters",
+  "note": "Synthetic data - real k-success values not available",
+  "data_points": 10,
+  "ols": {
+    "slope": 0.0002361025575388991,
+    "intercept": 0.3967717436745964,
+    "mad": 0.020045192668785405,
+    "ssr": 0.37534503123608837,
+    "prediction_127bit": {
+      "N": "137524771864208156028430259349934309717",
+      "ln_N": 87.816867407678,
+      "k_predicted": 0.41750553066460355,
+      "suggested_window_lo": 0.36750553066460356,
+      "suggested_window_hi": 0.46750553066460354
+    }
+  },
+  "theil_sen": {
+    "slope": 0.0018466496523378711,
+    "intercept": 0.3010004510013441,
+    "mad": 0.0032995489986559767,
+    "ssr": 0.38855343124375513,
+    "prediction_127bit": {
+      "N": "137524771864208156028430259349934309717",
+      "ln_N": 87.816867407678,
+      "k_predicted": 0.46316743866913357,
+      "suggested_window_lo": 0.4131674386691336,
+      "suggested_window_hi": 0.5131674386691336
+    }
+  },
+  "comparison": {
+    "slope_difference": 0.001610547094798972,
+    "intercept_difference": 0.0957712926732523,
+    "prediction_difference": 0.045661908004530016,
+    "mad_ratio_ols_to_ts": 6.075131079111274
+  }
+}
