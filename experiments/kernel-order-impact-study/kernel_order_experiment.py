@@ -55,8 +55,7 @@ def phase_function(n: int, k: float) -> mp.mpf:
     Geometric phase function φ_k(n) for resonance.
     Simplified version for testing.
     """
-    phi = mp.phi  # Golden ratio
-    return mp.mpf(2) * mp.pi * ((mp.mpf(n) / phi) ** k)
+    return mp.mpf(2) * mp.pi * ((mp.mpf(n) / mp.phi) ** k)
 
 
 def try_factor(N: int, p_true: int, q_true: int, J: int, 
@@ -136,7 +135,7 @@ def try_factor(N: int, p_true: int, q_true: int, J: int,
                                 'candidates_tested': candidates_tested,
                                 'max_amplitude': float(max_amplitude),
                                 'mean_amplitude_top100': float(mp.fsum(sorted(amplitudes, reverse=True)[:100]) / min(100, len(amplitudes))),
-                                'factors_found': (factor, other_factor),
+                                'factors_found': [factor, other_factor],
                                 'total_samples_evaluated': len(amplitudes)
                             }
     
