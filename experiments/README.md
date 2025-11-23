@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [pr-1/](pr-1/)
+
+**Status**: Framework complete - Phase 1 ready
+
+**Objective**: Attempt falsification of the hypothesis that non-isometric isospectral flat tori in dimensions ≥4 preserve curvature-divisor metrics under GVA embeddings and yield accelerated factor detection via parallel QMC cross-validation.
+
+**Falsification Criteria**: Metric deviation >5% (preservation ratio <0.95) OR runtime increase >10% (ratio >1.1). Success threshold: ≥2/3 test cases show deviation.
+
+**Key Components**: Isospectral lattice generators using even quadratic forms and Schiemann's theorem; GVA embedding with adaptive precision (κ(n) = d(n)*ln(n+1)/e²); Sobol/Owen QMC probing across choir; statistical validation with KS test.
+
+**Start here**: [pr-1/INDEX.md](pr-1/INDEX.md)
+
+---
+
 ### [theil-sen-robust-estimator/](theil-sen-robust-estimator/)
 
 **Status**: Complete - Hypothesis strongly supported
