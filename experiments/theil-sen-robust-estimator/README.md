@@ -213,6 +213,7 @@ search_window = [k_opt_127 - 0.05, k_opt_127 + 0.05]
 
 ### Core Implementation
 - **theil_sen_estimator.py** - Theil-Sen and OLS implementations, evaluation metrics
+- **test_theil_sen.py** - Unit tests for correctness and robustness validation
 
 ### Experiments  
 - **compare_estimators.py** - 4-scenario robustness comparison
@@ -233,6 +234,9 @@ search_window = [k_opt_127 - 0.05, k_opt_127 + 0.05]
 ```bash
 # From repository root
 cd /home/runner/work/geofac/geofac
+
+# Run unit tests (validates correctness)
+python3 experiments/theil-sen-robust-estimator/test_theil_sen.py
 
 # Comparison experiment (clean, outliers, leverage points)
 python3 experiments/theil-sen-robust-estimator/compare_estimators.py

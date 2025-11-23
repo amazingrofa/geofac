@@ -12,6 +12,7 @@ Code artifacts:
 - **[theil_sen_estimator.py](theil_sen_estimator.py)** - Core implementation
 - **[compare_estimators.py](compare_estimators.py)** - Theil-Sen vs OLS comparison
 - **[apply_to_resonance.py](apply_to_resonance.py)** - Application to k_opt(ln N) estimation
+- **[test_theil_sen.py](test_theil_sen.py)** - Unit tests validating correctness and robustness
 
 Data files:
 - **[comparison_results.json](comparison_results.json)** - Detailed comparison metrics
