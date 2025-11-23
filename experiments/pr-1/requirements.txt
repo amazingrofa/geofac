@@ -1,0 +1,8 @@
+# Python dependencies for isospectral tori falsification experiment
+# Python 3.12+ required
+
+numpy>=1.26.0
+scipy>=1.11.0
+sympy>=1.12
+mpmath>=1.3.0
+pyyaml>=6.0
