@@ -23,13 +23,13 @@ pytest test_geometric_resonance.py -v -m slow
 ### Run Demo
 
 ```bash
-python demo_geometric_resonance.py
+python experiments/demo_geometric_resonance.py
 ```
 
 ### Run Full Factorization
 
 ```bash
-python geometric_resonance_factorization.py
+python experiments/geometric_resonance_factorization.py
 ```
 
 ## Files

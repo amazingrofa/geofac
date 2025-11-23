@@ -363,7 +363,7 @@ pytest test_geometric_resonance.py -v -m slow
 
 ```bash
 # Factor 127-bit challenge
-python geometric_resonance_factorization.py
+python experiments/geometric_resonance_factorization.py
 ```
 
 ## References

@@ -15,6 +15,7 @@ All tests use mpmath with precision > 1e-16.
 import mpmath as mp
 from mpmath import mpf, pi, log, sqrt, e
 import pytest
+
 from geometric_resonance_factorization import (
     GeometricResonanceFactorizer,
     ScaleAdaptiveParams,

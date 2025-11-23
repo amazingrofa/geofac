@@ -115,14 +115,23 @@ See `docs/VALIDATION_GATES.md` for complete gate specifications and success crit
 
 ### Project layout
 ```
-src/main/java/com/geofac
-├── GeofacApplication      # Spring Boot entry point
-├── FactorizerService      # Geometric resonance search core (no fallbacks)
-├── FactorizerShell        # Spring Shell command surface
-├── util
-│   ├── DirichletKernel    # Kernel amplitude / angular math
-│   └── SnapKernel         # Phase-corrected snapping heuristic
-└── TestFactorization      # Standalone main for manual experiments
+geofac/
+├── src/main/java/com/geofac    # Java source (Spring Boot application)
+│   ├── GeofacApplication       # Spring Boot entry point
+│   ├── FactorizerService       # Geometric resonance search core (no fallbacks)
+│   ├── FactorizerShell         # Spring Shell command surface
+│   └── util/                   # Kernel implementations
+├── docs/                       # All documentation
+│   ├── CODING_STYLE.md         # Canonical style and invariants
+│   ├── VALIDATION_GATES.md     # Gate specifications
+│   ├── WHITEPAPER.md           # Method overview and verification
+│   └── ...                     # Additional technical docs
+├── tests/                      # Python test suite (scale-based + method tests)
+├── scripts/                    # Shell scripts (factor_one.sh, proof_pack.sh)
+├── experiments/                # Experimental implementations and falsification attempts
+├── geofac.py                   # Main Python implementation (GVA)
+├── gva_factorization.py        # Core GVA algorithm
+└── build.gradle                # Gradle build configuration
 ```
 
 ---

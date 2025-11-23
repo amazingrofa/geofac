@@ -90,7 +90,7 @@ See docs/VALIDATION_GATES.md for complete gate specifications and canonical para
 
 ## How to Run and Test
 1. **Build**: `./gradlew clean build -x test`
-2. **Run**: `./factor_one.sh` (produces per-run artifacts).
+2. **Run**: `./scripts/factor_one.sh` (produces per-run artifacts).
 3. **Verify Success**: Check for "SUCCESS" in output, p*q == N.
 4. **Reproduce**: Use exact parameters; seed golden ratio at u=0.
 

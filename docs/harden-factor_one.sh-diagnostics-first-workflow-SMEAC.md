@@ -59,7 +59,7 @@ Logging Requirements:
 
 Repro Command:
 ```
-./gradlew clean build -x test && ./factor_one.sh
+./gradlew clean build -x test && ./scripts/factor_one.sh
 ```
 
 Validation Gate Reminder:
