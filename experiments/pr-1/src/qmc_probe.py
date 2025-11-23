@@ -216,9 +216,10 @@ class QMCProbe:
         resonance_sets = []
         for samples, amplitudes in probe_results:
             high_amp_indices = np.where(amplitudes > threshold)[0]
-            # Use first coordinate as identifier (simplified)
-            resonances = samples[high_amp_indices, 0]
-            resonance_sets.append(set(resonances))
+            # Use first coordinate rounded to reasonable precision for set operations
+            # Round to 6 decimal places to avoid floating-point precision issues
+            resonances = set(np.round(samples[high_amp_indices, 0], decimals=6))
+            resonance_sets.append(resonances)
         
         # Compute overlap
         if len(resonance_sets) > 1:

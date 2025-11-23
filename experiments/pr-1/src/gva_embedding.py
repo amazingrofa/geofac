@@ -126,7 +126,13 @@ class GVAEmbedding:
         
         # Map to fundamental domain using lattice basis
         # Reduce modulo the lattice
-        lattice_coords = np.linalg.solve(lattice_basis, coords)
+        try:
+            lattice_coords = np.linalg.solve(lattice_basis, coords)
+        except np.linalg.LinAlgError:
+            # Fallback to pseudo-inverse for singular matrices
+            logger.warning("Singular lattice basis, using pseudo-inverse")
+            lattice_coords = np.linalg.lstsq(lattice_basis, coords, rcond=None)[0]
+        
         lattice_coords = lattice_coords % 1.0  # Periodic boundary
         
         # Back to Euclidean coordinates
@@ -153,8 +159,13 @@ class GVAEmbedding:
             Geodesic distance
         """
         # Convert to lattice coordinates
-        lat_coords1 = np.linalg.solve(lattice_basis, coords1)
-        lat_coords2 = np.linalg.solve(lattice_basis, coords2)
+        try:
+            lat_coords1 = np.linalg.solve(lattice_basis, coords1)
+            lat_coords2 = np.linalg.solve(lattice_basis, coords2)
+        except np.linalg.LinAlgError:
+            # Fallback for singular matrices
+            lat_coords1 = np.linalg.lstsq(lattice_basis, coords1, rcond=None)[0]
+            lat_coords2 = np.linalg.lstsq(lattice_basis, coords2, rcond=None)[0]
         
         # Compute difference with periodic boundary
         diff = lat_coords1 - lat_coords2

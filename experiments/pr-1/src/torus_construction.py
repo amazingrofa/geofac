@@ -132,7 +132,12 @@ class IsospectraLatticeGenerator:
         gram = basis.T @ basis
         
         # Compute dual lattice (inverse Gram)
-        dual_gram = np.linalg.inv(gram)
+        try:
+            dual_gram = np.linalg.inv(gram)
+        except np.linalg.LinAlgError:
+            # Use pseudo-inverse for singular or poorly conditioned matrices
+            logger.warning("Singular Gram matrix, using pseudo-inverse")
+            dual_gram = np.linalg.pinv(gram)
         
         # Generate lattice points and compute eigenvalues
         eigenvalues = []
