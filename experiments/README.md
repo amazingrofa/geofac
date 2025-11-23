@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [kernel-order-impact-study/](kernel-order-impact-study/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether the Dirichlet kernel order parameter J significantly impacts factorization success, and whether J=6 (current default) is optimal across all semiprime scales.
+
+**Key Finding**: Hypothesis falsified. All J values (3, 6, 9, 12, 15) succeeded on both validation gates (30-bit and 60-bit) with 100% success rate. Kernel order affects computation time (2-4× variation) but not factorization success at these scales. Lower J values (3-9) are faster due to simpler computation. Current default J=6 is adequate.
+
+**Critical Insight**: Threshold (0.92) dominates candidate selection, not kernel sharpness. All J values tested identical candidate counts on 60-bit gate, indicating threshold is the bottleneck. Kernel order is not a critical tuning parameter at validation gate scales.
+
+**Start here**: [kernel-order-impact-study/INDEX.md](kernel-order-impact-study/INDEX.md)
+
+---
+
 ### [signed-scaled-adjustments/](signed-scaled-adjustments/)
 
 **Status**: Complete - Hypothesis decisively falsified

@@ -1,0 +1,164 @@
+{
+  "experiment": "kernel-order-impact-study",
+  "timestamp": "2025-11-23T02:10:01.478756Z",
+  "j_values_tested": [
+    3,
+    6,
+    9,
+    12,
+    15
+  ],
+  "test_cases": [
+    {
+      "name": "Gate1_30bit",
+      "N": 1073217479,
+      "p": 32749,
+      "q": 32771,
+      "bit_length": 30,
+      "precision_dps": 320,
+      "j_results": [
+        {
+          "success": true,
+          "runtime_sec": 0.5406668186187744,
+          "candidates_tested": 319,
+          "max_amplitude": 0.9999991072029085,
+          "mean_amplitude_top100": 0.9961902031325165,
+          "factors_found": [
+            32749,
+            32771
+          ],
+          "total_samples_evaluated": 7020,
+          "J": 3
+        },
+        {
+          "success": true,
+          "runtime_sec": 0.5170185565948486,
+          "candidates_tested": 135,
+          "max_amplitude": 0.9999968752122721,
+          "mean_amplitude_top100": 0.9867343161276487,
+          "factors_found": [
+            32749,
+            32771
+          ],
+          "total_samples_evaluated": 7020,
+          "J": 6
+        },
+        {
+          "success": true,
+          "runtime_sec": 0.5148251056671143,
+          "candidates_tested": 98,
+          "max_amplitude": 0.999993304033471,
+          "mean_amplitude_top100": 0.9718069666948911,
+          "factors_found": [
+            32749,
+            32771
+          ],
+          "total_samples_evaluated": 7020,
+          "J": 9
+        },
+        {
+          "success": true,
+          "runtime_sec": 1.4829797744750977,
+          "candidates_tested": 267,
+          "max_amplitude": 0.9999974078991549,
+          "mean_amplitude_top100": 0.9961220021516672,
+          "factors_found": [
+            32771,
+            32749
+          ],
+          "total_samples_evaluated": 20415,
+          "J": 12
+        },
+        {
+          "success": true,
+          "runtime_sec": 1.5070521831512451,
+          "candidates_tested": 215,
+          "max_amplitude": 0.9999960121542156,
+          "mean_amplitude_top100": 0.9940405828690342,
+          "factors_found": [
+            32771,
+            32749
+          ],
+          "total_samples_evaluated": 20419,
+          "J": 15
+        }
+      ]
+    },
+    {
+      "name": "Gate2_60bit",
+      "N": 1152921470247108503,
+      "p": 1073741789,
+      "q": 1073741827,
+      "bit_length": 60,
+      "precision_dps": 440,
+      "j_results": [
+        {
+          "success": true,
+          "runtime_sec": 0.7833285331726074,
+          "candidates_tested": 153,
+          "max_amplitude": 0.9510140232777267,
+          "mean_amplitude_top100": 0.95098345076705,
+          "factors_found": [
+            1073741789,
+            1073741827
+          ],
+          "total_samples_evaluated": 10261,
+          "J": 3
+        },
+        {
+          "success": true,
+          "runtime_sec": 1.6232068538665771,
+          "candidates_tested": 153,
+          "max_amplitude": 0.9672199001284612,
+          "mean_amplitude_top100": 0.9672035819786683,
+          "factors_found": [
+            1073741789,
+            1073741827
+          ],
+          "total_samples_evaluated": 21813,
+          "J": 6
+        },
+        {
+          "success": true,
+          "runtime_sec": 1.6208937168121338,
+          "candidates_tested": 153,
+          "max_amplitude": 0.9305503005494058,
+          "mean_amplitude_top100": 0.9305161252156416,
+          "factors_found": [
+            1073741789,
+            1073741827
+          ],
+          "total_samples_evaluated": 21813,
+          "J": 9
+        },
+        {
+          "success": true,
+          "runtime_sec": 2.8896889686584473,
+          "candidates_tested": 153,
+          "max_amplitude": 0.9874902160226022,
+          "mean_amplitude_top100": 0.9870457852564956,
+          "factors_found": [
+            1073741789,
+            1073741827
+          ],
+          "total_samples_evaluated": 39141,
+          "J": 12
+        },
+        {
+          "success": true,
+          "runtime_sec": 2.8808281421661377,
+          "candidates_tested": 153,
+          "max_amplitude": 0.9807931865639434,
+          "mean_amplitude_top100": 0.9801122892882513,
+          "factors_found": [
+            1073741789,
+            1073741827
+          ],
+          "total_samples_evaluated": 39141,
+          "J": 15
+        }
+      ]
+    }
+  ],
+  "summary": {}
+}
