@@ -91,8 +91,9 @@ class QMCProbe:
         """
         Compute resonance amplitude at a sample point.
         
-        This is a placeholder for the actual resonance computation
-        that would use the GVA curvature and toroidal geometry.
+        PHASE 1 PLACEHOLDER: This is a simplified resonance computation.
+        Phase 2 will integrate the full GVA Dirichlet kernel gating and
+        phase-corrected snap mechanisms from the main geofac implementation.
         
         Args:
             sample: Sample point in search space
@@ -166,11 +167,15 @@ class QMCProbe:
         """
         Probe multiple tori in parallel.
         
+        PHASE 1 NOTE: Currently runs sequentially. Phase 3 will add true
+        parallelism using ProcessPoolExecutor with proper QMC state handling.
+        Structure is ready for parallelization.
+        
         Args:
             n: Target semiprime
             choir: List of lattice bases (isospectral choir)
             n_samples: Number of samples per torus
-            max_workers: Number of parallel workers
+            max_workers: Number of parallel workers (reserved for Phase 3)
         
         Returns:
             List of (samples, amplitudes) tuples for each torus

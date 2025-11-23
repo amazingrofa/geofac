@@ -6,6 +6,8 @@ to be installed, using minimal synthetic examples.
 """
 
 import sys
+import json
+import yaml
 from pathlib import Path
 
 # Add src to path
@@ -80,9 +82,6 @@ def check_imports():
 def validate_config():
     """Validate configuration files."""
     print("\n=== Validating Configuration ===")
-    
-    import json
-    import yaml
     
     base = Path(__file__).parent
     

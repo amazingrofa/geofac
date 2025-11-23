@@ -71,11 +71,13 @@ class FalsificationTest:
         """
         Generate a test semiprime with known factors.
         
-        For this experiment, we use known semiprimes from validation gates.
+        For reproducibility, uses known semiprimes from validation gates.
+        PHASE 1 NOTE: For bit lengths >127, generates approximations.
+        Phase 2 will add proper prime generation if needed for higher dimensions.
         
         Args:
             bit_length: Target bit length
-            seed: Random seed
+            seed: Random seed (unused for validation gates)
         
         Returns:
             (n, p, q) where n = p * q

@@ -57,8 +57,9 @@ class IsospectraLatticeGenerator:
         basis = np.eye(self.dimension)
         
         # Apply even quadratic form transformation
-        # This is a simplified placeholder - full implementation would use
-        # specific even quadratic forms from the literature
+        # PHASE 1 PLACEHOLDER: Full implementation in Phase 2 will use
+        # specific even quadratic forms from Schiemann (1990) and
+        # Conway-Sloane (1992) as referenced in the technical spec
         transform = np.array([
             [2, 1, 0, 0],
             [1, 2, 1, 0],
@@ -115,6 +116,10 @@ class IsospectraLatticeGenerator:
         
         For a flat torus with lattice basis Λ, the Laplace eigenvalues are:
         λ_k = 4π² ||k||²  where k ∈ Λ* (dual lattice)
+        
+        PHASE 1 NOTE: Brute-force enumeration via np.ndindex. Complexity is
+        (2*max_coord+1)^dimension which is acceptable for dim≤8 and n≤100.
+        Phase 2 will optimize if needed using more efficient lattice enumeration.
         
         Args:
             basis: Lattice basis matrix

@@ -93,6 +93,10 @@ class GVAEmbedding:
         The embedding scales n by the curvature and maps it onto the
         fundamental domain of the torus defined by the lattice.
         
+        PHASE 1 PLACEHOLDER: Simple quasi-random distribution using golden ratio.
+        Phase 2 will integrate full GVA embedding from gva_factorization.py
+        with proper factor-manifold projection.
+        
         Args:
             n: Integer to embed
             lattice_basis: Lattice basis matrix (dim x dim)
@@ -190,6 +194,10 @@ class GVAEmbedding:
         
         Embeds n, p, q into isospectral choir and checks if geodesic
         distances are preserved according to the arithmetic relationship.
+        
+        PHASE 1 PLACEHOLDER: Simplified ratio for framework testing.
+        Phase 2 will implement rigorous preservation metric based on
+        Riemannian geometry and spectral theory from the literature.
         
         Args:
             n: Semiprime (n = p * q)
