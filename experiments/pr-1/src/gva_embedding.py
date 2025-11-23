@@ -46,6 +46,14 @@ class GVAEmbedding:
         
         Returns:
             Number of divisors
+            
+        Note:
+            PHASE 1 LIMITATION: For large numbers without known factors (n > 1M),
+            assumes primality and returns d(n) = 2. This is a placeholder for
+            Phase 2 integration with proper factorization methods. In production,
+            this should use the GVA factorization engine or proper primality testing.
+            For the current experiment scope (testing semiprimes with known factors),
+            this limitation does not affect correctness.
         """
         if n <= 0:
             return 0

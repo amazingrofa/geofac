@@ -15,6 +15,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Constants for eigenvalue computation
+MAX_COORD_4D = None  # Use sqrt-based computation
+MAX_COORD_6D = 5     # Limit for 6D to avoid exponential blowup
+MAX_COORD_8D = 4     # Limit for 8D to avoid exponential blowup
+EIGENVALUE_BUFFER_FACTOR = 10  # Early termination buffer
+
 
 class IsospectraLatticeGenerator:
     """
@@ -171,9 +177,9 @@ class IsospectraLatticeGenerator:
         if self.dimension <= 4:
             max_coord = int(np.ceil(np.sqrt(n_eigenvalues)))
         elif self.dimension == 6:
-            max_coord = min(5, int(np.ceil(np.sqrt(n_eigenvalues))))
+            max_coord = min(MAX_COORD_6D, int(np.ceil(np.sqrt(n_eigenvalues))))
         else:  # dimension >= 8
-            max_coord = min(4, int(np.ceil(np.sqrt(n_eigenvalues))))
+            max_coord = min(MAX_COORD_8D, int(np.ceil(np.sqrt(n_eigenvalues))))
         
         # Search over lattice vectors
         for coords in np.ndindex(*([2 * max_coord + 1] * self.dimension)):
@@ -184,7 +190,7 @@ class IsospectraLatticeGenerator:
                 eigenvalues.append(eigenval)
                 
                 # Early termination if we have enough eigenvalues
-                if len(eigenvalues) >= n_eigenvalues * 10:
+                if len(eigenvalues) >= n_eigenvalues * EIGENVALUE_BUFFER_FACTOR:
                     break
         
         eigenvalues = np.sort(eigenvalues)[:n_eigenvalues]
