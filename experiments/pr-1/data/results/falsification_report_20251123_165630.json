@@ -1,0 +1,82 @@
+{
+  "experiment": {
+    "name": "isospectral-tori-falsification",
+    "version": "1.0",
+    "date": "2025-11-23"
+  },
+  "timestamp": "2025-11-23T16:56:30.661986",
+  "summary": {
+    "total_tests": 3,
+    "falsified_tests": 3,
+    "falsification_rate": 1.0,
+    "hypothesis_falsified": true
+  },
+  "test_results": [
+    {
+      "test_case_id": "TC-001",
+      "dimension": 4,
+      "choir_size": 2,
+      "n": 137524771864208156028430259349934309717,
+      "p": 10508623501177419659,
+      "q": 13086849276577416863,
+      "runtime": 0.12676525115966797,
+      "baseline_runtime": 0.0671696662902832,
+      "runtime_ratio": 1.8872395556028823,
+      "metric_preservation_ratio": 0.0,
+      "spectral_overlap_ratio": 0.0,
+      "n_consistent_resonances": 0,
+      "precision_used": 708,
+      "falsified_by_metrics": true,
+      "falsified_by_runtime": true,
+      "falsified": true
+    },
+    {
+      "test_case_id": "TC-002",
+      "dimension": 6,
+      "choir_size": 3,
+      "n": 137524771864208156028430259349934309717,
+      "p": 10508623501177419659,
+      "q": 13086849276577416863,
+      "runtime": 0.19205355644226074,
+      "baseline_runtime": 0.056958675384521484,
+      "runtime_ratio": 3.371805175343865,
+      "metric_preservation_ratio": 0.0,
+      "spectral_overlap_ratio": 0.0,
+      "n_consistent_resonances": 0,
+      "precision_used": 708,
+      "falsified_by_metrics": true,
+      "falsified_by_runtime": true,
+      "falsified": true
+    },
+    {
+      "test_case_id": "TC-003",
+      "dimension": 8,
+      "choir_size": 4,
+      "n": 340282366920938463537161583726606417923,
+      "p": 18446744073709551617,
+      "q": 18446744073709551619,
+      "runtime": 0.25784778594970703,
+      "baseline_runtime": 0.05727243423461914,
+      "runtime_ratio": 4.502127234428727,
+      "metric_preservation_ratio": 0.0,
+      "spectral_overlap_ratio": 0.0,
+      "n_consistent_resonances": 0,
+      "precision_used": 716,
+      "falsified_by_metrics": true,
+      "falsified_by_runtime": true,
+      "falsified": true
+    }
+  ],
+  "statistical_validation": {
+    "ks_statistic": 1.0,
+    "p_value": 0.0,
+    "alpha": 0.05,
+    "rejects_poisson_consistency": true
+  },
+  "falsification_criteria": {
+    "metric_preservation": 0.95,
+    "runtime_ratio": 1.1,
+    "success_rate": 0.9,
+    "spectral_overlap": 0.95
+  }
+}
