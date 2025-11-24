@@ -39,15 +39,25 @@ def adaptive_precision(bit_length):
     return max(240, bit_length * 4 + 200)
 
 
+# Parameter bounds for adaptive corrections
+K_MIN = 0.25
+K_MAX = 0.45
+THRESHOLD_MIN = 0.5
+THRESHOLD_MAX = 1.0
+SAMPLES_MIN = 1000
+SAMPLES_MAX = 100000
+
 # Generate RSA-style semiprimes at different scales
-# These are real composites in the 10^14 to 10^18 range (Gate 4)
+# These are test semiprimes in the 10^14 to 10^18 range (Gate 4)
+# Each entry: (N, bit_length, p_approx, q_approx) where p_approx and q_approx
+# are approximations used for offset calculation only (not exact factors)
 TEST_SEMIPRIMES = [
     # ~47 bits (10^14 range) - Gate 4 minimum
-    (100000000000037, 47, 10000000019, 9999999981),  # p*q = 99999999999996799439
+    (100000000000037, 47, 10000000019, 9999999981),
     # ~50 bits (mid 10^14)
-    (1000000000000079, 50, 31622777, 31622777),  # Perfect semiprime in range
+    (1000000000000079, 50, 31622777, 31622777),
     # ~54 bits (10^16 range)
-    (10000000000000061, 54, 100000007, 99999989),  # p*q near 10^16
+    (10000000000000061, 54, 100000007, 99999989),
     # ~60 bits (10^18 range) - Gate 2 canonical
     (1152921470247108503, 60, 1073741789, 1073741827),
     # 127-bit challenge (whitelist for diagnostic)
@@ -202,7 +212,9 @@ def fit_scaling_law(x, y, law_type='log'):
             # y = a * (log x)^b
             # log(y) = log(a) + b * log(log(x))
             log_x = np.log(x_clean)
-            log_y = np.log(np.abs(y_clean) + 1e-10)  # Add small offset to avoid log(0)
+            # Add small offset to avoid log(0); offset << min(y_clean) to preserve scale
+            epsilon = 1e-10
+            log_y = np.log(np.abs(y_clean) + epsilon)
             
             slope, intercept, r_value, _, _ = linregress(log_x, log_y)
             
@@ -214,7 +226,8 @@ def fit_scaling_law(x, y, law_type='log'):
             # y = a * x^b
             # log(y) = log(a) + b * log(x)
             log_x = np.log(x_clean)
-            log_y = np.log(np.abs(y_clean) + 1e-10)
+            epsilon = 1e-10
+            log_y = np.log(np.abs(y_clean) + epsilon)
             
             slope, intercept, r_value, _, _ = linregress(log_x, log_y)
             
@@ -252,7 +265,7 @@ def plot_drift_curves(measurements, output_dir):
     
     # Overlay fit if available
     if kappa_a is not None and kappa_b is not None:
-        fit_label = f'Fit: Δκ ≈ {kappa_a:.2e} · (log N)^{kappa_b:.2f}\nR² = {kappa_r2:.3f}'
+        fit_label = f'Fit: Δκ ≈ {kappa_a:.2e} · (log bitLen)^{kappa_b:.2f}\nR² = {kappa_r2:.3f}'
         log_N_fit = np.linspace(min(log_N), max(log_N), 100)
         bit_fit = np.interp(log_N_fit, log_N, bit_lengths)
         delta_kappa_fit = kappa_a * (np.log(bit_fit) ** kappa_b)
@@ -277,7 +290,7 @@ def plot_drift_curves(measurements, output_dir):
     
     # Overlay fit if available
     if phase_a is not None and phase_b is not None:
-        fit_label = f'Fit: Δφ ≈ {phase_a:.2e} · (log N)^{phase_b:.2f}\nR² = {phase_r2:.3f}'
+        fit_label = f'Fit: Δφ ≈ {phase_a:.2e} · (log bitLen)^{phase_b:.2f}\nR² = {phase_r2:.3f}'
         log_N_fit = np.linspace(min(log_N), max(log_N), 100)
         bit_fit = np.interp(log_N_fit, log_N, bit_lengths)
         delta_phase_fit = phase_a * (np.log(bit_fit) ** phase_b)
@@ -333,10 +346,10 @@ def compute_adaptive_corrections(bit_length, scaling_fits):
     T_corrected = T_0 * ((log_scale + 1) ** (-beta))
     S_corrected = int(S_0 * ((log_scale + 1) ** gamma))
     
-    # Bound the corrections
-    k_corrected = np.clip(k_corrected, 0.25, 0.45)
-    T_corrected = np.clip(T_corrected, 0.5, 1.0)
-    S_corrected = max(1000, min(100000, S_corrected))
+    # Bound the corrections using module-level constants
+    k_corrected = np.clip(k_corrected, K_MIN, K_MAX)
+    T_corrected = np.clip(T_corrected, THRESHOLD_MIN, THRESHOLD_MAX)
+    S_corrected = max(SAMPLES_MIN, min(SAMPLES_MAX, S_corrected))
     
     return {
         'k': k_corrected,
