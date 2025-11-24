@@ -499,10 +499,9 @@ public class FactorizerService {
                 // Create a Set for O(1) lookup of filtered k-values
                 java.util.Set<BigDecimal> filteredSet = new java.util.HashSet<>(filteredK);
                 
-                // Rebuild amplitudeRecords with filtered k-values (O(n) complexity)
+                // Rebuild amplitudeRecords with filtered k-values (O(n) with O(1) lookups)
                 List<AmplitudeRecord> filteredRecords = amplitudeRecords.stream()
-                    .filter(rec -> filteredSet.stream()
-                        .anyMatch(k -> rec.k().subtract(k, mc).abs(mc).compareTo(BigDecimal.valueOf(1e-10)) < 0))
+                    .filter(rec -> filteredSet.contains(rec.k()))
                     .collect(Collectors.toList());
                 
                 amplitudeRecords = filteredRecords;

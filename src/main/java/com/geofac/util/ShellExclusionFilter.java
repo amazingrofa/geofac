@@ -140,9 +140,8 @@ public class ShellExclusionFilter {
             BigDecimal k = BigDecimal.valueOf(kLo).add(kWidth.multiply(BigDecimal.valueOf(uk), mc), mc);
             
             // Approximate theta for this r and k: theta ≈ 2πm/k where m ≈ exp(lnR)
-            // For quick sampling, use m=0 offset and vary with k
-            BigDecimal m = BigDecimal.ZERO;
-            BigDecimal theta = twoPi.multiply(m, mc).divide(k, mc);
+            // For quick sampling, use m=0 offset which simplifies theta to zero
+            BigDecimal theta = BigDecimal.ZERO;
             
             BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, J, mc);
             amplitudes.add(amplitude);
