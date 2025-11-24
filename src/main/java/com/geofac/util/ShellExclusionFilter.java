@@ -140,7 +140,10 @@ public class ShellExclusionFilter {
             BigDecimal k = BigDecimal.valueOf(kLo).add(kWidth.multiply(BigDecimal.valueOf(uk), mc), mc);
             
             // Approximate theta for this r and k: theta ≈ 2πm/k where m ≈ exp(lnR)
-            // For quick sampling, use m=0 offset which simplifies theta to zero
+            // For quick sampling in shell exclusion, use theta=0 as a conservative estimate.
+            // This samples the maximum amplitude for the Dirichlet kernel (center peak).
+            // Conservative because: if even the peak amplitude is below threshold, the entire
+            // shell can be safely excluded. More sophisticated sampling could be added later.
             BigDecimal theta = BigDecimal.ZERO;
             
             BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, J, mc);
@@ -228,7 +231,11 @@ public class ShellExclusionFilter {
         
         for (BigDecimal k : kSamples) {
             // Convert k to approximate r-value (r ≈ exp(k))
-            // This is a rough mapping for filtering purposes
+            // This is a rough mapping for filtering purposes. The relationship between k and r
+            // in the full algorithm is more complex (involves m and phase corrections), but for
+            // exclusion filtering, this exponential approximation is sufficient to identify
+            // which shells a k-sample might explore. Limitation: may be conservative (exclude
+            // less than optimal), but won't miss true factors due to shell overlap safeguard.
             BigDecimal r = BigDecimalMath.exp(k, mc);
             
             // Check if r falls within any excluded shell

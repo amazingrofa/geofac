@@ -497,6 +497,8 @@ public class FactorizerService {
                     kValues, excludedShells, lnN, mc);
                 
                 // Create a Set for O(1) lookup of filtered k-values
+                // Note: Since filteredK contains the exact same BigDecimal objects from amplitudeRecords,
+                // scale matching is guaranteed. Using HashSet for O(1) contains() lookup.
                 java.util.Set<BigDecimal> filteredSet = new java.util.HashSet<>(filteredK);
                 
                 // Rebuild amplitudeRecords with filtered k-values (O(n) with O(1) lookups)
