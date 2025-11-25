@@ -24,3 +24,5 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+experiments/final-factorization-127bit/experiment_results.json
+experiments/final-factorization-127bit/top_candidates.json
