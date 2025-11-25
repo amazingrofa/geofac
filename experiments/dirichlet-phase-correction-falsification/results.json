@@ -1,6 +1,6 @@
 {
   "experiment": "dirichlet-phase-correction-falsification",
-  "timestamp": "2025-11-25T13:47:46.320949",
+  "timestamp": "2025-11-25T13:53:21.379341",
   "seed": 42,
   "gate": "Gate 2 (60-bit)",
   "N": 1152921470247108503,
@@ -1880,12 +1880,13 @@
     "curvature_target_met": true,
     "rms_target_met": false
   },
-  "elapsed_seconds": 2.980914831161499,
+  "elapsed_seconds": 2.9816555976867676,
   "verdict": {
     "hypothesis_validated": false,
     "curvature_target_met": true,
     "rms_target_met": false,
     "final_curvature_ratio": 18.60099315370804,
-    "final_rms_ratio": 0.9999900216662919
+    "final_rms_ratio": 0.9999900216662919,
+    "extended_sweep_performed": true
   }
 }

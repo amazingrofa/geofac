@@ -42,6 +42,9 @@ ALPHA_STEPS = 101  # Number of α values to test
 # Sampling parameters
 SAMPLE_WINDOW = 1000  # ±1000 around sqrt(N)
 
+# Precomputed constants for efficiency
+E_SQUARED = math.e ** 2
+
 
 def adaptive_precision(N: int) -> int:
     """
@@ -83,7 +86,7 @@ def embed_torus_geodesic(n: int, k: float = 0.35, dimensions: int = 7) -> List[m
     for d in range(dimensions):
         phi_power = phi ** (d + 1)
         coord = mp.fmod(n * phi_power, 1)
-        if k != 1.0:
+        if abs(k - 1.0) > 1e-15:  # Use tolerance for float comparison
             coord = mp.power(coord, k)
             coord = mp.fmod(coord, 1)
         coords.append(coord)
@@ -220,15 +223,19 @@ def fit_quadratic(x: List[float], y: List[float]) -> Tuple[float, float, float, 
     x_mean = np.mean(x_arr)
     x_centered = x_arr - x_mean
     
-    # Fit polynomial
-    coeffs = np.polyfit(x_centered, y_arr, 2)
-    a, b, c = coeffs
-    
-    # Compute R²
-    y_pred = np.polyval(coeffs, x_centered)
-    ss_res = np.sum((y_arr - y_pred) ** 2)
-    ss_tot = np.sum((y_arr - np.mean(y_arr)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    # Fit polynomial with error handling for numerical instability
+    try:
+        coeffs = np.polyfit(x_centered, y_arr, 2)
+        a, b, c = coeffs
+        
+        # Compute R²
+        y_pred = np.polyval(coeffs, x_centered)
+        ss_res = np.sum((y_arr - y_pred) ** 2)
+        ss_tot = np.sum((y_arr - np.mean(y_arr)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    except (np.linalg.LinAlgError, ValueError):
+        # Return zeros if fitting fails due to numerical issues
+        return 0.0, 0.0, float(np.mean(y_arr)), 0.0
     
     return float(a), float(b), float(c), float(r_squared)
 
@@ -274,7 +281,7 @@ def apply_phase_correction(phi_meas: List[float], phi_pred: List[float],
     Returns:
         Corrected residual phase values
     """
-    phi_shift = alpha * math.log(N) / (math.e ** 2)
+    phi_shift = alpha * math.log(N) / E_SQUARED
     
     dphi_corrected = []
     for pm, pp in zip(phi_meas, phi_pred):
@@ -523,11 +530,13 @@ def run_experiment(verbose: bool = True) -> Dict:
     results["elapsed_seconds"] = elapsed
     
     # Determine final improvement metrics:
-    # - If extended sweep was performed (initial criteria not met), use extended results
-    # - Otherwise use initial results
-    # Note: Extended sweep is only performed when initial sweep fails to meet ALL criteria,
-    # so if extended_improvement exists, it represents a broader search and should be used
-    final_improvement = results.get("extended_improvement", results["initial_improvement"])
+    # Use extended results if extended sweep was performed, otherwise use initial
+    extended_sweep_performed = "extended_sweep" in results
+    if extended_sweep_performed:
+        final_improvement = results["extended_improvement"]
+    else:
+        final_improvement = results["initial_improvement"]
+    
     hypothesis_validated = (final_improvement["curvature_target_met"] and 
                            final_improvement["rms_target_met"])
     
@@ -537,6 +546,7 @@ def run_experiment(verbose: bool = True) -> Dict:
         "rms_target_met": final_improvement["rms_target_met"],
         "final_curvature_ratio": final_improvement["curvature_ratio"],
         "final_rms_ratio": final_improvement["rms_ratio"],
+        "extended_sweep_performed": extended_sweep_performed,
     }
     
     if verbose:
