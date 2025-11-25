@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [nr-microkernel-falsification/](nr-microkernel-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether embedding a Newton-Raphson (NR) microkernel inside QMC iterations improves resonance scan peak detection by locally refining promising peaks on-the-fly.
+
+**Key Finding**: Hypothesis decisively falsified. NR microkernel adds 60.5-113.4% runtime overhead while achieving only 2.2% improvement rate across 91 triggered refinements. The approach fails because geodesic distance in integer factor space is discontinuous—NR is fundamentally the wrong tool for this problem.
+
+**Critical Insight**: NR optimization assumes smooth, continuous objective functions. The geodesic distance landscape in integer factor space is inherently discontinuous, non-convex, and has flat gradients near true factors. The hypothesis was based on an incorrect transfer from continuous optimization contexts.
+
+**Start here**: [nr-microkernel-falsification/INDEX.md](nr-microkernel-falsification/INDEX.md)
+
+---
+
 ### [pr-1/](pr-1/)
 
 **Status**: Framework complete - Phase 1 ready
