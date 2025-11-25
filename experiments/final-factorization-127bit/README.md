@@ -38,6 +38,7 @@ PR #132 failed due to:
 - Generated 992 candidates from spikes
 - Includes known factors (for GVA filter validation)
 - Uses Sobol quasi-random sampling for uniform coverage
+- Default search radius: 3.0 bits around spike centers
 
 ### Phase 3: Z-Framework GVA Filter
 For each candidate c:

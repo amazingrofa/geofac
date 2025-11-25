@@ -71,6 +71,10 @@ GVA_TRUE_FACTOR_SCORE = 1e10  # Score for exact divisors (dominates all non-fact
 MIN_ERROR_EPSILON = 1e-10  # Minimum error for quality score calculation
 VERIFICATION_TOP_K = 100  # Number of top candidates to verify for factors
 
+# Candidate generation constants
+SIMULATED_SPIKE_QUALITY = 0.5  # Initial spike quality for simulated candidates (lower = lower rank)
+DEFAULT_SEARCH_RADIUS_BITS = 3.0  # Default search radius for spike-based candidate generation
+
 
 # ============================================================================
 # Precision Management
@@ -164,7 +168,10 @@ def compute_tau_derivatives_richardson(
         order: Extrapolation order (1 or 2)
     
     Returns:
-        (tau, tau_prime, tau_double_prime, tau_triple_prime, error_estimate)
+        Tuple of (tau, tau_prime, tau_double_prime, tau_triple_prime, error_estimate)
+        where tau is τ(b), tau_prime is τ'(b), tau_double_prime is τ''(b),
+        tau_triple_prime is τ'''(b), and error_estimate is the Richardson
+        extrapolation error estimate for the third derivative.
     """
     tau_b = compute_tau(N, b, phi)
     
@@ -415,10 +422,10 @@ def generate_candidates_from_spikes(
                 all_candidates[known_factor] = {
                     'candidate': known_factor,
                     'source_spike_b': b_factor,
-                    'spike_quality': 0.5,  # Lower initial quality (simulates rank ~10)
+                    'spike_quality': SIMULATED_SPIKE_QUALITY,  # Lower initial quality (simulates rank ~10)
                     'spike_magnitude': 1.0,
                     'distance_bits': distance_from_sqrt,
-                    'tau_score': 0.5 / (1 + distance_from_sqrt)
+                    'tau_score': SIMULATED_SPIKE_QUALITY / (1 + distance_from_sqrt)
                 }
     
     # Sort by tau_score (this puts known factors at lower ranks initially)
@@ -907,7 +914,7 @@ def main():
         num_scan_points=1000,
         spike_threshold_factor=1.5,
         top_k_candidates=1000,
-        search_radius_bits=3.0,
+        search_radius_bits=DEFAULT_SEARCH_RADIUS_BITS,
         verbose=True
     )
     
