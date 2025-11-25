@@ -167,8 +167,9 @@ def compute_signal_metrics(distances: List[float]) -> Tuple[float, float, float]
     curvature = sum(curvatures) / len(curvatures) if curvatures else 0.0
     
     # SNR: ratio of mean to standard deviation
-    # Use small epsilon to avoid division by zero
-    std = sqrt(variance) if variance > 0 else 1e-10
+    # Use epsilon guard to avoid division by zero
+    EPSILON_DIVISION_GUARD = 1e-10
+    std = sqrt(variance) if variance > 0 else EPSILON_DIVISION_GUARD
     snr = abs(mean) / std
     
     return variance, curvature, snr
@@ -269,7 +270,7 @@ def check_acceptance_criterion(candidate: int, N: int,
         return True, details
     
     # For exact factorization, only accept zero residual
-    # (The RESIDUAL_EPSILON tolerance was too permissive for large N)
+    # Note: RESIDUAL_EPSILON tolerance is not used for large N as it would accept false positives
     return False, details
 
 

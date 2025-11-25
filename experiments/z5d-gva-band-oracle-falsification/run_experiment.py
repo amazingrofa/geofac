@@ -38,13 +38,16 @@ from mask_generator import generate_mask, load_mask, WHEEL_MODULUS, is_admissibl
 from z5d_band_oracle import generate_bands, export_bands_jsonl, load_bands_jsonl, compute_sqrt_n
 from band_constrained_gva import (
     band_constrained_gva, export_peaks_jsonl, quantize_km_grid, export_bins_json,
-    adaptive_precision
+    adaptive_precision, embed_torus_geodesic, riemannian_distance
 )
 
 # 127-bit challenge
 CHALLENGE_127 = 137524771864208156028430259349934309717
 P_EXPECTED = 10508623501177419659
 Q_EXPECTED = 13086849276577416863
+
+# Analysis thresholds
+IMPROVEMENT_THRESHOLD = 0.9  # 10% improvement required for significance
 
 # Experiment parameters
 EXPERIMENT_CONFIG = {
@@ -111,8 +114,7 @@ def run_baseline_gva(N: int, verbose: bool = False):
         candidates_tested = 0
         
         for k in EXPERIMENT_CONFIG["k_values"]:
-            # Embed N
-            from band_constrained_gva import embed_torus_geodesic, riemannian_distance
+            # Embed N (functions imported at module level)
             N_coords = embed_torus_geodesic(N, k)
             
             for i in range(max_candidates // len(EXPERIMENT_CONFIG["k_values"])):
@@ -396,8 +398,8 @@ def run_experiment(verbose: bool = True):
     if z5d_a_success and not baseline_success:
         criteria["z5d_improves_over_baseline"] = True
     elif z5d_a_success and baseline_success:
-        # Check if Z5D is faster or tests fewer candidates
-        criteria["z5d_improves_over_baseline"] = (z5d_a_time < baseline_time * 0.9)
+        # Check if Z5D is faster (beyond IMPROVEMENT_THRESHOLD) or tests fewer candidates
+        criteria["z5d_improves_over_baseline"] = (z5d_a_time < baseline_time * IMPROVEMENT_THRESHOLD)
     
     # Criterion 2: Density toggle changes outcome
     if z5d_a_success != z5d_b_success:

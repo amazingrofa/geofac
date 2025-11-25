@@ -137,10 +137,8 @@ def generate_bands(N: int,
         band_id += 1
         
         # Negative side band (mirror)
-        # Skip the first iteration's negative mirror when cumulative_offset=0
-        # to avoid creating a duplicate band at δ=0
-        # After first iteration (i>0) or when offset has accumulated, create mirror
-        if cumulative_offset > 0 or i > 0:
+        # Skip when i=0 to avoid creating duplicate band at δ=0
+        if i > 0:
             band_neg = {
                 "id": band_id,
                 "type": "inner",
