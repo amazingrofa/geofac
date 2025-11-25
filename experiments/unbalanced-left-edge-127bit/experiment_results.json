@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-11-25T14:47:23.277384",
+  "timestamp": "2025-11-25T14:52:57.704935",
   "N": "137524771864208156028430259349934309717",
   "N_bit_length": 127,
   "mode": "UNBALANCED_LEFT_EDGE",
@@ -12,7 +12,7 @@
   "candidate_factor_found": null,
   "cofactor": null,
   "verified": false,
-  "elapsed_ms": 769.2716121673584,
+  "elapsed_ms": 767.1639919281006,
   "spikes_detected": [
     {
       "index": 483,
