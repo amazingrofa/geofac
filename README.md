@@ -14,6 +14,13 @@ Geofac is a Spring Boot + Spring Shell application that implements the geometric
 - **Resonance-only search paths** – Dirichlet kernel gating + golden-ratio QMC drive every candidate.
 - **Reproducibility** – fixed seeds, frozen configs, and exported artifacts per run.
 
+### Core Philosophy: Geometry as a Map
+**Geometry is a map, not a key.**
+
+1.  **Impossibility of Pure Geometric Factorization:** You cannot factor a number using geometry alone; mathematical structure eventually requires arithmetic verification.
+2.  **The True Value Proposition:** The goal of `geofac` is to drastically **reduce the search cost** by using geometric resonance (like $\tau$ spikes or 7D torus embeddings) to filter the candidate space.
+3.  **The Final Step:** The process *always* concludes with **trial division** (or GCD). The measure of success is not eliminating arithmetic, but reducing the number of required operations from billions (or quadrillions) down to a **tiny, manageable number** of targeted checks.
+
 ### Key features (resonance-only)
 - **High-precision core** – `FactorizerService` uses `ch.obermuhlner:big-math`, Dirichlet kernel gating, golden-ratio quasi Monte Carlo sampling, and phase-corrected snapping.
 - **Configurable search** – sampling range, kernel order (`J`), thresholds, and precision live in `application.yml`.

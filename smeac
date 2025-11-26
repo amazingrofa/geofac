@@ -42,6 +42,7 @@ Define the single, measurable outcome. State explicit success criteria and valid
 
 ## E (Execution → Plan & Tasks)
 Ordered steps (minimal diffs). Deterministic methods only; no classical fallbacks. Include parameters, thresholds, and stop conditions.
+**Constraint:** Do not attempt pure geometric factorization. Use geometry to generate candidates for targeted trial division.
 
 ## A&L (Administration & Logistics → Artifacts & Repro)
 List artifacts to write (logs, JSON, CSV), exact commands to repro, precision rule, timestamps, and where outputs are stored (.orders, results/...).

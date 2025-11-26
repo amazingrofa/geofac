@@ -24,6 +24,7 @@ This document defines the official four-gate validation process for the `geofac`
   1. Successful factorization with the canonical algorithm (`./gradlew bootRun` then `factor <N>` or `factor_one.sh`).
   2. Result independently verified by at least three reviewers.
   3. No fast-path or short-circuit; full algorithm run; precision and parameters logged.
+  4. **Verification:** The pipeline must conclude with an arithmetic check (e.g., `N % candidate == 0`) to confirm the factor. This is not a fallback; it is the required final step.
 
 ## Gate 4: Operational Range
 - **Purpose:** Demonstrate generality across the project’s declared operating window.
