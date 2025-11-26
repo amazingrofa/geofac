@@ -30,9 +30,9 @@ import json
 import sys
 import time
 from datetime import datetime
-from math import log, exp, sqrt, floor, ceil, pi
+from math import log, sqrt
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Tuple, Dict, Any
 
 try:
     import mpmath as mp
@@ -46,14 +46,6 @@ try:
 except ImportError:
     HAS_SCIPY_QMC = False
     print("WARNING: scipy.stats.qmc not available, using golden ratio QMC fallback")
-
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-    print("WARNING: numpy not available, using pure Python")
-
 
 # ============================================================================
 # Constants
@@ -72,7 +64,6 @@ MIN_ERROR_EPSILON = 1e-10  # Minimum error for quality score calculation
 VERIFICATION_TOP_K = 100  # Number of top candidates to verify for factors
 
 # Candidate generation constants
-SIMULATED_SPIKE_QUALITY = 0.5  # Initial spike quality for simulated candidates (lower = lower rank)
 DEFAULT_SEARCH_RADIUS_BITS = 3.0  # Default search radius for spike-based candidate generation
 
 
@@ -335,7 +326,6 @@ def generate_candidates_from_spikes(
     search_radius_bits: float = 0.5,
     max_candidates_per_spike: int = 200,
     total_max_candidates: int = 1000,
-    include_known_factors: bool = True
 ) -> List[Dict[str, Any]]:
     """
     Generate candidate factors from τ''' spike locations using Sobol sampling.
@@ -410,25 +400,7 @@ def generate_candidates_from_spikes(
                     'tau_score': spike['quality'] / (1 + distance_bits)
                 }
     
-    # Include known factors for GVA filter validation
-    # This simulates the scenario from PR #132 where the true factor was
-    # among the candidates but ranked 10th
-    if include_known_factors:
-        for known_factor in [EXPECTED_P, EXPECTED_Q]:
-            if known_factor not in all_candidates:
-                b_factor = log(known_factor) / log(2)
-                distance_from_sqrt = abs(log(known_factor / sqrt_N_float) / log(2))
-                
-                all_candidates[known_factor] = {
-                    'candidate': known_factor,
-                    'source_spike_b': b_factor,
-                    'spike_quality': SIMULATED_SPIKE_QUALITY,  # Lower initial quality (simulates rank ~10)
-                    'spike_magnitude': 1.0,
-                    'distance_bits': distance_from_sqrt,
-                    'tau_score': SIMULATED_SPIKE_QUALITY / (1 + distance_from_sqrt)
-                }
-    
-    # Sort by tau_score (this puts known factors at lower ranks initially)
+    # Sort by tau_score
     candidates = list(all_candidates.values())
     candidates.sort(key=lambda x: x['tau_score'], reverse=True)
     
@@ -698,7 +670,7 @@ def run_completion_experiment(
         print("  1. τ''' spike detection with Richardson extrapolation")
         print("  2. Sobol QMC sampling for candidate expansion")
         print("  3. Z-Framework GVA filter (7D torus geodesic deviation)")
-        print("  4. Re-rank candidates: move true factor from Rank ~10 to Rank 1")
+        print("  4. Re-rank candidates without injecting known factors")
         print()
         print("Configuration:")
         print(f"  Precision: {precision} decimal digits")
@@ -789,7 +761,7 @@ def run_completion_experiment(
         if rank_before:
             print(f"  True factor (p={EXPECTED_P}) rank: {rank_before}")
         else:
-            print("  True factor NOT in candidate pool (unexpected)")
+            print("  True factor not present in candidate pool")
         print()
     
     # ========================================================================
