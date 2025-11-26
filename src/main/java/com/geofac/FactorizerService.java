@@ -595,8 +595,8 @@ public class FactorizerService {
             log.debug("Coverage metrics for k-sample {}: tested={}, pass_rate={}, band_width={}, effective_coverage={}", 
                      sampleCount, totalMScan, String.format("%.3f", passRate), bandWidth, String.format("%.3f", coverage));
             if (coverage < coverageGateThreshold) {
-                log.warn("Coverage below threshold for k-sample {}: {:.3f} < {:.3f}", 
-                        sampleCount, coverage, coverageGateThreshold);
+                log.warn("Coverage below threshold for k-sample {}: {} < {}", 
+                        sampleCount, String.format("%.3f", coverage), String.format("%.3f", coverageGateThreshold));
             }
 
             if (result.get() != null) {
