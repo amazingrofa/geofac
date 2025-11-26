@@ -587,11 +587,11 @@ public class FactorizerService {
             });
 
             // Log coverage metrics for this k-sample
-            // Coverage = passRate since we test all m-values in the band
+            // Coverage is equal to passRate since all m-values are tested (no skipping)
             int passed = passedThreshold.get();
             double passRate = totalMScan > 0 ? (double) passed / totalMScan : 0.0;
             int bandWidth = totalMScan;
-            double coverage = bandWidth > 0 ? (totalMScan * passRate) / bandWidth : 0.0;
+            double coverage = passRate;
             log.debug("Coverage metrics for k-sample {}: tested={}, pass_rate={:.3f}, band_width={}, effective_coverage={:.3f}", 
                      sampleCount, totalMScan, passRate, bandWidth, coverage);
             if (coverage < coverageGateThreshold) {
