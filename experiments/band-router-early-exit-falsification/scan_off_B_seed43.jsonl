@@ -1,0 +1,3 @@
+{"event": "plan", "seed": 43, "C": 0.9, "alpha": 1.0, "wheel": 210, "tau": 1e-06, "L": 8, "dps": 708, "git_head": "a254971", "num_bands": 10, "total_width": 430, "timestamp_utc": "2025-11-25T13:32:11.916664+00:00"}
+{"event": "mask", "seed": 43, "C": 0.9, "alpha": 1.0, "wheel": 210, "tau": 1e-06, "L": 8, "dps": 708, "git_head": "a254971", "candidates_total": 430, "candidates_masked": 97, "reduction_pct": 77.44186046511628, "timestamp_utc": "2025-11-25T13:32:11.916719+00:00"}
+{"event": "complete", "seed": 43, "C": 0.9, "alpha": 1.0, "wheel": 210, "tau": 1e-06, "L": 8, "dps": 708, "git_head": "a254971", "peaks_found": 0, "z5d_steps": 98, "early_exits": 0, "wall_time_sec": 0.4464240074157715, "factors_found": false, "timestamp_utc": "2025-11-25T13:32:12.361234+00:00"}

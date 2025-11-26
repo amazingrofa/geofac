@@ -1,0 +1,138 @@
+{
+  "experiment": "z5d-gva-band-oracle-falsification",
+  "target": {
+    "N": "137524771864208156028430259349934309717",
+    "bit_length": 127,
+    "p": "10508623501177419659",
+    "q": "13086849276577416863"
+  },
+  "config": {
+    "max_delta": 10000000,
+    "inner_band_count": 20,
+    "outer_band_count": 10,
+    "k_values": [
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45
+    ],
+    "m_range": [
+      1,
+      100
+    ],
+    "k_bins": 10,
+    "m_bins": 20,
+    "max_candidates_per_band": 1000,
+    "baseline_max_candidates": 50000,
+    "baseline_delta_window": 500000,
+    "seed": 42
+  },
+  "started_at": "2025-11-25T13:27:13.088520+00:00",
+  "artifacts": {
+    "mask": "/home/runner/work/geofac/geofac/experiments/z5d-gva-band-oracle-falsification/mask.json",
+    "bands": "/home/runner/work/geofac/geofac/experiments/z5d-gva-band-oracle-falsification/bands.jsonl",
+    "bins": "/home/runner/work/geofac/geofac/experiments/z5d-gva-band-oracle-falsification/bins.json"
+  },
+  "results": {
+    "baseline": {
+      "method": "baseline_gva",
+      "N": "137524771864208156028430259349934309717",
+      "sqrt_N": "11727095627827384440",
+      "config": {
+        "max_candidates": 50000,
+        "delta_window": 500000,
+        "k_values": [
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45
+        ],
+        "precision": 708
+      },
+      "started_at": "2025-11-25T13:27:13.091614+00:00",
+      "success": false,
+      "factors": null,
+      "candidates_tested": 24990,
+      "elapsed_seconds": 0.03731799125671387
+    },
+    "z5d_no_density": {
+      "method": "z5d_band_oracle_gva_density_False",
+      "N": "137524771864208156028430259349934309717",
+      "sqrt_N": "11727095627827384440",
+      "config": {
+        "bands": 29,
+        "mask_residues": 480,
+        "modulus": 2310,
+        "k_values": [
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45
+        ],
+        "max_candidates_per_band": 1000,
+        "use_density_weight": false,
+        "use_short_circuit": true
+      },
+      "started_at": "2025-11-25T13:27:13.128987+00:00",
+      "success": false,
+      "factors": null,
+      "candidates_tested": 0,
+      "candidates_filtered": 0,
+      "bands_explored": 0,
+      "short_circuited": 0,
+      "elapsed_seconds": 104.71837377548218,
+      "peaks_recorded": 29785
+    },
+    "z5d_with_density": {
+      "method": "z5d_band_oracle_gva_density_True",
+      "N": "137524771864208156028430259349934309717",
+      "sqrt_N": "11727095627827384440",
+      "config": {
+        "bands": 29,
+        "mask_residues": 480,
+        "modulus": 2310,
+        "k_values": [
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45
+        ],
+        "max_candidates_per_band": 1000,
+        "use_density_weight": true,
+        "use_short_circuit": true
+      },
+      "started_at": "2025-11-25T13:28:57.975546+00:00",
+      "success": false,
+      "factors": null,
+      "candidates_tested": 0,
+      "candidates_filtered": 0,
+      "bands_explored": 0,
+      "short_circuited": 0,
+      "elapsed_seconds": 104.37232279777527,
+      "peaks_recorded": 29804
+    }
+  },
+  "summary": {
+    "hypothesis": "Z5D-informed GVA upgrade improves 127-bit factorization",
+    "verdict": "FALSIFIED",
+    "criteria_results": {
+      "z5d_improves_over_baseline": false,
+      "density_toggle_changes_outcome": false,
+      "short_circuit_reduces_computation": false,
+      "improvements_not_just_wheel_mask": false
+    },
+    "baseline_success": false,
+    "z5d_no_density_success": false,
+    "z5d_with_density_success": false,
+    "baseline_time_s": 0.03731799125671387,
+    "z5d_no_density_time_s": 104.71837377548218,
+    "z5d_with_density_time_s": 104.37232279777527,
+    "factor_p_admissible": true,
+    "factor_q_admissible": true
+  },
+  "completed_at": "2025-11-25T13:30:42.347877+00:00"
+}

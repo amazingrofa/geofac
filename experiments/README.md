@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [nr-microkernel-falsification/](nr-microkernel-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether embedding a Newton-Raphson (NR) microkernel inside QMC iterations improves resonance scan peak detection by locally refining promising peaks on-the-fly.
+
+**Key Finding**: Hypothesis decisively falsified. NR microkernel adds 60.5-113.4% runtime overhead while achieving only 2.2% improvement rate across 91 triggered refinements. The approach fails because geodesic distance in integer factor space is discontinuous—NR is fundamentally the wrong tool for this problem.
+
+**Critical Insight**: NR optimization assumes smooth, continuous objective functions. The geodesic distance landscape in integer factor space is inherently discontinuous, non-convex, and has flat gradients near true factors. The hypothesis was based on an incorrect transfer from continuous optimization contexts.
+
+**Start here**: [nr-microkernel-falsification/INDEX.md](nr-microkernel-falsification/INDEX.md)
+
+---
+
 ### [pr-1/](pr-1/)
 
 **Status**: Framework complete - Phase 1 ready
@@ -96,6 +110,22 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ---
 
+### [band-router-early-exit-falsification/](band-router-early-exit-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether (1) band-first routing with wheel mask reduces candidate count by ≥70% while maintaining coverage, and (2) early-exit guard achieves ≥35% step/time reduction with ≤5% recall loss.
+
+**Key Finding**: Hypothesis falsified on both counts. Band routing achieved only 8.3% reduction (threshold: ≥70%) and early-exit achieved 0% step reduction (threshold: ≥35%). This is not a parameter tuning failure—it reflects a structural incompatibility between the hypothesis design (which assumes large search spaces with wasteful regions) and CHALLENGE_127's tight geometric structure (expected gap ~44, only ~217 candidates in search range).
+
+**Critical Insight**: The expected gap Δ ≈ ln(√N) ≈ 44 for CHALLENGE_127 reveals a fundamental tension: banding assumes large δ-ranges with sparse factors, but at scale 10^19, factors are densely clustered within ~100 units of √N. Sophisticated routing adds overhead without benefit at this scale.
+
+**Test Results**: 10/12 tests passing. Unit tests pass; performance thresholds fail as expected for falsification.
+
+**Start here**: [band-router-early-exit-falsification/EXPERIMENT_REPORT.md](band-router-early-exit-falsification/EXPERIMENT_REPORT.md)
+
+---
+
 ### [z5d-informed-gva/](z5d-informed-gva/)
 
 **Status**: Framework complete - Ready for execution
@@ -134,6 +164,22 @@ This directory contains research experiments for the geofac geometric resonance 
 **Test Results**: 16/16 tests passing. All 6 steps functional. Production rate: 293 candidates/sec with full instrumentation.
 
 **Start here**: [z5d-comprehensive-challenge/EXPERIMENT_REPORT.md](z5d-comprehensive-challenge/EXPERIMENT_REPORT.md)
+
+---
+
+### [unbalanced-left-edge-127bit/](unbalanced-left-edge-127bit/)
+
+**Status**: Complete - Hypothesis not validated
+
+**Objective**: Falsify the hypothesis that GEOFAC can factor the 127-bit challenge number using geometric signal via "unbalanced / left-edge" geometry, detecting τ''' spikes that reveal small factor locations.
+
+**Key Finding**: The τ''' method correctly identifies the 63-bit scale region containing the actual factors (p ≈ 2^63.19, q ≈ 2^63.50). However, the candidate coverage around detected spikes is insufficient for factor recovery within the tested budget (100k candidates). The geometric signal is present but not precise enough for direct factor extraction.
+
+**Innovation**: Novel τ-space approach using third derivative analysis to detect "left-edge cliff" signatures characteristic of unbalanced semiprimes.
+
+**Test Results**: 56 spikes detected, top spikes at b=63.28 and b=63.41 correlate with actual factor bit positions. 100,020 candidates tested across 20 spikes. Runtime: 774ms.
+
+**Start here**: [unbalanced-left-edge-127bit/README.md](unbalanced-left-edge-127bit/README.md)
 
 ---
 
