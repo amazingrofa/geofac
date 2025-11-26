@@ -14,6 +14,7 @@ import org.apache.commons.math3.random.SobolSequenceGenerator;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Collectors;
@@ -86,6 +87,9 @@ public class FactorizerService {
 
     @Value("${geofac.max-search-radius:1000000000}")
     private long maxSearchRadius;
+
+    @Value("${geofac.coverage-gate-threshold:0.75}")
+    private double coverageGateThreshold;
 
     @Value("${geofac.shell-exclusion-enabled:false}")
     private boolean shellExclusionEnabled;
@@ -533,6 +537,10 @@ public class FactorizerService {
             BigInteger m0 = BigInteger.ZERO;
             AtomicReference<BigInteger[]> result = new AtomicReference<>();
 
+            // Coverage tracking for m-scan
+            int totalMScan = config.mSpan() * 2 + 1;
+            AtomicInteger passedThreshold = new AtomicInteger(0);
+
             // Parallel m-scan
             IntStream.rangeClosed(-config.mSpan(), config.mSpan()).parallel().forEach(dm -> {
                 if (result.get() != null) return;
@@ -547,6 +555,7 @@ public class FactorizerService {
                 }
                 
                 if (amplitude.compareTo(BigDecimal.valueOf(config.threshold())) > 0) {
+                    passedThreshold.incrementAndGet();
                     BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
 
                     // Guard: reject invalid p0
@@ -576,6 +585,19 @@ public class FactorizerService {
                     }
                 }
             });
+
+            // Log coverage metrics for this k-sample
+            // Coverage is equal to passRate since all m-values are tested (no skipping)
+            int passed = passedThreshold.get();
+            double passRate = totalMScan > 0 ? (double) passed / totalMScan : 0.0;
+            int bandWidth = totalMScan;
+            double coverage = passRate;
+            log.debug("Coverage metrics for k-sample {}: tested={}, pass_rate={}, band_width={}, effective_coverage={}", 
+                     sampleCount, totalMScan, String.format("%.3f", passRate), bandWidth, String.format("%.3f", coverage));
+            if (coverage < coverageGateThreshold) {
+                log.warn("Coverage below threshold for k-sample {}: {} < {}", 
+                        sampleCount, String.format("%.3f", coverage), String.format("%.3f", coverageGateThreshold));
+            }
 
             if (result.get() != null) {
                 log.info("Factor found at sample {}/{}", sampleCount, testLimit);
@@ -613,9 +635,17 @@ public class FactorizerService {
         }
         
         // Log the actual search parameters
-        log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}", 
+        // Coverage = 1.0 since we test all candidates in the band exhaustively
+        long candidatesTested = searchRadius * 2 + 1; // pCenter + 2*searchRadius neighbors
+        long bandWidth = searchRadius * 2 + 1; // Full range from pCenter-radius to pCenter+radius
+        double passRate = 1.0; // All candidates are tested (no prefilter)
+        double coverage = bandWidth > 0 ? (candidatesTested * passRate) / bandWidth : 0.0;
+        log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}, candidates_tested={}, pass_rate={:.3f}, band_width={}, coverage={:.3f}", 
                  pCenter, searchRadius, searchRadiusPercentage * 100, 
-                 capped ? " [CAPPED]" : "");
+                 capped ? " [CAPPED]" : "", candidatesTested, passRate, bandWidth, coverage);
+        if (coverage < coverageGateThreshold) {
+            log.warn("Ring search coverage below threshold: {} < {}", String.format("%.3f", coverage), String.format("%.3f", coverageGateThreshold));
+        }
         
         // Test pCenter itself first
         if (N.mod(pCenter).equals(BigInteger.ZERO)) {

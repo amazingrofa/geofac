@@ -25,6 +25,8 @@ geofac:
   # max-search-radius: Maximum absolute search radius to prevent impractical searches
   # Updated: 10^8 reduces bottleneck while maintaining coverage for Gate 3
   max-search-radius: 100000000
+  # coverage-gate-threshold: Minimum acceptable coverage metric (candidates_tested × pass_rate / band_width)
+  coverage-gate-threshold: 0.75
   # Shell exclusion optimization: prune dead zones by amplitude-scanning concentric shells
   # Disabled by default until proven stable
   shell-exclusion-enabled: false
