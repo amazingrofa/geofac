@@ -635,17 +635,12 @@ public class FactorizerService {
         }
         
         // Log the actual search parameters
-        // Coverage = 1.0 since we test all candidates in the band exhaustively
+        // Exhaustive ring search, so coverage is always 1.0 (gap-free)
         long candidatesTested = searchRadius * 2 + 1; // pCenter + 2*searchRadius neighbors
-        long bandWidth = searchRadius * 2 + 1; // Full range from pCenter-radius to pCenter+radius
-        double passRate = 1.0; // All candidates are tested (no prefilter)
-        double coverage = bandWidth > 0 ? (candidatesTested * passRate) / bandWidth : 0.0;
-        log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}, candidates_tested={}, pass_rate={:.3f}, band_width={}, coverage={:.3f}", 
+        double coverage = 1.0;
+        log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}, candidates_tested={}, coverage={}", 
                  pCenter, searchRadius, searchRadiusPercentage * 100, 
-                 capped ? " [CAPPED]" : "", candidatesTested, passRate, bandWidth, coverage);
-        if (coverage < coverageGateThreshold) {
-            log.warn("Ring search coverage below threshold: {} < {}", String.format("%.3f", coverage), String.format("%.3f", coverageGateThreshold));
-        }
+                 capped ? " [CAPPED]" : "", candidatesTested, String.format("%.3f", coverage));
         
         // Test pCenter itself first
         if (N.mod(pCenter).equals(BigInteger.ZERO)) {
