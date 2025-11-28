@@ -24,10 +24,18 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'ch.obermuhlner:big-math:2.3.2'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+        events "passed", "failed", "skipped"
+    }
+    // Forward opt-in flag for long challenge IT
+    systemProperty "geofac.runLongChallengeIT", System.getProperty("geofac.runLongChallengeIT", "false")
 }

@@ -15,6 +15,18 @@ How to run locally:
 
 Then open http://localhost:8080/ to launch or monitor factoring jobs.
 
+### Config/status endpoint
+
+`GET /api/config` returns the current engine settings (pre-adaptive) so operators can confirm which parameters are
+active and decide what to override.
+
+### Long 127-bit challenge test
+
+- Gated to stay out of default CI: run with
+  `./gradlew -p experiments/blind-geofac-web test -Dgeofac.runLongChallengeIT=true --tests \"*FactorServiceChallengeIT\"`
+- Success criterion: find a factor within 30 minutes. Feel free to tweak `geofac.*` parameters if it runs long; watch
+  the console/SSE logs for progress.
+
 ## Technical and Scientific Detail
 
 ### Goal and Scope

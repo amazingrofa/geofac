@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class FactorJob {
+    private static final int MAX_LOG_HISTORY = 5000;
     private final UUID id;
     private final BigInteger n;
     private volatile JobStatus status;
@@ -16,7 +17,7 @@ public class FactorJob {
     private volatile Instant completedAt;
     private volatile BigInteger foundP;
     private volatile BigInteger foundQ;
-    private final List<String> logs = new CopyOnWriteArrayList<>();
+    private final ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
     private volatile List<Candidate> topCandidates = Collections.emptyList();
 
     public FactorJob(UUID id, BigInteger n) {
@@ -68,6 +69,9 @@ public class FactorJob {
 
     public void appendLog(String line) {
         logs.add(line);
+        while (logs.size() > MAX_LOG_HISTORY) {
+            logs.pollFirst();
+        }
     }
 
     public void markRunning() {

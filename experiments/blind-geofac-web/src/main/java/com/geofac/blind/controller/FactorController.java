@@ -48,6 +48,13 @@ public class FactorController {
                 "topCandidates", job.getTopCandidates().stream().limit(5).toList()));
     }
 
+    @GetMapping(path = "/config", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> config() {
+        return ResponseEntity.ok(Map.of(
+                "engineSettings", factorService.currentSettings(),
+                "notes", "Values are pre-adaptive; per-run scaling depends on N.bitLength()."));
+    }
+
     @GetMapping(path = "/logs/{jobId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> stream(@PathVariable UUID jobId) {
         FactorService.SseSnapshot snap = factorService.logsSnapshot(jobId);

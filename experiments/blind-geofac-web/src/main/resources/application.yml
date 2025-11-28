@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: blind-geofac-web
+  main:
+    banner-mode: "off"
+
+geofac:
+  enable-diagnostics: false
+  enable-scale-adaptive: true
+  scale-adaptive-attenuation: 0.05
+  precision: 260
+  samples: 2000
+  m-span: 180
+  j: 6
+  threshold: 0.95
+  k-lo: 0.25
+  k-hi: 0.45
+  search-timeout-ms: 1200000
+  search-radius-percentage: 0.012
+  max-search-radius: 100000000
+  coverage-gate-threshold: 0.75
+  shell-exclusion-enabled: false
+  shell-delta: 1000
+  shell-count: 20
+  shell-tau: 0.15
+  shell-tau-spike: 0.20
+  shell-overlap-percent: 0.10
+  shell-k-samples: 5
+  allow-127bit-benchmark: true
