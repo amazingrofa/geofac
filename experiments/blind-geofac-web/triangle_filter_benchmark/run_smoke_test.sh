@@ -11,9 +11,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEB_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$WEB_ROOT/../.." && pwd)"
 
+# Create secure temp directory
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
 echo "=== Triangle Filter Smoke Test ==="
 echo "Reference: https://github.com/zfifteen/geofac/pull/171"
 echo ""
+
+# Parse triangle filter stats from log file
+parse_triangle_stats() {
+    local log_file="$1"
+    local checked rejected rate
+    
+    # Extract stats: "Triangle filter stats: checked=N, rejected=M (X.X%)"
+    checked=$(grep -oE 'checked=[0-9]+' "$log_file" 2>/dev/null | tail -1 | cut -d= -f2 || echo "0")
+    rejected=$(grep -oE 'rejected=[0-9]+' "$log_file" 2>/dev/null | tail -1 | cut -d= -f2 || echo "0")
+    rate=$(grep -oE '\([0-9.]+%\)' "$log_file" 2>/dev/null | tail -1 | tr -d '()%' || echo "N/A")
+    
+    echo "$checked $rejected $rate"
+}
 
 run_quick_test() {
     local filter_enabled="$1"
@@ -25,6 +42,8 @@ run_quick_test() {
         label="DISABLED"
     fi
     
+    local log_file="$TEMP_DIR/smoke_test_${filter_enabled}.log"
+    
     echo "Running with triangle filter $label..."
     
     local start_time
@@ -34,17 +53,14 @@ run_quick_test() {
     "$REPO_ROOT/gradlew" -p "$WEB_ROOT" test \
         -Dgeofac.triangle-filter-enabled="$filter_enabled" \
         --tests "com.geofac.blind.service.FactorServiceTest" \
-        2>&1 | tee /tmp/smoke_test_${filter_enabled}.log
+        2>&1 | tee "$log_file"
     
     local end_time
     end_time=$(date +%s)
     local elapsed=$((end_time - start_time))
     
     # Extract stats
-    local checked rejected rate
-    checked=$(grep -oP 'triangleFilterChecked=\K[0-9]+' /tmp/smoke_test_${filter_enabled}.log 2>/dev/null | tail -1 || echo "0")
-    rejected=$(grep -oP 'triangleFilterRejected=\K[0-9]+' /tmp/smoke_test_${filter_enabled}.log 2>/dev/null | tail -1 || echo "0")
-    rate=$(grep -oP 'Triangle filter stats:.*\(\K[0-9.]+(?=%)' /tmp/smoke_test_${filter_enabled}.log 2>/dev/null | tail -1 || echo "N/A")
+    read -r checked rejected rate < <(parse_triangle_stats "$log_file")
     
     echo ""
     echo "Filter $label:"

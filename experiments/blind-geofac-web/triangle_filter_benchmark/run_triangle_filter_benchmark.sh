@@ -20,14 +20,31 @@ RESULTS_DIR="$SCRIPT_DIR/results"
 
 NUM_RUNS="${1:-3}"
 
+# Test class for 127-bit challenge (configurable via env var)
+TEST_CLASS="${BENCHMARK_TEST_CLASS:-com.geofac.blind.service.FactorServiceChallengeIT}"
+
 mkdir -p "$RESULTS_DIR"
 
 echo "=== Triangle Filter Benchmark ==="
 echo "Reference: https://github.com/zfifteen/geofac/pull/171"
 echo "Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
 echo "Runs per configuration: $NUM_RUNS"
+echo "Test class: $TEST_CLASS"
 echo "Results directory: $RESULTS_DIR"
 echo ""
+
+# Parse triangle filter stats from log file
+# Format: "Triangle filter stats: checked=N, rejected=M (X.X%)"
+parse_triangle_stats() {
+    local log_file="$1"
+    local checked rejected rate
+    
+    checked=$(grep -oE 'checked=[0-9]+' "$log_file" 2>/dev/null | tail -1 | cut -d= -f2 || echo "0")
+    rejected=$(grep -oE 'rejected=[0-9]+' "$log_file" 2>/dev/null | tail -1 | cut -d= -f2 || echo "0")
+    rate=$(grep -oE '\([0-9.]+%\)' "$log_file" 2>/dev/null | tail -1 | tr -d '()%' || echo "N/A")
+    
+    echo "$checked $rejected $rate"
+}
 
 # Function to run a single benchmark
 run_benchmark() {
@@ -45,16 +62,15 @@ run_benchmark() {
     
     echo "  Run $run_num (filter $label)..."
     
-    # Capture start time
+    # Capture start time (integer seconds for portability)
     local start_time
-    start_time=$(date +%s.%N)
+    start_time=$(date +%s)
     
     # Run the test with triangle filter setting
-    # Note: We use the existing test infrastructure with property overrides
     "$REPO_ROOT/gradlew" -p "$WEB_ROOT" test \
         -Dgeofac.runLongChallengeIT=true \
         -Dgeofac.triangle-filter-enabled="$filter_enabled" \
-        --tests "com.geofac.blind.service.FactorServiceChallengeIT" \
+        --tests "$TEST_CLASS" \
         --info \
         2>&1 | tee "$log_file" || {
             echo "  FAILED (see $log_file)"
@@ -62,17 +78,13 @@ run_benchmark() {
         }
     
     local end_time
-    end_time=$(date +%s.%N)
+    end_time=$(date +%s)
     
-    # Calculate elapsed time
-    local elapsed
-    elapsed=$(echo "$end_time - $start_time" | bc)
+    # Calculate elapsed time (integer arithmetic, no bc dependency)
+    local elapsed=$((end_time - start_time))
     
     # Extract triangle filter stats from log
-    local checked rejected reject_rate
-    checked=$(grep -oP 'triangleFilterChecked=\K[0-9]+' "$log_file" 2>/dev/null || echo "0")
-    rejected=$(grep -oP 'triangleFilterRejected=\K[0-9]+' "$log_file" 2>/dev/null || echo "0")
-    reject_rate=$(grep -oP 'Triangle filter stats:.*\(\K[0-9.]+(?=%)' "$log_file" 2>/dev/null || echo "N/A")
+    read -r checked rejected reject_rate < <(parse_triangle_stats "$log_file")
     
     # Check for success
     local success="false"
@@ -82,7 +94,7 @@ run_benchmark() {
     
     # Extract duration from test output if available
     local duration_ms
-    duration_ms=$(grep -oP 'durationMs=\K[0-9]+' "$log_file" 2>/dev/null || echo "N/A")
+    duration_ms=$(grep -oE 'durationMs=[0-9]+' "$log_file" 2>/dev/null | tail -1 | cut -d= -f2 || echo "N/A")
     
     echo "    Wall-clock: ${elapsed}s | Duration: ${duration_ms}ms | Success: $success"
     echo "    Triangle filter: checked=$checked, rejected=$rejected, rate=${reject_rate}%"
