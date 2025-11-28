@@ -10,7 +10,7 @@ Components:
 3. Wheel mask filtering: mod 2310 residue filtering
 4. A/B density weighting toggle: use_density_weight=false by default
 5. Short-circuit distant shells: variance/curvature thresholds
-6. Single acceptance criterion: SNR > τ, Newton ≤ K, residual < ε, mask holds
+6. Geometric acceptance: SNR threshold + wheel mask (no divisibility in scoring)
 
 Output: peaks.jsonl with candidate peaks found during search
 
@@ -35,10 +35,8 @@ TAU_1_VARIANCE = 0.001      # Variance threshold for short-circuit
 TAU_2_CURVATURE = 0.0001    # Curvature threshold for short-circuit
 T_STEPS = 5                  # Consecutive steps below threshold to trigger short-circuit
 
-# Acceptance criteria
+# Acceptance criteria (geometric only)
 SNR_THRESHOLD = 2.0          # Signal-to-noise ratio threshold
-MAX_NEWTON_STEPS = 10        # Maximum Newton refinement steps
-RESIDUAL_EPSILON = 1e-12     # Residual threshold
 
 
 def adaptive_precision(N: int) -> int:
@@ -175,56 +173,15 @@ def compute_signal_metrics(distances: List[float]) -> Tuple[float, float, float]
     return variance, curvature, snr
 
 
-def newton_refine(candidate: int, N: int, max_steps: int = 10) -> Tuple[int, int]:
-    """
-    Newton-like refinement to snap candidate toward factor.
-    
-    Uses the residual N mod candidate to guide refinement.
-    
-    Args:
-        candidate: Initial candidate
-        N: Target semiprime
-        max_steps: Maximum refinement steps
-        
-    Returns:
-        (refined_candidate, steps_taken)
-    """
-    current = candidate
-    steps = 0
-    
-    for _ in range(max_steps):
-        residual = N % current
-        
-        if residual == 0:
-            return current, steps
-        
-        # Adjust toward factor
-        if residual < current // 2:
-            # Factor might be slightly larger
-            current += 1
-        else:
-            # Factor might be slightly smaller
-            current -= 1
-        
-        steps += 1
-        
-        if current <= 1 or current >= N:
-            break
-    
-    return current, steps
-
-
 def check_acceptance_criterion(candidate: int, N: int, 
                                snr: float, mask_set: Set[int], 
                                modulus: int) -> Tuple[bool, Dict]:
     """
-    Single acceptance criterion check.
+    Geometric acceptance criterion check.
     
     Criteria:
     1. SNR > τ (signal-to-noise above threshold)
-    2. Newton refinement ≤ K steps
-    3. Residual < ε
-    4. Mask holds (candidate in allowed residue class)
+    2. Mask holds (candidate in allowed residue class)
     
     Args:
         candidate: Factor candidate
@@ -241,8 +198,6 @@ def check_acceptance_criterion(candidate: int, N: int,
         "snr": snr,
         "snr_ok": snr > SNR_THRESHOLD,
         "mask_ok": (candidate % modulus) in mask_set,
-        "newton_steps": None,
-        "residual": None,
         "accepted": False
     }
     
@@ -253,25 +208,9 @@ def check_acceptance_criterion(candidate: int, N: int,
     # Check SNR
     if not details["snr_ok"]:
         return False, details
-    
-    # Newton refinement
-    refined, steps = newton_refine(candidate, N, MAX_NEWTON_STEPS)
-    details["newton_steps"] = steps
-    
-    if steps > MAX_NEWTON_STEPS:
-        return False, details
-    
-    # Check residual
-    residual = N % refined
-    details["residual"] = residual
-    
-    if residual == 0:
-        details["accepted"] = True
-        return True, details
-    
-    # For exact factorization, only accept zero residual
-    # Note: RESIDUAL_EPSILON tolerance is not used for large N as it would accept false positives
-    return False, details
+
+    details["accepted"] = True
+    return True, details
 
 
 def band_constrained_gva(N: int,

@@ -4,6 +4,7 @@
 # Gradle build artifacts
 .gradle/
 build/
+.gradle-user/
 
 # IntelliJ IDEA artifacts
 .idea/

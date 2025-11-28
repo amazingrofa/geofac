@@ -86,10 +86,10 @@ public class ExpandingRingSearchTest {
     @Test
     void testGate2Semiprime() {
         // Another semiprime in the Gate 4 range [1e14, 1e18]
-        // N = 100,019,001,989 = 10,001,023 × 10,000,973
-        BigInteger N = new BigInteger("100019001989979");
+        // N = 100,019,960,995,379 = 10,001,023 × 10,000,973
         BigInteger p = new BigInteger("10001023");
         BigInteger q = new BigInteger("10000973");
+        BigInteger N = p.multiply(q);
         
         // Verify test data
         assertEquals(N, p.multiply(q), "Test data should be valid: p × q = N");

@@ -1,0 +1,61 @@
+package com.geofac.blind.model;
+
+import java.math.BigInteger;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class FactorJob {
+    private final UUID id;
+    private final BigInteger n;
+    private volatile JobStatus status;
+    private final Instant createdAt;
+    private volatile Instant completedAt;
+    private volatile BigInteger foundP;
+    private volatile BigInteger foundQ;
+    private final List<String> logs = new CopyOnWriteArrayList<>();
+
+    public FactorJob(UUID id, BigInteger n) {
+        this.id = id;
+        this.n = n;
+        this.status = JobStatus.QUEUED;
+        this.createdAt = Instant.now();
+    }
+
+    public UUID getId() { return id; }
+    public BigInteger getN() { return n; }
+    public JobStatus getStatus() { return status; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getCompletedAt() { return completedAt; }
+    public BigInteger getFoundP() { return foundP; }
+    public BigInteger getFoundQ() { return foundQ; }
+
+    public List<String> getLogsSnapshot() {
+        return Collections.unmodifiableList(new ArrayList<>(logs));
+    }
+
+    public void appendLog(String line) { logs.add(line); }
+
+    public void markRunning() { this.status = JobStatus.RUNNING; }
+
+    public void markCompleted(BigInteger p, BigInteger q) {
+        this.status = JobStatus.COMPLETED;
+        this.foundP = p;
+        this.foundQ = q;
+        this.completedAt = Instant.now();
+    }
+
+    public void markFailed(String reason) {
+        appendLog("FAILED: " + reason);
+        this.status = JobStatus.FAILED;
+        this.completedAt = Instant.now();
+    }
+
+    public void markCancelled() {
+        this.status = JobStatus.CANCELLED;
+        this.completedAt = Instant.now();
+    }
+}

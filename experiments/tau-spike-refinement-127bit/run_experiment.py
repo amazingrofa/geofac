@@ -91,20 +91,12 @@ def compute_tau(N: int, b: mp.mpf, phi: mp.mpf) -> mp.mpf:
     
     log_ratio = mp.log(ratio)
     
-    # Modular resonance
-    scale_int = int(mp.floor(scale))
-    if scale_int < 2:
-        mod_resonance = mp.mpf(0)
-    else:
-        remainder = N % scale_int
-        mod_normalized = min(remainder, scale_int - remainder) / scale_int
-        mod_resonance = 1 - mod_normalized
-    
-    # Phase alignment with golden ratio
+    # Phase alignment with golden ratio (geometric-only; divisibility removed)
     phase = mp.fmod(scale * phi, 1)
     phase_alignment = mp.mpf(1) - mp.power(mp.sin(mp.pi * phase), 2)
     
-    geometric_score = 0.5 * phase_alignment + 0.5 * mod_resonance
+    # Pure geometric score
+    geometric_score = phase_alignment
     decay = mp.exp(-abs(log_ratio) * 0.5)
     
     return mp.log(1 + geometric_score * decay)

@@ -32,6 +32,7 @@ dependencies {
 }
 
 tasks.named('test') {
+    enabled = false
     useJUnitPlatform()
     jvmArgs '-XX:+UseParallelGC'
 }

@@ -97,32 +97,14 @@ def compute_tau(N: int, b: float, phi: mp.mpf) -> mp.mpf:
     
     log_ratio = mp.log(ratio)
     
-    # Resonance component: modular structure
-    # For a true factor p, N mod p = 0
-    # Near a factor, N mod scale should show structure
-    scale_int = int(mp.floor(scale))
-    if scale_int < 2:
-        mod_resonance = mp.mpf(0)
-    else:
-        remainder = N % scale_int
-        # Normalize: closer to 0 or scale means higher resonance
-        mod_normalized = min(remainder, scale_int - remainder) / scale_int
-        mod_resonance = 1 - mod_normalized  # Higher = closer to divisibility
-    
     # Phase alignment with golden ratio
-    # Factors show characteristic phase relationships when scale aligns with factor structure
-    # Using sin² creates period-0.5 oscillation: max alignment at phase = 0, 0.5, 1
-    # This detects scale values where N's multiplicative structure resonates with φ
+    # Geometric-only: remove any divisibility signal; rely on phase resonance
     phase = mp.fmod(scale * phi, 1)
     phase_alignment = mp.mpf(1) - mp.power(mp.sin(mp.pi * phase), 2)
-    
-    # Combined geometric score
-    # Weight modular resonance heavily - it's the key signal
-    geometric_score = (
-        0.5 * phase_alignment +  # Phase component
-        0.5 * mod_resonance      # Modular component (divisibility signal)
-    )
-    
+
+    # Combined geometric score (purely geometric now)
+    geometric_score = phase_alignment
+
     # Apply exponential decay based on distance from sqrt(N)
     # This focuses the signal near plausible factor locations
     decay = mp.exp(-abs(log_ratio) * 0.5)
