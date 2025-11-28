@@ -5,6 +5,7 @@ import com.geofac.blind.model.FactorJob;
 import com.geofac.blind.model.FactorRequest;
 import com.geofac.blind.model.JobStatus;
 import com.geofac.blind.util.BigIntMath;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 @Service
-public class FactorService {
+public class FactorService implements AutoCloseable, DisposableBean {
     public static final String DEFAULT_N = "137524771864208156028430259349934309717";
     private static final int DEFAULT_MAX_ITER = 500_000;
     private static final long DEFAULT_TIME_LIMIT_MS = Duration.ofMinutes(2).toMillis();
@@ -114,6 +116,28 @@ public class FactorService {
         String stamped = Instant.now() + " | " + line;
         job.appendLog(stamped);
         logStreamRegistry.send(job.getId(), stamped);
+    }
+
+    @Override
+    public void close() {
+        shutdownExecutor();
+    }
+
+    @Override
+    public void destroy() {
+        shutdownExecutor();
+    }
+
+    private void shutdownExecutor() {
+        executor.shutdown();
+        try {
+            if (!executor.getThreadPoolExecutor().awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.getThreadPoolExecutor().shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            executor.getThreadPoolExecutor().shutdownNow();
+        }
     }
 
     private List<Candidate> scoreBands(BigInteger n, int maxIter) {
