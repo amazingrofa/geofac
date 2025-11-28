@@ -20,6 +20,7 @@ import sys
 import os
 import json
 import time
+import random
 from math import log, isqrt, sqrt
 from typing import Dict, List, Optional, Tuple
 
@@ -220,7 +221,6 @@ def analyze_factor_boundary_clustering(N: int, p: int, q: int) -> Dict:
     
     # Compute expected proximity for random positions
     # Sample random positions and compute their average proximity
-    import random
     random.seed(42)
     
     random_proxs = []
