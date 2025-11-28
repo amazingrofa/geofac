@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "$ROOT/../.." && pwd)"
 JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@21}"
 export JAVA_HOME
 
-CMD=("$REPO_ROOT/gradlew" -p "$ROOT" test -Dgeofac.runLongChallengeIT=true --tests "com.geofac.blind.service.FactorServiceChallengeIT")
+CMD=("$REPO_ROOT/gradlew" -p "$ROOT" clean test -Dgeofac.runLongChallengeIT=true --tests "com.geofac.blind.service.FactorServiceChallengeIT")
 
 echo "JAVA_HOME=$JAVA_HOME"
 echo "Running: ${CMD[*]}"

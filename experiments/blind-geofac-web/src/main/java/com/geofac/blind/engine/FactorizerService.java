@@ -250,8 +250,7 @@ public class FactorizerService {
             double u = sobolPoint[0];
             BigDecimal k = BigDecimal.valueOf(config.kLo()).add(kWidth.multiply(BigDecimal.valueOf(u), mc), mc);
 
-            BigDecimal theta = BigDecimal.ZERO;
-            BigDecimal amplitude = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+            BigDecimal amplitude = amplitudeForK(k, config, twoPi, mc);
 
             amplitudeRecords.add(new AmplitudeRecord(k, amplitude));
         }
@@ -270,12 +269,12 @@ public class FactorizerService {
             BigDecimal k2 = kCenter.add(delta, mc);
 
             if (k1.compareTo(BigDecimal.valueOf(config.kLo())) >= 0 && addedCount < refinedToAdd) {
-                BigDecimal amp1 = DirichletKernel.normalizedAmplitude(BigDecimal.ZERO, config.J(), mc);
+                BigDecimal amp1 = amplitudeForK(k1, config, twoPi, mc);
                 amplitudeRecords.add(new AmplitudeRecord(k1, amp1));
                 addedCount++;
             }
             if (k2.compareTo(BigDecimal.valueOf(config.kHi())) <= 0 && addedCount < refinedToAdd) {
-                BigDecimal amp2 = DirichletKernel.normalizedAmplitude(BigDecimal.ZERO, config.J(), mc);
+                BigDecimal amp2 = amplitudeForK(k2, config, twoPi, mc);
                 amplitudeRecords.add(new AmplitudeRecord(k2, amp2));
                 addedCount++;
             }
@@ -308,8 +307,8 @@ public class FactorizerService {
                         .map(AmplitudeRecord::k)
                         .collect(Collectors.toList());
 
-                List<BigDecimal> filteredK = ShellExclusionFilter.filterKSamples(
-                        kValues, excludedShells, lnN, mc);
+            List<BigDecimal> filteredK = ShellExclusionFilter.filterKSamples(
+                    kValues, excludedShells, lnN, twoPi, mc);
 
                 java.util.Set<BigDecimal> filteredSet = new java.util.HashSet<>(filteredK);
 
@@ -424,8 +423,16 @@ public class FactorizerService {
 
         long candidatesTested = searchRadius * 2 + 1;
         long bandWidth = searchRadius * 2 + 1;
-        double passRate = 1.0;
-        double coverage = bandWidth > 0 ? (candidatesTested * passRate) / bandWidth : 0.0;
+        double coverage;
+        if (capped && dynamicRadiusDecimal.compareTo(BigDecimal.ZERO) > 0) {
+            // Portion of intended ring actually searched (capped)
+            coverage = BigDecimal.valueOf(searchRadius)
+                    .divide(dynamicRadiusDecimal, MathContext.DECIMAL64)
+                    .doubleValue();
+        } else {
+            // We covered the full intended ring
+            coverage = 1.0;
+        }
         log.debug("Expanding ring search: pCenter={}, radius={} ({}% of pCenter){}",
                 pCenter, searchRadius, searchRadiusPercentage * 100, capped ? " [CAPPED]" : "");
         if (coverage < coverageGateThreshold) {
@@ -499,4 +506,22 @@ public class FactorizerService {
     }
 
     private record AmplitudeRecord(BigDecimal k, BigDecimal amplitude) {}
+
+    /**
+     * Estimate how promising a k-sample is by taking the max Dirichlet amplitude
+     * over a tiny m neighborhood (-1, 0, +1). This avoids the degenerate case of
+     * evaluating theta=0 for all k, which would make every sample look equally strong.
+     */
+    private BigDecimal amplitudeForK(BigDecimal k, FactorizerConfig config, BigDecimal twoPi, MathContext mc) {
+        int mMax = Math.min(1, config.mSpan());
+        BigDecimal best = BigDecimal.ZERO;
+        for (int m = -mMax; m <= mMax; m++) {
+            BigDecimal theta = twoPi.multiply(BigDecimal.valueOf(m), mc).divide(k, mc);
+            BigDecimal amp = DirichletKernel.normalizedAmplitude(theta, config.J(), mc);
+            if (amp.compareTo(best) > 0) {
+                best = amp;
+            }
+        }
+        return best;
+    }
 }

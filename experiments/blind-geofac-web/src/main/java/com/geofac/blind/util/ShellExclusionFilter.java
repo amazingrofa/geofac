@@ -123,6 +123,7 @@ public class ShellExclusionFilter {
             List<BigDecimal> kSamples,
             List<ShellDefinition> excludedShells,
             BigDecimal lnN,
+            BigDecimal twoPi,
             MathContext mc) {
 
         if (excludedShells.isEmpty()) {
@@ -132,10 +133,21 @@ public class ShellExclusionFilter {
         List<BigDecimal> filtered = new ArrayList<>();
         for (BigDecimal k : kSamples) {
             boolean excluded = false;
+
+            // Approximate a candidate radius p0 for this k using m=1; then test which shell it falls into.
+            BigDecimal theta = twoPi.divide(k, mc);
+            BigInteger p0 = SnapKernel.phaseCorrectedSnap(lnN, theta, mc);
+            if (p0.compareTo(BigInteger.TWO) <= 0) {
+                filtered.add(k);
+                continue;
+            }
+
             for (ShellDefinition shell : excludedShells) {
                 BigDecimal lnRMin = BigDecimalMath.log(shell.rMin(), mc);
                 BigDecimal lnRMax = BigDecimalMath.log(shell.rMax(), mc);
-                if (lnN.compareTo(lnRMin) >= 0 && lnN.compareTo(lnRMax) <= 0) {
+                BigDecimal lnP0 = BigDecimalMath.log(new BigDecimal(p0, mc), mc);
+
+                if (lnP0.compareTo(lnRMin) >= 0 && lnP0.compareTo(lnRMax) <= 0) {
                     excluded = true;
                     break;
                 }
