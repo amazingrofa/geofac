@@ -114,7 +114,8 @@ def compute_z5d_prediction(N: int) -> mpf:
     sqrt_N = sqrt(mpf(N))
     ln_sqrt_N = log(sqrt_N)
     
-    # Avoid division by zero for small N
+    # Guard: ln(sqrt(N)) must be positive to avoid division by zero
+    # and to ensure valid domain for the Z5D formula (N must be > e²)
     if ln_sqrt_N <= 0:
         return mpf(0)
     
