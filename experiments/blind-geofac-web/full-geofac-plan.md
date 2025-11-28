@@ -15,7 +15,7 @@ The plan is incremental, testable, and leverages existing code (e.g., FactorServ
 **Goal**: Implement z-normalization, resonance scoring, and probe stubs. No full integration yet.
 
 1. **Add Utils to BigIntMath.java** (Edit existing file):
-   - `double[] zNormalize(BigInteger n, BigInteger sqrtN)`: Approx phases θ_p = log(n)/log(sqrtN) mod 1 (use BigDecimal for log approx via ln(n)/ln(sqrtN); fallback to 0.5 for balanced).
+   - `double[] zNormalize(BigInteger n, BigInteger sqrtN)`: Deterministic phases via `θ = frac(ln(n)/ln(sqrtN))`, `θ_q = frac(θ + 0.5)`, using double logs (upgrade to BigDecimal later).
    - `double resonanceScore(BigInteger n, BigInteger d)`: `1.0 - (n.mod(d).doubleValue() / d.doubleValue())` + 0.1 if d probable prime (use `d.isProbablePrime(10)`).
    - `List<Candidate> generateResonanceProbes(BigInteger n, int numProbes, int orbitSteps)`: Stub – random θ, simple orbit, map to d, score.
 
@@ -41,7 +41,8 @@ The plan is incremental, testable, and leverages existing code (e.g., FactorServ
          BigInteger sqrtN = BigIntMath.sqrtFloor(n);
          double[] basePhases = BigIntMath.zNormalize(n, sqrtN);  // Approx {θ_p, θ_q}
          List<Candidate> candidates = new ArrayList<>();
-         ThreadLocalRandom rnd = ThreadLocalRandom.current();
+         long seed = 42L;  // Fixed, reproducible
+         SplittableRandom rnd = new SplittableRandom(seed);
          int numProbes = Math.min(1000, maxIter / 10);
          for (int i = 0; i < numProbes; i++) {
              double θx = rnd.nextDouble(0, 2 * Math.PI);

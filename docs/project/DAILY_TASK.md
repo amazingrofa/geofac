@@ -18,8 +18,8 @@ Both methods are:
 
 • CPU-only
 • deterministic
-• free of bounded local search
-• free of gcd probing or trial division
+• certification only via exact `N mod d` on the top-ranked geometric candidates (no wide sweeps)
+• no gcd probes or opportunistic trial-division bands beyond that ranked list
 • CI-verified
 
 
@@ -73,7 +73,7 @@ Tests Defining Acceptable Methods
 
 These enforce:
 
-• PURE RESONANCE (CPU-only, deterministic, no gcd, no bounded ±R local probe)
+• PURE RESONANCE (CPU-only, deterministic, certification only on the ranked list from geometry; no wide ±R sweeps)
 • sub-1% and sub-0.1% proximity on RSA-2048
 • non-regression
 
@@ -83,11 +83,11 @@ These enforce:
 PURE RESONANCE Rules (must be upheld)
 
 • No GNFS/ECM/etc.
-• No scanning ±R integers around the candidate
-• No gcd probing of neighboring integers
-• No trial division
+• Certification uses exact `N mod d` only on the top-ranked candidates produced by geometry (bounded recovery band). No wide ±R integer sweeps.
+• No opportunistic gcd probing of neighboring integers beyond the ranked list.
 • CPU-only deterministic pipeline
 • Only analytic, closed-form adjustments to the physics mapping (bias model, comb sampling, crest locator, etc.)
+• Adhere to `docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md` for logging and certification evidence.
 
 
 ---

@@ -3,7 +3,7 @@
 Timestamp: 2025-11-21T07:56:22.695Z
 
 ## 1. Purpose
-Implement factor discovery for large integers N using only geometric resonance (Z5D-style manifold navigation) without Pollard Rho / ECM / QS / NFS. Leverage the scale-invariant prediction principles proven in `z5d-prime-predictor` while restricting operations to deterministic integer arithmetic + resonance scoring.
+Implement factor discovery for large integers N using only geometric resonance (Z5D-style manifold navigation) without Pollard Rho / ECM / QS / NFS. Leverage the scale-invariant prediction principles proven in `z5d-prime-predictor` while restricting operations to deterministic integer arithmetic + resonance scoring. Certification follows `GEOMETRIC_CERTIFICATION_BOUNDARY.md`: geometry ranks candidates; arithmetic certifies via `IsFactor_N(d) := (N mod d == 0)` on the ranked list only, with full logging of submitted candidates and predicate outputs.
 
 ## 2. Foundational Insight (from Z5D work)
 Precision decoupling: Floating MPFR precision (e.g. 2048 bits) is needed only to seed an approximate geodesic center. Integer operations (candidate generation, divisibility tests) use arbitrary-precision GMP (`mpz_t`). Average structural features (prime gaps, local curvature of log/log surfaces) remain small relative to adaptive windows, enabling fixed-precision prediction at extreme scales.
@@ -62,12 +62,12 @@ Wheel offsets reuse arrays from `z5d_mersenne.c`.
 4. Auto-tune loop (similar to auto_tune_scan):
    - Generate candidates: for offset k = 0..window with stride step, forward/backward: f = C ± k * wheel_mod.
    - Quick filter: ensure 2 < f < N.
-   - Divisibility test: mpz_divisible_p(N, f). If true: record factor, set locked.
+   - Divisibility test (certification predicate): mpz_divisible_p(N, f). Log every candidate sent to the predicate and its result. If true: record factor, set locked.
    - Resonance heuristic: if remainder r = N mod f is small (e.g. < f / window), treat as near-hit; accumulate near_hits.
    - Adjust window/step:
      * If no near_hits: increase window (grow by 1.5x) or decrease step.
      * If too many near_hits: shrink window or increase step.
-     * If near_hits == target_hits and still no exact factor: narrow window (×2/3) to intensify local search.
+     * If near_hits == target_hits and still no exact factor: narrow window (×2/3) to intensify local search while keeping certification bounded to the ranked list.
 5. Terminate when factor found or max_iters reached.
 6. If factor found and N/f still composite: Optionally recurse with updated N ← N/f.
 
@@ -78,7 +78,7 @@ Wheel offsets reuse arrays from `z5d_mersenne.c`.
 Maintain `ratio = window / step` within a band [R_min, R_max]; log adjustments.
 
 ## 8. Divisibility & Validation
-Strictly use `mpz_divisible_p`. Upon factor detection, verify by division and multiplication back: (N / f) * f == N. Optionally perform a GCD fallback: g = gcd(f, N) to confirm primal factor; if g != f, treat g as factor and re-run.
+Strictly use `mpz_divisible_p` as the arithmetic predicate. Upon factor detection, verify by division and multiplication back: (N / f) * f == N. No fallback algorithms or additional GCD probes beyond this certification step.
 
 ## 9. Files to Add in geofac Project
 ```
