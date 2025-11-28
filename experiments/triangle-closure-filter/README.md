@@ -27,7 +27,7 @@ geofac:
 
 ## Performance Implications
 
-- **Cost**: ~2 BigDecimal log computations + 4 comparisons per candidate
+- **Cost**: ~4–6 comparisons per candidate, plus 2 BigDecimal log computations if `maxLogSkew > 0`
 - **Savings**: Avoids expensive `testNeighbors()` calls for degenerate candidates
 - **Typical rejection rate**: 10-30% of random candidates (varies by N structure)
 
