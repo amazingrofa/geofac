@@ -19,6 +19,7 @@ geofac.iml
 # Results and proof pack artifacts
 results/
 experiments/*/results/
+experiments/*/experiment_results.json
 
 # Python artifacts
 __pycache__/
