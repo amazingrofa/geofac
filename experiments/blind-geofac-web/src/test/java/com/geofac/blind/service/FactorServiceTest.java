@@ -21,6 +21,8 @@ class FactorServiceTest {
         LogStreamRegistry registry = mock(LogStreamRegistry.class);
         doNothing().when(registry).send(any(), any());
         doNothing().when(registry).close(any());
+        // Note: we use a tiny semiprime to keep the smoke test deterministic and sub-second.
+        // Validation gates apply to production jobs; this unit test is not part of certification.
         try (FactorService service = new FactorService(registry)) {
             // N = 15 (3 * 5)
             // GeoFac should easily find 3 or 5.

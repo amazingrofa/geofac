@@ -50,9 +50,9 @@ The plan is incremental, testable, and leverages existing code (e.g., FactorServ
                  θx = (θx + Math.sqrt(2) * (t + 1)) % (2 * Math.PI);  // Irrational rotation
                  θy = (θy + Math.PI * (t + 1)) % (2 * Math.PI);
                  // Φ: Phase to offset
-                 long offset = Math.round((θx - Math.PI) * 1e6 / Math.PI);  // Scale width=2e6
-                 BigInteger d = sqrtN.add(BigInteger.valueOf(offset)).max(BigInteger.TWO).min(sqrtN);
-                 if (d.compareTo(BigInteger.valueOf(2)) > 0 && offset % 2 != 0) {  // Skip evens
+                long offset = Math.round((θx - Math.PI) * 1e6 / Math.PI);  // Scale width=2e6
+                BigInteger d = sqrtN.add(BigInteger.valueOf(offset)).max(BigInteger.TWO).min(n.subtract(BigInteger.ONE));
+                if (d.compareTo(BigInteger.valueOf(2)) > 0 && d.testBit(0)) {  // Skip evens
                      double resScore = BigIntMath.resonanceScore(n, d);
                      double geoBonus = 1 - Math.abs(Math.sin(θx - basePhases[0]));  // Align to θ_p
                      double score = resScore * (0.7 + 0.3 * geoBonus);

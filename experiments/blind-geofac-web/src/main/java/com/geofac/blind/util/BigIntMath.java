@@ -1,6 +1,8 @@
 package com.geofac.blind.util;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
 public final class BigIntMath {
     private BigIntMath() {
@@ -57,7 +59,14 @@ public final class BigIntMath {
             return 0.0;
 
         BigInteger rem = n.mod(d);
-        double modScore = 1.0 - (rem.doubleValue() / d.doubleValue());
+        if (rem.equals(BigInteger.ZERO)) {
+            return 1.0; // perfect hit; no precision loss needed
+        }
+
+        BigDecimal remDec = new BigDecimal(rem);
+        BigDecimal dDec = new BigDecimal(d);
+        BigDecimal ratio = remDec.divide(dDec, MathContext.DECIMAL128);
+        double modScore = BigDecimal.ONE.subtract(ratio).doubleValue();
 
         // Bonus for being a probable prime (factors are likely prime)
         double primeBonus = d.isProbablePrime(10) ? 0.1 : 0.0;

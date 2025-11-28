@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.SplittableRandom;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,6 +29,13 @@ public class FactorService implements AutoCloseable, DisposableBean {
     private static final int DEFAULT_LOG_EVERY = 1_000;
     private static final int MAX_BANDS = 6;
     private static final int BAND_WIDTH_DIVISIONS = 10_000; // half-width for trial division around center
+    private static final int MAX_PROBES = 1_000;
+    private static final int ORBIT_STEPS = 50;
+    private static final long WINDOW_WIDTH = 1_000_000L;
+    private static final int SMALL_N_BITS = 30;
+    private static final int MAX_TOP_CANDIDATES = 20;
+    private static final double RES_WEIGHT = 0.7;
+    private static final double GEO_WEIGHT = 0.3;
 
     private final Map<UUID, FactorJob> jobs = new ConcurrentHashMap<>();
     private final LogStreamRegistry logStreamRegistry;
@@ -71,6 +78,9 @@ public class FactorService implements AutoCloseable, DisposableBean {
 
         log(job, "Starting blind geofac on N=" + job.getN());
         log(job, "Bit length: " + job.getN().bitLength());
+        log(job, String.format("GeoFac params: probes=%d orbitSteps=%d window=%d smallNBits=%d scoreWeights=[%.2f, %.2f] top=%d",
+                Math.min(MAX_PROBES, maxIter / 10), ORBIT_STEPS, WINDOW_WIDTH, SMALL_N_BITS, RES_WEIGHT, GEO_WEIGHT,
+                MAX_TOP_CANDIDATES));
 
         List<Candidate> top = scoreBands(job.getN(), maxIter);
         job.setTopCandidates(top);
@@ -143,15 +153,15 @@ public class FactorService implements AutoCloseable, DisposableBean {
     private List<Candidate> scoreBands(BigInteger n, int maxIter) {
         BigInteger sqrtN = BigIntMath.sqrtFloor(n);
         double[] basePhases = BigIntMath.zNormalize(n, sqrtN); // Approx {θ_p, θ_q}
-        List<Candidate> candidates = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-        int numProbes = Math.min(1000, maxIter / 10);
+        Map<BigInteger, Candidate> bestByD = new ConcurrentHashMap<>();
+        SplittableRandom rnd = new SplittableRandom(seedFrom(n));
+        int numProbes = Math.min(MAX_PROBES, Math.max(1, maxIter / 10));
 
         for (int i = 0; i < numProbes; i++) {
             double thetaX = rnd.nextDouble(0, 2 * Math.PI);
             double thetaY = rnd.nextDouble(0, 2 * Math.PI);
 
-            for (int t = 0; t < 50; t++) { // Orbit: Ergodic flow
+            for (int t = 0; t < ORBIT_STEPS; t++) { // Orbit: Ergodic flow
                 thetaX = (thetaX + Math.sqrt(2) * (t + 1)) % (2 * Math.PI); // Irrational rotation
                 thetaY = (thetaY + Math.PI * (t + 1)) % (2 * Math.PI);
 
@@ -160,9 +170,9 @@ public class FactorService implements AutoCloseable, DisposableBean {
                 // We want to map thetaX to an offset from sqrtN.
                 // Let's treat thetaX as a normalized position in a "window" around sqrtN.
                 // Window size = 2e6, or smaller if sqrtN is small
-                long window = 1_000_000L;
-                if (sqrtN.bitLength() < 30) { // Small N
-                    window = Math.max(10, sqrtN.longValue());
+                long window = WINDOW_WIDTH;
+                if (sqrtN.bitLength() <= SMALL_N_BITS && sqrtN.bitLength() <= 63) { // Small N
+                    window = Math.max(10L, sqrtN.longValue());
                 }
                 long offset = Math.round((thetaX - Math.PI) * window / Math.PI);
 
@@ -175,15 +185,16 @@ public class FactorService implements AutoCloseable, DisposableBean {
 
                 double resScore = BigIntMath.resonanceScore(n, d);
                 double geoBonus = 1 - Math.abs(Math.sin(thetaX - basePhases[0] * 2 * Math.PI)); // Align to θ_p
-                double score = resScore * (0.7 + 0.3 * geoBonus);
+                double score = resScore * (RES_WEIGHT + GEO_WEIGHT * geoBonus);
 
-                candidates.add(new Candidate(d, score, "orbit-" + i + "-t" + t));
+                bestByD.merge(d, new Candidate(d, score, "orbit-" + i + "-t" + t),
+                        (oldC, newC) -> newC.score() > oldC.score() ? newC : oldC);
             }
         }
 
-        return candidates.stream()
+        return bestByD.values().stream()
                 .sorted(Comparator.comparingDouble(Candidate::score).reversed())
-                .limit(20)
+                .limit(MAX_TOP_CANDIDATES)
                 .toList(); // Top m=20
     }
 
@@ -214,6 +225,15 @@ public class FactorService implements AutoCloseable, DisposableBean {
 
     private BigInteger f(BigInteger x, BigInteger c, BigInteger n) {
         return x.multiply(x).add(c).mod(n);
+    }
+
+    private long seedFrom(BigInteger n) {
+        byte[] bytes = n.abs().toByteArray();
+        long h = 1125899906842597L; // prime-ish seed
+        for (byte b : bytes) {
+            h = 31 * h + (b & 0xff);
+        }
+        return h;
     }
 
     public record SseSnapshot(JobStatus status, java.util.List<String> logs) {
