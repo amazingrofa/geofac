@@ -2,6 +2,8 @@
 
 This document defines the official four-gate validation process for the `geofac` project. Gates are sequential: evidence at a higher gate is considered only after the lower gate is demonstrated.
 
+All gates adhere to the certification boundary in `../theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md`: geometry ranks; arithmetic certification uses `IsFactor_N(d) := (N mod d == 0)` on only the top-ranked list, with no fallback algorithms or broad trial-division sweeps.
+
 ## Gate 1: 30-Bit Quick Check (Plumbing Sanity)
 - **Purpose:** Fast, deterministic smoke test of pipeline and diagnostics.
 - **Target Number (N):** `1073217479`
@@ -24,7 +26,7 @@ This document defines the official four-gate validation process for the `geofac`
   1. Successful factorization with the canonical algorithm (`./gradlew bootRun` then `factor <N>` or `factor_one.sh`).
   2. Result independently verified by at least three reviewers.
   3. No fast-path or short-circuit; full algorithm run; precision and parameters logged.
-  4. **Verification:** The pipeline must conclude with an arithmetic check (e.g., `N % candidate == 0`) to confirm the factor. This is not a fallback; it is the required final step.
+ 4. **Verification:** The pipeline must conclude with arithmetic checks (`IsFactor_N`) on the ranked candidates produced by geometry—no fallback algorithms and no wide trial-division sweeps. The candidate list, predicate outputs, and observed rank of the discovered factor must be logged.
 
 ## Gate 4: Operational Range
 - **Purpose:** Demonstrate generality across the project’s declared operating window.
@@ -36,4 +38,5 @@ This document defines the official four-gate validation process for the `geofac`
 ### Reproducibility & Logging (applies to all gates)
 - Precision must be explicit: `precision = max(configured, N.bitLength() × 4 + 200)`.
 - Log seeds, parameters, thresholds, sample counts, timeouts, and timestamps.
+- Log the ranked candidates forwarded to `IsFactor_N`, their predicate outputs (`N mod d`), and the observed rank of any discovered factor.
 - Export artifacts (run.log, factorization.json where applicable).

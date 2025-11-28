@@ -1,10 +1,11 @@
 package com.geofac.blind.service;
 
-import com.geofac.blind.model.Band;
+import com.geofac.blind.model.Candidate;
 import com.geofac.blind.model.FactorJob;
 import com.geofac.blind.model.FactorRequest;
 import com.geofac.blind.model.JobStatus;
 import com.geofac.blind.util.BigIntMath;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +18,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.SplittableRandom;
+import java.util.concurrent.TimeUnit;
 
 @Service
-public class FactorService {
+public class FactorService implements AutoCloseable, DisposableBean {
     public static final String DEFAULT_N = "137524771864208156028430259349934309717";
     private static final int DEFAULT_MAX_ITER = 500_000;
     private static final long DEFAULT_TIME_LIMIT_MS = Duration.ofMinutes(2).toMillis();
     private static final int DEFAULT_LOG_EVERY = 1_000;
     private static final int MAX_BANDS = 6;
     private static final int BAND_WIDTH_DIVISIONS = 10_000; // half-width for trial division around center
+    private static final int MAX_PROBES = 1_000;
+    private static final int ORBIT_STEPS = 50;
+    private static final long WINDOW_WIDTH = 1_000_000L;
+    private static final int SMALL_N_BITS = 30;
+    private static final int MAX_TOP_CANDIDATES = 20;
+    private static final double RES_WEIGHT = 0.7;
+    private static final double GEO_WEIGHT = 0.3;
 
     private final Map<UUID, FactorJob> jobs = new ConcurrentHashMap<>();
     private final LogStreamRegistry logStreamRegistry;
@@ -55,7 +64,8 @@ public class FactorService {
 
     public SseSnapshot logsSnapshot(UUID jobId) {
         FactorJob job = jobs.get(jobId);
-        if (job == null) return null;
+        if (job == null)
+            return null;
         return new SseSnapshot(job.getStatus(), job.getLogsSnapshot());
     }
 
@@ -68,40 +78,47 @@ public class FactorService {
 
         log(job, "Starting blind geofac on N=" + job.getN());
         log(job, "Bit length: " + job.getN().bitLength());
+        log(job, String.format("GeoFac params: probes=%d orbitSteps=%d window=%d smallNBits=%d scoreWeights=[%.2f, %.2f] top=%d",
+                Math.min(MAX_PROBES, maxIter / 10), ORBIT_STEPS, WINDOW_WIDTH, SMALL_N_BITS, RES_WEIGHT, GEO_WEIGHT,
+                MAX_TOP_CANDIDATES));
 
-        List<Band> bands = scoreBands(job.getN(), maxIter);
-        if (bands.isEmpty()) {
-            job.markFailed("No viable bands produced by geofac scorer");
-            log(job, "Stopped: no bands to scan");
-            logStreamRegistry.close(job.getId());
-            return;
-        }
+        List<Candidate> top = scoreBands(job.getN(), maxIter);
+        job.setTopCandidates(top);
+        log(job, "Generated " + top.size() + " top candidates via GeoFac resonance.");
 
-        log(job, "Generated " + bands.size() + " bands. Scanning with trial division...");
-
-        for (Band band : bands) {
+        int checked = 0;
+        for (Candidate cand : top) {
             if (Duration.between(start, Instant.now()).toMillis() > timeLimit) {
                 job.markFailed("Time limit reached without factor");
-                log(job, "Stopped: time limit exceeded before finishing bands");
+                log(job, "Stopped: time limit exceeded");
                 logStreamRegistry.close(job.getId());
                 return;
             }
-            log(job, "Band from scorer ('" + band.source() + "'): center=" + band.center()
-                    + " width=" + band.end().subtract(band.start()) + " score=" + band.score());
 
-            BigInteger candidate = scanBand(job, band, logEvery, maxIter, start, timeLimit);
-            if (candidate != null) {
-                BigInteger q = job.getN().divide(candidate);
-                job.markCompleted(candidate, q);
-                log(job, "Factor found via trial division inside band: p=" + candidate + " q=" + q);
-                log(job, "Verification: p*q == N? " + candidate.multiply(q).equals(job.getN()));
+            if (checked >= maxIter) {
+                job.markFailed("Reached iteration budget without factor");
+                log(job, "Stopped: iteration budget reached");
                 logStreamRegistry.close(job.getId());
                 return;
+            }
+
+            if (job.getN().mod(cand.d()).equals(BigInteger.ZERO)) {
+                BigInteger q = job.getN().divide(cand.d());
+                job.markCompleted(cand.d(), q);
+                log(job, "Factor found at rank " + (checked + 1) + ": p=" + cand.d() + " q=" + q + " (score="
+                        + cand.score() + ")");
+                logStreamRegistry.close(job.getId());
+                return;
+            }
+
+            checked++;
+            if (checked % logEvery == 0) {
+                log(job, "Checked rank " + checked + ": d=" + cand.d() + " score=" + cand.score());
             }
         }
 
-        job.markFailed("Reached iteration budget without factor");
-        log(job, "Stopped: all bands scanned, no factor");
+        job.markFailed("No factor in top candidates");
+        log(job, "Stopped: all candidates scanned, no factor");
         logStreamRegistry.close(job.getId());
     }
 
@@ -111,74 +128,74 @@ public class FactorService {
         logStreamRegistry.send(job.getId(), stamped);
     }
 
-    private List<Band> scoreBands(BigInteger n, int maxIter) {
-        List<Band> bands = new ArrayList<>();
-
-        // 1) Attempt Pollard Rho to get a high-confidence center
-        BigInteger rhoHit = pollardRho(n, 2_000); // iteration cap inside
-        if (rhoHit != null && !rhoHit.equals(BigInteger.ONE) && !rhoHit.equals(n)) {
-            BigInteger start = rhoHit.subtract(BigInteger.valueOf(BAND_WIDTH_DIVISIONS)).max(BigInteger.TWO);
-            BigInteger end = rhoHit.add(BigInteger.valueOf(BAND_WIDTH_DIVISIONS));
-            bands.add(new Band(start, end, rhoHit, "pollard-rho", 1.0));
-        }
-
-        // 2) Heuristic bands around sqrt with expanding deltas
-        BigInteger sqrt = BigIntMath.sqrtFloor(n);
-        long[] deltas = {100_000L, 1_000_000L, 10_000_000L};
-        double baseScore = 0.5;
-        for (long d : deltas) {
-            BigInteger delta = BigInteger.valueOf(d);
-            BigInteger start = sqrt.subtract(delta).max(BigInteger.TWO);
-            BigInteger end = sqrt.add(delta);
-            bands.add(new Band(start, end, sqrt, "sqrt-band-" + d, baseScore));
-            baseScore -= 0.05;
-        }
-
-        // 3) Random resonance probes: pick random multipliers, score by |N mod k|
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-        for (int i = 0; i < 3; i++) {
-            long k = rnd.nextLong(100_000L, 5_000_000L);
-            BigInteger K = BigInteger.valueOf(k);
-            BigInteger mod = n.mod(K);
-            double score = 0.3 + (1.0 - mod.doubleValue() / k); // smaller mod → higher score
-            BigInteger center = sqrt.add(BigInteger.valueOf(rnd.nextLong(-5_000_000L, 5_000_000L)));
-            BigInteger width = BigInteger.valueOf(500_000L);
-            BigInteger start = center.subtract(width);
-            BigInteger end = center.add(width);
-            bands.add(new Band(start.max(BigInteger.TWO), end, center, "resonance-k=" + k, score));
-        }
-
-        // keep top bands by score and limit to MAX_BANDS
-        return bands.stream()
-                .sorted(Comparator.comparingDouble(Band::score).reversed())
-                .limit(MAX_BANDS)
-                .toList();
+    @Override
+    public void close() {
+        shutdownExecutor();
     }
 
-    private BigInteger scanBand(FactorJob job, Band band, int logEvery, int maxIter, Instant start, long timeLimit) {
-        BigInteger width = band.end().subtract(band.start());
-        BigInteger limit = band.start().add(width);
-        BigInteger n = job.getN();
-        int checked = 0;
+    @Override
+    public void destroy() {
+        shutdownExecutor();
+    }
 
-        for (BigInteger candidate = band.start(); candidate.compareTo(limit) <= 0; candidate = candidate.add(BigInteger.ONE)) {
-            if (Duration.between(start, Instant.now()).toMillis() > timeLimit) {
-                log(job, "Band scan stopped: time limit");
-                return null;
+    private void shutdownExecutor() {
+        executor.shutdown();
+        try {
+            if (!executor.getThreadPoolExecutor().awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.getThreadPoolExecutor().shutdownNow();
             }
-            if (checked >= maxIter) {
-                log(job, "Band scan stopped: iteration budget for band reached");
-                return null;
-            }
-            if (n.mod(candidate).equals(BigInteger.ZERO)) {
-                return candidate;
-            }
-            checked++;
-            if (checked % logEvery == 0) {
-                log(job, "Band '" + band.source() + "' checked " + checked + " candidates; latest=" + candidate);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            executor.getThreadPoolExecutor().shutdownNow();
+        }
+    }
+
+    private List<Candidate> scoreBands(BigInteger n, int maxIter) {
+        BigInteger sqrtN = BigIntMath.sqrtFloor(n);
+        double[] basePhases = BigIntMath.zNormalize(n, sqrtN); // Approx {θ_p, θ_q}
+        Map<BigInteger, Candidate> bestByD = new ConcurrentHashMap<>();
+        SplittableRandom rnd = new SplittableRandom(seedFrom(n));
+        int numProbes = Math.min(MAX_PROBES, Math.max(1, maxIter / 10));
+
+        for (int i = 0; i < numProbes; i++) {
+            double thetaX = rnd.nextDouble(0, 2 * Math.PI);
+            double thetaY = rnd.nextDouble(0, 2 * Math.PI);
+
+            for (int t = 0; t < ORBIT_STEPS; t++) { // Orbit: Ergodic flow
+                thetaX = (thetaX + Math.sqrt(2) * (t + 1)) % (2 * Math.PI); // Irrational rotation
+                thetaY = (thetaY + Math.PI * (t + 1)) % (2 * Math.PI);
+
+                // Φ: Phase to offset
+                // Map phase [-PI, PI] to offset width.
+                // We want to map thetaX to an offset from sqrtN.
+                // Let's treat thetaX as a normalized position in a "window" around sqrtN.
+                // Window size = 2e6, or smaller if sqrtN is small
+                long window = WINDOW_WIDTH;
+                if (sqrtN.bitLength() <= SMALL_N_BITS && sqrtN.bitLength() <= 63) { // Small N
+                    window = Math.max(10L, sqrtN.longValue());
+                }
+                long offset = Math.round((thetaX - Math.PI) * window / Math.PI);
+
+                BigInteger d = sqrtN.add(BigInteger.valueOf(offset)).max(BigInteger.TWO)
+                        .min(n.subtract(BigInteger.ONE));
+
+                if (d.compareTo(BigInteger.TWO) > 0 && !d.testBit(0)) {
+                    continue; // Skip evens
+                }
+
+                double resScore = BigIntMath.resonanceScore(n, d);
+                double geoBonus = 1 - Math.abs(Math.sin(thetaX - basePhases[0] * 2 * Math.PI)); // Align to θ_p
+                double score = resScore * (RES_WEIGHT + GEO_WEIGHT * geoBonus);
+
+                bestByD.merge(d, new Candidate(d, score, "orbit-" + i + "-t" + t),
+                        (oldC, newC) -> newC.score() > oldC.score() ? newC : oldC);
             }
         }
-        return null;
+
+        return bestByD.values().stream()
+                .sorted(Comparator.comparingDouble(Candidate::score).reversed())
+                .limit(MAX_TOP_CANDIDATES)
+                .toList(); // Top m=20
     }
 
     // Lightweight Pollard Rho (Brent variant) to suggest a narrow band
@@ -210,5 +227,15 @@ public class FactorService {
         return x.multiply(x).add(c).mod(n);
     }
 
-    public record SseSnapshot(JobStatus status, java.util.List<String> logs) {}
+    private long seedFrom(BigInteger n) {
+        byte[] bytes = n.abs().toByteArray();
+        long h = 1125899906842597L; // prime-ish seed
+        for (byte b : bytes) {
+            h = 31 * h + (b & 0xff);
+        }
+        return h;
+    }
+
+    public record SseSnapshot(JobStatus status, java.util.List<String> logs) {
+    }
 }

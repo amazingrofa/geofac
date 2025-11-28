@@ -4,6 +4,8 @@
 
 This document provides exact verification details for the deterministic factorization of the project's official challenge number using geometric resonance methods. All information here is reproducible and verifiable by following the steps outlined.
 
+Verification honors the certification boundary in `../theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md`: geometry ranks candidates; arithmetic certification evaluates only the top-ranked list with `IsFactor_N(d) := (N mod d == 0)`. Runs must log the scored list forwarded to the predicate and the predicate outputs to allow replay without recomputing geometry.
+
 ## Test Case Specification
 
 The test case is the successful factorization of the Gate 3 (127-bit) challenge number.
@@ -108,6 +110,8 @@ shell:> example
 Then, run the `factor` command with the number provided in the example output.
 
 #### 6. Verify artifacts
+
+Certification evidence should include the ranked candidates submitted to `IsFactor_N`, their predicate results, and the observed rank of any discovered factor. The run log and `factors.json` should make this explicit.
 
 Check the results directory, which is named after the number being factored.
 ```bash

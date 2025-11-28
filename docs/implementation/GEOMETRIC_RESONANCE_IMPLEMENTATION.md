@@ -8,6 +8,8 @@ This document explains the geometric resonance factorization procedure as implem
 
 The implementation provides a complete Python/mpmath port of the Java geometric resonance factorization pipeline with scale-adaptive parameter tuning based on Z5D insights.
 
+The code follows the certification boundary in `../theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md`: geometry ranks candidates, and only that ranked list (plus the bounded expanding-ring neighborhood around each chosen peak) is certified with the arithmetic predicate `IsFactor_N(d) := (N % d == 0)`. No fallback algorithms or broad trial-division sweeps are invoked, and runs must log the candidates submitted to the predicate and their outputs.
+
 ### Target
 
 - **N = 137524771864208156028430259349934309717** (127-bit challenge)
@@ -176,7 +178,7 @@ For each QMC sample n ∈ [0, samples):
    - Dirichlet amplitude: `A(θ) = |sin((2J+1)θ/2) / ((2J+1)sin(θ/2))|`
    - If `A(θ) ≥ threshold`:
      - Phase-corrected snap: `candidate = exp((ln(N) - θ)/2)`
-     - Round and verify: if `N % candidate == 0`, return factors
+     - Certify only this candidate (and, if configured, its bounded expanding-ring neighbors) with the arithmetic predicate. No other candidates are tried.
 
 ### Phase 4: Verification
 

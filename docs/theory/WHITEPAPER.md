@@ -4,6 +4,8 @@
 
 This whitepaper documents the deterministic factorization of the official 127-bit semiprime defined in the project's validation policy. See [./VALIDATION_GATES.md](./VALIDATION_GATES.md) for a complete definition of this target. The factorization is achieved using geometric resonance methods, quasi-Monte Carlo sampling, and N-only derivations, without relying on traditional probabilistic algorithms.
 
+Geofac follows the certification boundary in `./GEOMETRIC_CERTIFICATION_BOUNDARY.md`: geometry ranks candidates; arithmetic certifies via the narrow predicate `IsFactor_N(d) := (N mod d == 0)` on only the top-ranked list. No broad trial-division sweeps, Pollard Rho, ECM, or other fallbacks are invoked.
+
 ## 1. Introduction
 
 Integer factorization remains a computationally intensive problem. This work presents an empirical investigation of geometric resonance factorization, a deterministic approach that factors semiprimes by analyzing resonance patterns in a transformed geometric space.
@@ -14,7 +16,7 @@ This factorization is achieved through:
 - **Dirichlet kernel gating**: Amplitude filtering in resonance space
 - **Quasi-Monte Carlo sampling**: For variance reduction
 - **Phase-corrected snapping**: Geometric candidate derivation from resonance peaks
-- **Resonance-guided search with certification**: Geometric scoring narrows candidates; a small number of exact divisibility checks (`N % d`) certify the factors. Broad classical fallbacks (Pollard, ECM, wide trial-division sweeps) are excluded.
+- **Resonance-guided search with certification**: Geometric scoring narrows candidates; a small number of exact divisibility checks (`N % d`) certify the factors. Broad classical fallbacks (Pollard, ECM, wide trial-division sweeps) are excluded. Certification artifacts must log the scored list submitted to `IsFactor_N` and the predicate outputs for reproducibility.
 
 ## 2. Method Overview
 
@@ -73,7 +75,7 @@ Parameters:
 
 ### 2.3 Expanding Ring Search Refinement
 
-When a geometric resonance candidate p₀ is identified (amplitude > threshold), it may not be the exact factor due to numerical precision limits and phase quantization. The **expanding ring search** provides deterministic, gap-free coverage around the candidate to find the true factor within the documented error envelope.
+When a geometric resonance candidate p₀ is identified (amplitude > threshold), it may not be the exact factor due to numerical precision limits and phase quantization. The **expanding ring search** provides deterministic, gap-free coverage around that single geometric candidate to find the true factor within the documented error envelope.
 
 **Error Envelope:** For Gate 4 (operational range) targets (10^14 to 10^18), the documented geometric resonance error bound is approximately 0.37-1.19% of the candidate center value, roughly √N/2 on average. For a 127-bit semiprime with √N ≈ 10^19, a 1.19% error corresponds to an absolute offset of up to ~1.19 × 10^17.
 
@@ -94,10 +96,10 @@ for d = 1 to radius:
 ```
 
 This approach provides:
-- **Completeness**: All integers within ±radius are tested exhaustively
+- **Completeness**: All integers within ±radius of a chosen peak candidate are tested exhaustively
 - **Determinism**: No probabilistic sampling or gaps
 - **Scalability**: Radius adapts to candidate magnitude
-- **Practicality**: Configurable cap prevents unbounded searches
+- **Practicality**: Configurable cap prevents unbounded searches while keeping certification narrow (only around geometry-selected peaks)
 
 For typical Gate 4 (operational range) targets with √N ≈ 10^7, the 1.2% radius is ~1.2 × 10^5, requiring ~2.4 × 10^5 divisibility checks in the worst case—a computationally feasible operation.
 
@@ -118,7 +120,11 @@ Reference: Owen, A.B. (1995). "Randomly Permuted (t,m,s)-Nets and (t,s)-Sequence
 
 ## 3. Verification and Artifacts
 
-### 3.1 Test Case: Gate 1 Factorization
+### 3.1 Certification Boundary and Logged Evidence
+
+All verification runs must record the geometric parameters, the scored candidate list forwarded to `IsFactor_N`, the predicate outputs (`N mod d`), and the observed rank of any discovered factor. This aligns with `./GEOMETRIC_CERTIFICATION_BOUNDARY.md` and enables replay without rerunning geometry.
+
+### 3.2 Test Case: Gate 3 Factorization
 
 The test case is the successful factorization of the Gate 3 (127-bit) challenge number as defined in [./VALIDATION_GATES.md](./VALIDATION_GATES.md).
 

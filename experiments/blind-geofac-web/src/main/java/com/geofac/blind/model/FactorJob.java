@@ -17,6 +17,7 @@ public class FactorJob {
     private volatile BigInteger foundP;
     private volatile BigInteger foundQ;
     private final List<String> logs = new CopyOnWriteArrayList<>();
+    private volatile List<Candidate> topCandidates = Collections.emptyList();
 
     public FactorJob(UUID id, BigInteger n) {
         this.id = id;
@@ -25,21 +26,53 @@ public class FactorJob {
         this.createdAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public BigInteger getN() { return n; }
-    public JobStatus getStatus() { return status; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getCompletedAt() { return completedAt; }
-    public BigInteger getFoundP() { return foundP; }
-    public BigInteger getFoundQ() { return foundQ; }
+    public UUID getId() {
+        return id;
+    }
+
+    public BigInteger getN() {
+        return n;
+    }
+
+    public JobStatus getStatus() {
+        return status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getCompletedAt() {
+        return completedAt;
+    }
+
+    public BigInteger getFoundP() {
+        return foundP;
+    }
+
+    public BigInteger getFoundQ() {
+        return foundQ;
+    }
+
+    public List<Candidate> getTopCandidates() {
+        return topCandidates;
+    }
+
+    public void setTopCandidates(List<Candidate> candidates) {
+        this.topCandidates = candidates;
+    }
 
     public List<String> getLogsSnapshot() {
         return Collections.unmodifiableList(new ArrayList<>(logs));
     }
 
-    public void appendLog(String line) { logs.add(line); }
+    public void appendLog(String line) {
+        logs.add(line);
+    }
 
-    public void markRunning() { this.status = JobStatus.RUNNING; }
+    public void markRunning() {
+        this.status = JobStatus.RUNNING;
+    }
 
     public void markCompleted(BigInteger p, BigInteger q) {
         this.status = JobStatus.COMPLETED;
