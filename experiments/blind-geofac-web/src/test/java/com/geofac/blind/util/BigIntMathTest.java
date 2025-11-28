@@ -17,8 +17,7 @@ class BigIntMathTest {
     void testResonanceScore() {
         BigInteger n = BigInteger.valueOf(15);
         BigInteger d = BigInteger.valueOf(5); // Factor
-        // 15 mod 5 = 0. Score = 1.0 - 0 + 0.1 (prime) = 1.1 -> capped at 1.0? No, wait.
-        // My impl: 1.0 - 0 + 0.1 = 1.1. Math.min(1.0, 1.1) = 1.0.
+        // 15 mod 5 = 0. Score = 1.0 - 0 + 0.1 (prime) = 1.1, capped to 1.0 via Math.min.
         assertEquals(1.0, BigIntMath.resonanceScore(n, d), 0.001);
 
         BigInteger d2 = BigInteger.valueOf(4); // Not factor, not prime
@@ -32,6 +31,7 @@ class BigIntMathTest {
         BigInteger sqrt = BigInteger.valueOf(10);
         double[] phases = BigIntMath.zNormalize(n, sqrt);
         assertEquals(2, phases.length);
-        assertEquals(0.5, phases[0], 0.001);
+        assertEquals(0.0, phases[0], 0.001);
+        assertEquals(0.5, phases[1], 0.001);
     }
 }

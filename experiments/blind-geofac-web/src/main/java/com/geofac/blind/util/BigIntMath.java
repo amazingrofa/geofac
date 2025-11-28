@@ -30,21 +30,43 @@ public final class BigIntMath {
 
     /**
      * Approximate z-normalization of N to a 2D torus phase space.
-     * Returns {theta_p, theta_q} approximations in [0, 1].
-     * Uses double precision log approximation: theta = log(n) / log(sqrtN) mod 1.
-     * For a semiprime N=p*q near sqrt(N), phases are close to 0.5.
+     * Returns {theta_p, theta_q} approximations in [0, 1).
+     * Uses a deterministic log approximation: theta = frac(ln(n) / ln(sqrtN)).
+     * theta_q is offset by 0.5 on the unit circle to mirror p/q symmetry.
+     * TODO: Replace double-based log with BigDecimal precision if/when available.
      */
     public static double[] zNormalize(BigInteger n, BigInteger sqrtN) {
-        // Simple approximation: In a balanced semiprime, p ~ sqrt(N), so
-        // log(p)/log(sqrt(N)) ~ 1.
-        // We want phases relative to the "ideal" center.
-        // For this MVP, we return a baseline phase of 0.5 (center of log space)
-        // plus a small perturbation based on N's bits to simulate "random" but
-        // deterministic placement.
+        if (n == null || sqrtN == null || n.signum() <= 0 || sqrtN.signum() <= 0) {
+            throw new IllegalArgumentException("n and sqrtN must be positive");
+        }
 
-        // Real implementation would use BigDecimal log, but for "blind" demo:
-        // We assume balanced semiprimes, so we center around 0.5.
-        return new double[] { 0.5, 0.5 };
+        double lnN = logBigInteger(n);
+        double lnSqrtN = logBigInteger(sqrtN);
+        if (lnSqrtN == 0.0) {
+            return new double[] { 0.0, 0.5 }; // Degenerate, but deterministic
+        }
+
+        double theta = frac(lnN / lnSqrtN);
+        double thetaP = theta;
+        double thetaQ = frac(theta + 0.5); // Opposite phase on the circle
+        return new double[] { thetaP, thetaQ };
+    }
+
+    private static double frac(double x) {
+        double f = x - Math.floor(x);
+        return (f == 1.0) ? 0.0 : f;
+    }
+
+    /**
+     * Deterministic natural log approximation of a BigInteger using high bits and scaling.
+     */
+    private static double logBigInteger(BigInteger x) {
+        int bitLength = x.bitLength();
+        // Keep mantissa within double range by shifting if very large
+        int shift = Math.max(0, bitLength - 1022);
+        BigInteger shifted = shift == 0 ? x : x.shiftRight(shift);
+        double mantissa = shifted.doubleValue();
+        return Math.log(mantissa) + shift * Math.log(2.0);
     }
 
     /**

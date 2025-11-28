@@ -16,8 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.SplittableRandom;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class FactorService {
@@ -25,6 +25,7 @@ public class FactorService {
     private static final int DEFAULT_MAX_ITER = 500_000;
     private static final long DEFAULT_TIME_LIMIT_MS = Duration.ofMinutes(2).toMillis();
     private static final int DEFAULT_LOG_EVERY = 1_000;
+    private static final long DEFAULT_SEED = 42L;
     private static final int MAX_BANDS = 6;
     private static final int BAND_WIDTH_DIVISIONS = 10_000; // half-width for trial division around center
 
@@ -70,7 +71,11 @@ public class FactorService {
         log(job, "Starting blind geofac on N=" + job.getN());
         log(job, "Bit length: " + job.getN().bitLength());
 
-        List<Candidate> top = scoreBands(job.getN(), maxIter);
+        long seed = DEFAULT_SEED;
+        SplittableRandom rng = new SplittableRandom(seed);
+        log(job, "RNG seed (fixed): " + seed);
+
+        List<Candidate> top = scoreBands(job.getN(), maxIter, rng);
         job.setTopCandidates(top);
         log(job, "Generated " + top.size() + " top candidates via GeoFac resonance.");
 
@@ -116,16 +121,15 @@ public class FactorService {
         logStreamRegistry.send(job.getId(), stamped);
     }
 
-    private List<Candidate> scoreBands(BigInteger n, int maxIter) {
+    private List<Candidate> scoreBands(BigInteger n, int maxIter, SplittableRandom rng) {
         BigInteger sqrtN = BigIntMath.sqrtFloor(n);
         double[] basePhases = BigIntMath.zNormalize(n, sqrtN); // Approx {θ_p, θ_q}
         List<Candidate> candidates = new ArrayList<>();
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
         int numProbes = Math.min(1000, maxIter / 10);
 
         for (int i = 0; i < numProbes; i++) {
-            double thetaX = rnd.nextDouble(0, 2 * Math.PI);
-            double thetaY = rnd.nextDouble(0, 2 * Math.PI);
+            double thetaX = rng.nextDouble(0, 2 * Math.PI);
+            double thetaY = rng.nextDouble(0, 2 * Math.PI);
 
             for (int t = 0; t < 50; t++) { // Orbit: Ergodic flow
                 thetaX = (thetaX + Math.sqrt(2) * (t + 1)) % (2 * Math.PI); // Irrational rotation
@@ -161,35 +165,6 @@ public class FactorService {
                 .sorted(Comparator.comparingDouble(Candidate::score).reversed())
                 .limit(20)
                 .toList(); // Top m=20
-    }
-
-    // Lightweight Pollard Rho (Brent variant) to suggest a narrow band
-    private BigInteger pollardRho(BigInteger n, int iterations) {
-        if (n.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-            return BigInteger.TWO;
-        }
-        ThreadLocalRandom rnd = ThreadLocalRandom.current();
-        BigInteger c = new BigInteger(n.bitLength(), rnd).mod(n);
-        if (c.equals(BigInteger.ZERO)) {
-            c = BigInteger.ONE;
-        }
-        BigInteger x = new BigInteger(n.bitLength(), rnd).mod(n);
-        BigInteger y = x;
-        BigInteger d = BigInteger.ONE;
-
-        for (int i = 0; i < iterations && d.equals(BigInteger.ONE); i++) {
-            x = f(x, c, n);
-            y = f(f(y, c, n), c, n);
-            d = x.subtract(y).abs().gcd(n);
-        }
-        if (d.equals(n) || d.equals(BigInteger.ONE)) {
-            return null;
-        }
-        return d;
-    }
-
-    private BigInteger f(BigInteger x, BigInteger c, BigInteger n) {
-        return x.multiply(x).add(c).mod(n);
     }
 
     public record SseSnapshot(JobStatus status, java.util.List<String> logs) {
