@@ -35,7 +35,8 @@ public class FactorController {
     @GetMapping(path = "/status/{jobId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> status(@PathVariable UUID jobId) {
         FactorJob job = factorService.getJob(jobId);
-        if (job == null) return ResponseEntity.notFound().build();
+        if (job == null)
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(Map.of(
                 "jobId", job.getId(),
                 "status", job.getStatus(),
@@ -43,18 +44,22 @@ public class FactorController {
                 "p", job.getFoundP() == null ? null : job.getFoundP().toString(),
                 "q", job.getFoundQ() == null ? null : job.getFoundQ().toString(),
                 "createdAt", job.getCreatedAt(),
-                "completedAt", job.getCompletedAt()
-        ));
+                "completedAt", job.getCompletedAt(),
+                "topCandidates", job.getTopCandidates().stream().limit(5).toList()));
     }
 
     @GetMapping(path = "/logs/{jobId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> stream(@PathVariable UUID jobId) {
         FactorService.SseSnapshot snap = factorService.logsSnapshot(jobId);
-        if (snap == null) return ResponseEntity.notFound().build();
+        if (snap == null)
+            return ResponseEntity.notFound().build();
         SseEmitter emitter = logStreamRegistry.register(jobId);
         // push history first
         snap.logs().forEach(line -> {
-            try { emitter.send(SseEmitter.event().data(line)); } catch (Exception ignored) {}
+            try {
+                emitter.send(SseEmitter.event().data(line));
+            } catch (Exception ignored) {
+            }
         });
         return ResponseEntity.ok(emitter);
     }

@@ -1,145 +1,277 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Blind Geofac</title>
     <style>
-        body { font-family: "Segoe UI", Roboto, sans-serif; background: #0c1a1f; color: #e7f6ff; margin: 0; padding: 0; }
-        header { padding: 16px 24px; background: linear-gradient(120deg, #0f2c38, #0d4b4f); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-        h1 { margin: 0; font-size: 20px; letter-spacing: 0.5px; }
-        main { padding: 24px; display: grid; gap: 16px; }
-        .card { background: #112932; border: 1px solid #1f4954; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #b7dce9; }
-        input, button { font-size: 14px; padding: 10px 12px; border-radius: 8px; border: 1px solid #1f4954; background: #0c1f28; color: #e7f6ff; width: 100%; box-sizing: border-box; }
-        button { cursor: pointer; background: #1ea672; border: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        button:disabled { background: #30544c; cursor: not-allowed; }
-        .row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-        #log { background: #081116; color: #b1e1ff; height: 320px; overflow-y: auto; font-family: "SFMono-Regular", Menlo, Consolas, monospace; padding: 12px; border-radius: 8px; border: 1px solid #1f4954; white-space: pre-wrap; }
-        .status { display: inline-block; padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; }
-        .status.running { background: #205e9c; }
-        .status.queued { background: #787a7e; }
-        .status.completed { background: #1ea672; }
-        .status.failed { background: #c62828; }
+        body {
+            font-family: "Segoe UI", Roboto, sans-serif;
+            background: #0c1a1f;
+            color: #e7f6ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            padding: 16px 24px;
+            background: linear-gradient(120deg, #0f2c38, #0d4b4f);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        main {
+            padding: 24px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .card {
+            background: #112932;
+            border: 1px solid #1f4954;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b7dce9;
+        }
+
+        input,
+        button {
+            font-size: 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #1f4954;
+            background: #0c1f28;
+            color: #e7f6ff;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+            background: #1ea672;
+            border: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:disabled {
+            background: #30544c;
+            cursor: not-allowed;
+        }
+
+        .row {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        #log {
+            background: #081116;
+            color: #b1e1ff;
+            height: 320px;
+            overflow-y: auto;
+            font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #1f4954;
+            white-space: pre-wrap;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .status.running {
+            background: #205e9c;
+        }
+
+        .status.queued {
+            background: #787a7e;
+        }
+
+        .status.completed {
+            background: #1ea672;
+        }
+
+        .status.failed {
+            background: #c62828;
+        }
     </style>
 </head>
+
 <body>
-<header>
-    <h1>Blind Geofac (127-bit demo)</h1>
-</header>
-<main>
-    <div class="card">
-        <div class="row">
-            <div>
-                <label for="n">Target N</label>
-                <input id="n" name="n" value="137524771864208156028430259349934309717" />
+    <header>
+        <h1>Blind Geofac (127-bit demo)</h1>
+    </header>
+    <main>
+        <div class="card">
+            <div class="row">
+                <div>
+                    <label for="n">Target N</label>
+                    <input id="n" name="n" value="137524771864208156028430259349934309717" />
+                </div>
+                <div>
+                    <label for="maxIter">Max iterations (band scan)</label>
+                    <input id="maxIter" name="maxIter" type="number" value="500000" />
+                </div>
+                <div>
+                    <label for="timeLimit">Time limit (ms)</label>
+                    <input id="timeLimit" name="timeLimit" type="number" value="120000" />
+                </div>
+                <div>
+                    <label for="logEvery">Log every N iterations</label>
+                    <input id="logEvery" name="logEvery" type="number" value="1000" />
+                </div>
             </div>
-            <div>
-                <label for="maxIter">Max iterations (band scan)</label>
-                <input id="maxIter" name="maxIter" type="number" value="500000" />
-            </div>
-            <div>
-                <label for="timeLimit">Time limit (ms)</label>
-                <input id="timeLimit" name="timeLimit" type="number" value="120000" />
-            </div>
-            <div>
-                <label for="logEvery">Log every N iterations</label>
-                <input id="logEvery" name="logEvery" type="number" value="1000" />
+            <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+                <button id="startBtn">Start Blind Geofac</button>
+                <span id="statusBadge" class="status queued">QUEUED</span>
+                <span id="jobId" style="font-size:12px; color:#80c8ff;"></span>
             </div>
         </div>
-        <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
-            <button id="startBtn">Start Blind Geofac</button>
-            <span id="statusBadge" class="status queued">QUEUED</span>
-            <span id="jobId" style="font-size:12px; color:#80c8ff;"></span>
+        <div class="card">
+            <label>Top GeoFac Candidates (Ranked by Resonance)</label>
+            <div style="overflow-x:auto;">
+                <table id="candidatesTable"
+                    style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #1f4954; color:#80c8ff;">
+                            <th style="padding:8px;">Rank</th>
+                            <th style="padding:8px;">Candidate (d)</th>
+                            <th style="padding:8px;">Score</th>
+                            <th style="padding:8px;">Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="padding:8px; color:#5c7c8a; text-align:center;">No candidates yet...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="card">
-        <label>Live Log</label>
-        <div id="log"></div>
-    </div>
-</main>
-<script>
-    const startBtn = document.getElementById('startBtn');
-    const statusBadge = document.getElementById('statusBadge');
-    const logDiv = document.getElementById('log');
-    const jobIdSpan = document.getElementById('jobId');
-    let es = null;
+        <div class="card">
+            <label>Live Log</label>
+            <div id="log"></div>
+        </div>
+    </main>
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const statusBadge = document.getElementById('statusBadge');
+        const logDiv = document.getElementById('log');
+        const jobIdSpan = document.getElementById('jobId');
+        const candidatesTableBody = document.querySelector('#candidatesTable tbody');
+        let es = null;
 
-    function setStatus(text, css) {
-        statusBadge.textContent = text;
-        statusBadge.className = `status ${css}`;
-    }
-
-    function appendLog(line) {
-        logDiv.textContent += line + "\n";
-        logDiv.scrollTop = logDiv.scrollHeight;
-    }
-
-    async function startJob() {
-        if (es) {
-            es.close();
-            es = null;
+        function setStatus(text, css) {
+            statusBadge.textContent = text;
+            statusBadge.className = `status ${css}`;
         }
-        logDiv.textContent = '';
-        setStatus('QUEUED', 'queued');
-        startBtn.disabled = true;
-        const body = {
-            n: document.getElementById('n').value.trim(),
-            maxIterations: parseInt(document.getElementById('maxIter').value, 10),
-            timeLimitMillis: parseInt(document.getElementById('timeLimit').value, 10),
-            logEvery: parseInt(document.getElementById('logEvery').value, 10)
-        };
-        try {
-            const res = await fetch('/api/factor', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            if (!res.ok) throw new Error('Request failed');
-            const data = await res.json();
-            const jobId = data.jobId;
-            jobIdSpan.textContent = `job: ${jobId}`;
-            setStatus('RUNNING', 'running');
-            streamLogs(jobId);
-            pollStatus(jobId);
-        } catch (err) {
-            appendLog('Error starting job: ' + err.message);
-            setStatus('FAILED', 'failed');
-            startBtn.disabled = false;
+
+        function appendLog(line) {
+            logDiv.textContent += line + "\n";
+            logDiv.scrollTop = logDiv.scrollHeight;
         }
-    }
 
-    function streamLogs(jobId) {
-        es = new EventSource(`/api/logs/${jobId}`);
-        es.onmessage = (e) => appendLog(e.data);
-        es.onerror = () => {
-            appendLog('Log stream closed.');
-            es && es.close();
-        };
-    }
-
-    async function pollStatus(jobId) {
-        let done = false;
-        while (!done) {
-            const res = await fetch(`/api/status/${jobId}`);
-            if (!res.ok) break;
-            const data = await res.json();
-            const status = (data.status || '').toLowerCase();
-            setStatus(data.status, status);
-            if (status === 'completed' || status === 'failed' || status === 'cancelled') {
-                done = true;
-                startBtn.disabled = false;
-                if (es) es.close();
-                if (data.p && data.q) {
-                    appendLog(`FACTORS FOUND: p=${data.p} q=${data.q}`);
-                }
-                break;
+        async function startJob() {
+            if (es) {
+                es.close();
+                es = null;
             }
-            await new Promise(r => setTimeout(r, 1500));
+            logDiv.textContent = '';
+            candidatesTableBody.innerHTML = '<tr><td colspan="4" style="padding:8px; color:#5c7c8a; text-align:center;">Running GeoFac probes...</td></tr>';
+            setStatus('QUEUED', 'queued');
+            startBtn.disabled = true;
+            const body = {
+                n: document.getElementById('n').value.trim(),
+                maxIterations: parseInt(document.getElementById('maxIter').value, 10),
+                timeLimitMillis: parseInt(document.getElementById('timeLimit').value, 10),
+                logEvery: parseInt(document.getElementById('logEvery').value, 10)
+            };
+            try {
+                const res = await fetch('/api/factor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error('Request failed');
+                const data = await res.json();
+                const jobId = data.jobId;
+                jobIdSpan.textContent = `job: ${jobId}`;
+                setStatus('RUNNING', 'running');
+                streamLogs(jobId);
+                pollStatus(jobId);
+            } catch (err) {
+                appendLog('Error starting job: ' + err.message);
+                setStatus('FAILED', 'failed');
+                startBtn.disabled = false;
+            }
         }
-    }
 
-    startBtn.addEventListener('click', startJob);
-</script>
+        function streamLogs(jobId) {
+            es = new EventSource(`/api/logs/${jobId}`);
+            es.onmessage = (e) => appendLog(e.data);
+            es.onerror = () => {
+                appendLog('Log stream closed.');
+                es && es.close();
+            };
+        }
+
+        async function pollStatus(jobId) {
+            let done = false;
+            while (!done) {
+                const res = await fetch(`/api/status/${jobId}`);
+                if (!res.ok) break;
+                const data = await res.json();
+                const status = (data.status || '').toLowerCase();
+                setStatus(data.status, status);
+                if (status === 'completed' || status === 'failed' || status === 'cancelled') {
+                    done = true;
+                    startBtn.disabled = false;
+                    if (es) es.close();
+                    if (data.p && data.q) {
+                        appendLog(`FACTORS FOUND: p=${data.p} q=${data.q}`);
+                    }
+                }
+
+                // Update candidates table if available
+                if (data.topCandidates && data.topCandidates.length > 0) {
+                    candidatesTableBody.innerHTML = data.topCandidates.map((c, i) => `
+                    <tr style="border-bottom:1px solid #0f2c38;">
+                        <td style="padding:6px 8px;">#${i + 1}</td>
+                        <td style="padding:6px 8px; font-family:monospace; color:#b1e1ff;">${c.d}</td>
+                        <td style="padding:6px 8px;">${c.score.toFixed(4)}</td>
+                        <td style="padding:6px 8px; color:#5c7c8a;">${c.source}</td>
+                    </tr>
+                `).join('');
+                }
+
+                if (done) break;
+                await new Promise(r => setTimeout(r, 1500));
+            }
+        }
+
+        startBtn.addEventListener('click', startJob);
+    </script>
 </body>
+
 </html>
