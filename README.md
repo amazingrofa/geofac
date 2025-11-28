@@ -1,38 +1,60 @@
-## Geofac — Singular Objective: Factor N via Geometric Resonance (No Fallbacks)
+## Geofac — Ranked Geometric Search + Arithmetic Certification
 
-This repo has a single objective: factor the challenge semiprime `N` defined in the project's official validation policy. See [docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md) for a full description of the target and success criteria.
+This repo pursues one objective: factor the challenge semiprime `N` defined in the official validation policy by **using
+geometry to rank candidates and arithmetic to certify them**. See [docs/VALIDATION_GATES.md](docs/VALIDATION_GATES.md)
+for target and success criteria,
+and [docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md](docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md) for the formal
+boundary between geometry and certification.
 
-Geofac is a Spring Boot + Spring Shell application that implements the geometric resonance factorization algorithm in pure Java. All fallback methods (Pollard Rho, ECM, QS, etc.) are removed or unreachable—the code path is 100 % geometric.
+Geofac is a Spring Boot + Spring Shell application whose geometric phase produces a small, ordered candidate set near
+\(\sqrt{N}\). Certification is the minimal arithmetic predicate `IsFactor_N(d) := (N mod d == 0)` applied only to the
+top-ranked candidates. Classical wide-sweep fallbacks (Pollard Rho, ECM, QS, etc.) remain out of scope, but arithmetic
+certification is **required** and explicitly logged.
 
 ### Why it exists
-- Deliver a reproducible, deterministic geometric-resonance factorization for the official challenge `N`.
-- Provide a tight, auditable test harness (Spring Boot, JUnit 5, Gradle).
-- Offer an interactive CLI for iterating resonance parameters only.
+
+- Demonstrate that geometric ranking can shrink the expected rank of the true factor so only a handful of modular checks
+  are needed.
+- Provide a reproducible, deterministic harness (Spring Boot, JUnit 5, Gradle) for measuring that ranking quality.
+- Offer an interactive CLI to tune geometric parameters while keeping the arithmetic certificate explicit.
 
 ### Non-negotiables
-- **No fallbacks** – the system never drops into Pollard Rho, ECM, QS, or any probabilistic helper.
-- **Resonance-only search paths** – Dirichlet kernel gating + golden-ratio QMC drive every candidate.
-- **Reproducibility** – fixed seeds, frozen configs, and exported artifacts per run.
+
+- **Geometry ranks, arithmetic certifies** – every reported factor is confirmed via `N mod d`; geometry only orders
+  candidates.
+- **No wide classical sweeps** – we do not broaden into Pollard Rho, ECM, QS, or bulk trial division beyond the ranked
+  set.
+- **Reproducibility and logging** – deterministic seeds/precision; logs include parameters, candidate list, rank of any
+  factor, and predicate outputs so runs can be replayed without rerunning geometry.
 
 ### Core Philosophy: Geometry as a Map
 **Geometry is a map, not a key.**
 
-1.  **Impossibility of Pure Geometric Factorization:** You cannot factor a number using geometry alone; mathematical structure eventually requires arithmetic verification.
-2.  **The True Value Proposition:** The goal of `geofac` is to drastically **reduce the search cost** by using geometric resonance (like $\tau$ spikes or 7D torus embeddings) to filter the candidate space.
-3.  **The Final Step:** The process *always* concludes with **trial division** (or GCD). The measure of success is not eliminating arithmetic, but reducing the number of required operations from billions (or quadrillions) down to a **tiny, manageable number** of targeted checks.
+1. **Certification Boundary:** Purely geometric factorization is impossible; arithmetic verification is mandatory.
+   Geofac measures success by how small the certified set \(d_1,\dots,d_m\) can be made.
+2. **Value Proposition:** Use geometric scoring to push the true factor’s expected rank well below any naive window
+   width \(W\), shrinking the number of `N mod d` evaluations.
+3. **Final Step:** The pipeline always ends with `N mod d` (or GCD) on the top-ranked candidates. The log of those
+   predicates is part of the proof artifact.
 
 ### Geometric certification boundary
 - Geometry proposes **where to look and in what order**; arithmetic certifies truth with `IsFactor_N(d) := (N mod d == 0)`.
 - Only the top-ranked geometric candidates `d1..dm` are certified; no wide trial-division sweeps, Pollard Rho, ECM, or other classical fallbacks.
-- Progress is measured when the expected rank of the true factor is far smaller than any naive scan window (i.e., \(\mathbb{E}[\text{rank}(p)] \ll W\)).
-- Run artifacts must log the geometric parameters, the exact candidates submitted to `IsFactor_N`, the observed rank of any discovered factor, and the predicate outputs so a replayed log fully certifies the result.
+- Progress is measured when the expected rank of the true factor is far smaller than any naive scan window (
+  \(\mathbb{E}[\text{rank}(p)] \ll W\)).
+- Artifacts must log parameters, the exact candidates submitted to `IsFactor_N`, their scores, the observed rank of any
+  discovered factor, and predicate outputs so a replayed log fully certifies the result.
 - See `docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md` for the formal statement and evidence expectations.
 
-### Key features (resonance-only)
-- **High-precision core** – `FactorizerService` uses `ch.obermuhlner:big-math`, Dirichlet kernel gating, golden-ratio quasi Monte Carlo sampling, and phase-corrected snapping.
-- **Configurable search** – sampling range, kernel order (`J`), thresholds, and precision live in `application.yml`.
-- **Spring Shell CLI** – run `factor <N>` inside the embedded shell with deterministic logs.
-- **Proof artifacts** – each run writes `factors.json`, `search_log.txt`, `config.json`, and `env.txt`.
+### Key features
+
+- **Banded geometric search near \(\sqrt{N}\)** – candidate divisors are generated in a symmetric window, deduped by
+  distance, and ranked by a high-precision resonance score.
+- **High-precision math** – scoring uses `BigDecimal`/`BigInteger` with precision tied to `N.bitLength()` to avoid
+  drift; zero-remainder shortcut when a candidate divides cleanly.
+- **Deterministic seeding** – `SplittableRandom` seeds derive from \(N\) so runs are reproducible and replayable.
+- **Spring Shell CLI** – run `factor <N>` with deterministic logs; job artifacts include parameters, ranked candidates,
+  and certification outcomes.
 
 ### P-adic topology (normalized terminology)
 Geofac's per-prime structures align with standard p-adic language: spines are truncated `Z_p` expansions, "residue tunnels" are Hensel lifts, and cluster strata are p-adic balls. The global real + per-prime snapshot is a truncated adele; behavior is unchanged, only the vocabulary is standardized.
