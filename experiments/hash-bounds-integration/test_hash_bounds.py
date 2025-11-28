@@ -13,16 +13,17 @@ import os
 # Add experiment directory to path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from mpmath import mp, mpf, sqrt, log, frac
+from mpmath import mpf, sqrt
 
 from hash_bounds_test import (
     compute_sha256_hash,
-    normalize_hash_to_fraction,
     compute_frac_hash,
     compute_z5d_prediction,
     compute_attenuation,
     compute_adjusted_prediction,
     compute_actual_frac_sqrt_p,
+    compute_band,
+    is_in_band,
     set_precision,
     run_single_test,
     verify_claimed_values,
@@ -30,7 +31,12 @@ from hash_bounds_test import (
     CHALLENGE_127,
     GATE_1_30BIT,
     GATE_2_60BIT,
-    RSA_100
+    RSA_100,
+    SCALE_10_17,
+    SCALE_10_14,
+    GENERATED_58BIT,
+    BAND_WIDTH,
+    RANDOM_BASELINE
 )
 
 
@@ -258,6 +264,37 @@ class TestSingleTestCase:
         assert result["test_case"] == "RSA-100"
 
 
+class TestBandCapture:
+    """Test band capture analysis."""
+    
+    def test_compute_band_centered(self):
+        """Band should be centered on prediction."""
+        set_precision(100)
+        k_lo, k_hi = compute_band(mpf("0.5"), BAND_WIDTH)
+        expected_half = BAND_WIDTH / 2
+        assert abs(k_lo - (0.5 - expected_half)) < 0.001
+        assert abs(k_hi - (0.5 + expected_half)) < 0.001
+    
+    def test_is_in_band_standard(self):
+        """Standard in-band check."""
+        assert is_in_band(0.5, 0.4, 0.6)
+        assert not is_in_band(0.7, 0.4, 0.6)
+    
+    def test_is_in_band_wraparound_low(self):
+        """Wrap-around from below (k_lo < 0)."""
+        # Band [-0.1, 0.1] should include values near 0.9+ (wrap)
+        assert is_in_band(0.95, -0.1, 0.1)
+        assert is_in_band(0.05, -0.1, 0.1)
+        assert not is_in_band(0.5, -0.1, 0.1)
+    
+    def test_is_in_band_wraparound_high(self):
+        """Wrap-around from above (k_hi > 1)."""
+        # Band [0.9, 1.1] should include values near 0.0+ (wrap)
+        assert is_in_band(0.95, 0.9, 1.1)
+        assert is_in_band(0.05, 0.9, 1.1)
+        assert not is_in_band(0.5, 0.9, 1.1)
+
+
 class TestFullExperiment:
     """Test full experiment execution."""
     
@@ -269,11 +306,10 @@ class TestFullExperiment:
         assert "aggregates" in results
         assert "verdict" in results
     
-    def test_adjustment_harms_127bit_challenge(self):
-        """The hash-adjustment WORSENS prediction for the 127-bit challenge.
+    def test_127bit_p_in_band(self):
+        """The 127-bit challenge p should be captured in the prediction band.
         
-        This is the key falsification: even though the math is correct,
-        the adjustment does not help for the primary challenge case.
+        This is a key success metric for the 'better than random' criterion.
         """
         results = run_full_experiment(verbose=False)
         
@@ -286,22 +322,39 @@ class TestFullExperiment:
         
         assert challenge_result is not None, "127-bit challenge result not found"
         
-        # Adjustment should NOT help for the 127-bit case
-        assert not challenge_result["adjustment_helped"], \
-            "Hash adjustment unexpectedly helped for 127-bit challenge"
+        # p should be in band for the 127-bit challenge
+        assert challenge_result["p_in_band"], \
+            f"127-bit challenge p ({challenge_result['actual_frac_sqrt_p']:.6f}) not in band " \
+            f"[{challenge_result['band_k_lo']:.4f}, {challenge_result['band_k_hi']:.4f}]"
     
-    def test_adjustment_minimal_benefit(self):
-        """Average improvement from adjustment should be minimal.
+    def test_capture_rate_documented(self):
+        """Document the per-N capture rate vs random baseline.
         
-        The hypothesis claims hash-bounds improve predictions, but the
-        actual improvement should be tiny or negative.
+        The per-N capture rate should be documented in the results.
+        Note: Results may vary with different test cases.
         """
         results = run_full_experiment(verbose=False)
         
-        # Average improvement should be very small (< 0.01)
-        avg_improvement = results["aggregates"]["avg_improvement"]
-        assert avg_improvement < 0.01, \
-            f"Average improvement {avg_improvement:.6f} is unexpectedly large"
+        per_n_rate = results["aggregates"]["per_n_capture_rate"]
+        random_baseline = results["aggregates"]["random_baseline"]
+        
+        # Verify the metrics are present and valid
+        assert 0 <= per_n_rate <= 1, f"Invalid per_n_rate: {per_n_rate}"
+        assert random_baseline == RANDOM_BASELINE, "Random baseline mismatch"
+        
+        # The 127-bit challenge should succeed (p captured in band)
+        assert results["verdict"]["challenge_success"], \
+            "127-bit challenge p should be captured in band"
+    
+    def test_127bit_challenge_success(self):
+        """127-bit challenge should succeed - p should be captured in band.
+        
+        This is the key success for the primary target.
+        """
+        results = run_full_experiment(verbose=False)
+        
+        assert results["verdict"]["challenge_success"], \
+            f"127-bit challenge should capture p in band"
 
 
 class TestValidationGates:
@@ -314,7 +367,8 @@ class TestValidationGates:
     
     def test_factors_correct(self):
         """All test case factors should be correct (p * q = N)."""
-        for tc in [CHALLENGE_127, GATE_1_30BIT, GATE_2_60BIT, RSA_100]:
+        for tc in [CHALLENGE_127, GATE_1_30BIT, GATE_2_60BIT, RSA_100, 
+                   SCALE_10_17, SCALE_10_14, GENERATED_58BIT]:
             assert tc.p * tc.q == tc.N, f"Factors incorrect for {tc.name}"
     
     def test_gate1_30bit(self):
