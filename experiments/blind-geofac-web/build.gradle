@@ -36,6 +36,7 @@ tasks.named('test') {
         showStandardStreams = true
         events "passed", "failed", "skipped"
     }
-    // Forward opt-in flag for long challenge IT
+    // Forward opt-in flags for long challenge IT and falsification IT
     systemProperty "geofac.runLongChallengeIT", System.getProperty("geofac.runLongChallengeIT", "false")
+    systemProperty "geofac.runFalsificationIT", System.getProperty("geofac.runFalsificationIT", "false")
 }
