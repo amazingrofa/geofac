@@ -21,19 +21,9 @@ Add to `application.yml`:
 
 ```yaml
 geofac:
-  triangleFilter:
-    enabled: false          # disabled by default
-    balanceBand: 4.0        # p in [sqrtN/balanceBand, sqrtN*balanceBand]
-    maxLogSkew: 2.0         # optional, in log units
-```
-
-### Parameters
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `enabled` | `false` | Enable/disable the filter |
-| `balanceBand` | `4.0` | Balance ratio R. Candidates must satisfy √N/R ≤ p ≤ √N×R |
-| `maxLogSkew` | `2.0` | Maximum abs(log(p) - log(q*)) where q* = N/p |
+  triangle-filter-enabled: false          # disabled by default
+  triangle-filter-balance-band: 4.0       # p in [sqrtN/balanceBand, sqrtN*balanceBand]
+  triangle-filter-max-log-skew: 2.0       # optional, in log units
 
 ## Performance Implications
 
