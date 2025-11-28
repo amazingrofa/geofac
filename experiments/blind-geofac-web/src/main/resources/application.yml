@@ -7,6 +7,9 @@ spring:
 geofac:
   enable-diagnostics: false
   enable-scale-adaptive: true
+  triangle-filter-enabled: false
+  triangle-filter-balance-band: 4.0
+  triangle-filter-max-log-skew: 0.0
   scale-adaptive-attenuation: 0.05
   precision: 260
   samples: 2000

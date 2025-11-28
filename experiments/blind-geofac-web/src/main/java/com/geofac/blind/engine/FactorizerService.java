@@ -5,6 +5,7 @@ import com.geofac.blind.util.PrecisionUtil;
 import com.geofac.blind.util.ScaleAdaptiveParams;
 import com.geofac.blind.util.ShellExclusionFilter;
 import com.geofac.blind.util.SnapKernel;
+import com.geofac.blind.util.TriangleFilterConfig;
 import org.apache.commons.math3.random.SobolSequenceGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.util.Queue;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -104,6 +106,15 @@ public class FactorizerService {
     @Value("${geofac.shell-k-samples:5}")
     private int shellKSamples;
 
+    @Value("${geofac.triangle-filter-enabled:false}")
+    private boolean triangleFilterEnabled;
+
+    @Value("${geofac.triangle-filter-balance-band:4.0}")
+    private double triangleFilterBalanceBand;
+
+    @Value("${geofac.triangle-filter-max-log-skew:0.0}")
+    private double triangleFilterMaxLogSkew;
+
     private static final BigInteger BENCHMARK_N = new BigInteger("137524771864208156028430259349934309717");
     private static final BigInteger BENCHMARK_P = new BigInteger("10508623501177419659");
     private static final BigInteger BENCHMARK_Q = new BigInteger("13086849276577416863");
@@ -138,7 +149,10 @@ public class FactorizerService {
                 Map.entry("shellTau", shellTau),
                 Map.entry("shellTauSpike", shellTauSpike),
                 Map.entry("shellOverlapPercent", shellOverlapPercent),
-                Map.entry("shellKSamples", shellKSamples)
+                Map.entry("shellKSamples", shellKSamples),
+                Map.entry("triangleFilterEnabled", triangleFilterEnabled),
+                Map.entry("triangleFilterBalanceBand", triangleFilterBalanceBand),
+                Map.entry("triangleFilterMaxLogSkew", triangleFilterMaxLogSkew)
         );
     }
 
@@ -229,6 +243,18 @@ public class FactorizerService {
 
         SobolSequenceGenerator sobol = new SobolSequenceGenerator(1);
         log.info("Using Sobol QMC sampling (deterministic, low-discrepancy)");
+
+        // Triangle filter setup
+        TriangleFilterConfig triangleConfig = new TriangleFilterConfig(
+                triangleFilterEnabled, triangleFilterBalanceBand, triangleFilterMaxLogSkew);
+        BigDecimal sqrtN = BigDecimalMath.sqrt(new BigDecimal(N, mc), mc);
+        AtomicLong triangleFilterChecked = new AtomicLong(0);
+        AtomicLong triangleFilterRejected = new AtomicLong(0);
+
+        if (triangleConfig.enabled()) {
+            log.info("Triangle filter enabled: balanceBand={}, maxLogSkew={}",
+                    triangleConfig.balanceBand(), triangleConfig.maxLogSkew());
+        }
 
         BigDecimal kWidth = BigDecimal.valueOf(config.kHi() - config.kLo());
         int progressInterval = (int) Math.max(1, config.samples() / 10);
@@ -367,6 +393,16 @@ public class FactorizerService {
                         return;
                     }
 
+                    // Triangle filter: reject geometrically impossible candidates
+                    triangleFilterChecked.incrementAndGet();
+                    if (!triangleFilterAccepts(N, p0, sqrtN, triangleConfig, mc)) {
+                        triangleFilterRejected.incrementAndGet();
+                        if (enableDiagnostics && candidateLogs != null) {
+                            candidateLogs.add(String.format("Rejected: p0=%s failed triangle filter", p0));
+                        }
+                        return;
+                    }
+
                     BigDecimal kappa = computeKappaCurvature(p0, mc);
                     BigDecimal weightedAmplitude = amplitude.multiply(kappa, mc);
 
@@ -397,11 +433,21 @@ public class FactorizerService {
 
             if (result.get() != null) {
                 log.info("Factor found at sample {}/{}", sampleCount, testLimit);
+                logTriangleFilterStats(triangleConfig, triangleFilterChecked.get(), triangleFilterRejected.get());
                 return result.get();
             }
         }
 
+        logTriangleFilterStats(triangleConfig, triangleFilterChecked.get(), triangleFilterRejected.get());
         return null;
+    }
+
+    private void logTriangleFilterStats(TriangleFilterConfig config, long checked, long rejected) {
+        if (config.enabled() && checked > 0) {
+            double rejectRate = (double) rejected / checked * 100.0;
+            log.info("Triangle filter stats: checked={}, rejected={} ({}%)",
+                    checked, rejected, String.format("%.1f", rejectRate));
+        }
     }
 
     private BigInteger[] testNeighbors(BigInteger N, BigInteger pCenter) {
@@ -523,5 +569,66 @@ public class FactorizerService {
             }
         }
         return best;
+    }
+
+    /**
+     * Triangle-Closure Filter: cheap geometric sanity check.
+     * Rejects candidates p where N/p would create degenerate triangles in log-space.
+     * <p>
+     * For N = p * q, we have log(p) + log(q) = log(N). This filter ensures:
+     * <ul>
+     *   <li>p is in [sqrtN/R, sqrtN*R] where R = balanceBand</li>
+     *   <li>The implied q* = N/p is also in valid range</li>
+     *   <li>Optional: |log(p) - log(q*)| <= maxLogSkew</li>
+     * </ul>
+     *
+     * @param N          The semiprime to factor
+     * @param pCandidate The candidate factor to test
+     * @param sqrtN      Precomputed sqrt(N) for efficiency
+     * @param config     Triangle filter configuration
+     * @param mc         MathContext for precision
+     * @return true if the candidate passes the filter (should be tested)
+     */
+    boolean triangleFilterAccepts(BigInteger N, BigInteger pCandidate,
+                                  BigDecimal sqrtN, TriangleFilterConfig config, MathContext mc) {
+        if (!config.enabled()) {
+            return true;
+        }
+
+        if (pCandidate.signum() <= 0 || pCandidate.compareTo(N) >= 0) {
+            return false;
+        }
+
+        BigDecimal p = new BigDecimal(pCandidate, mc);
+        BigDecimal R = BigDecimal.valueOf(config.balanceBand());
+
+        // Check: p >= sqrtN / R
+        BigDecimal lowerBound = sqrtN.divide(R, mc);
+        if (p.compareTo(lowerBound) < 0) {
+            return false;
+        }
+
+        // Check: p <= sqrtN * R
+        BigDecimal upperBound = sqrtN.multiply(R, mc);
+        if (p.compareTo(upperBound) > 0) {
+            return false;
+        }
+
+        // Optional: check log skew if maxLogSkew > 0
+        if (config.maxLogSkew() > 0) {
+            // q* = N / p (use explicit rounding mode to avoid ArithmeticException)
+            BigDecimal qStar = new BigDecimal(N, mc).divide(p, mc);
+            if (qStar.compareTo(BigDecimal.ONE) <= 0) {
+                return false;
+            }
+            BigDecimal lnP = BigDecimalMath.log(p, mc);
+            BigDecimal lnQ = BigDecimalMath.log(qStar, mc);
+            BigDecimal skew = lnP.subtract(lnQ, mc).abs();
+            if (skew.compareTo(BigDecimal.valueOf(config.maxLogSkew())) > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
