@@ -21,6 +21,13 @@ Geofac is a Spring Boot + Spring Shell application that implements the geometric
 2.  **The True Value Proposition:** The goal of `geofac` is to drastically **reduce the search cost** by using geometric resonance (like $\tau$ spikes or 7D torus embeddings) to filter the candidate space.
 3.  **The Final Step:** The process *always* concludes with **trial division** (or GCD). The measure of success is not eliminating arithmetic, but reducing the number of required operations from billions (or quadrillions) down to a **tiny, manageable number** of targeted checks.
 
+### Geometric certification boundary
+- Geometry proposes **where to look and in what order**; arithmetic certifies truth with `IsFactor_N(d) := (N mod d == 0)`.
+- Only the top-ranked geometric candidates `d1..dm` are certified; no wide trial-division sweeps, Pollard Rho, ECM, or other classical fallbacks.
+- Progress is measured when the expected rank of the true factor is far smaller than any naive scan window (i.e., \(\mathbb{E}[\text{rank}(p)] \ll W\)).
+- Run artifacts must log the geometric parameters, the exact candidates submitted to `IsFactor_N`, the observed rank of any discovered factor, and the predicate outputs so a replayed log fully certifies the result.
+- See `docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md` for the formal statement and evidence expectations.
+
 ### Key features (resonance-only)
 - **High-precision core** – `FactorizerService` uses `ch.obermuhlner:big-math`, Dirichlet kernel gating, golden-ratio quasi Monte Carlo sampling, and phase-corrected snapping.
 - **Configurable search** – sampling range, kernel order (`J`), thresholds, and precision live in `application.yml`.
@@ -164,6 +171,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - **[QMC_METHODS.md](docs/QMC_METHODS.md)** — Quasi-Monte Carlo methods: golden ratio sampling, Sobol sequences, variance reduction theory, and practical comparison
 - **[THEORY.md](docs/THEORY.md)** — Theoretical foundations: complexity theory (Time Hierarchy, Rice's theorem), physical limits (Margolus-Levitin, Bremermann), and decidability constraints
 - **[SCALE_ADAPTIVE_TUNING.md](docs/SCALE_ADAPTIVE_TUNING.md)** — Scale-adaptive parameter tuning: empirical scaling laws, Z5D insights, and implementation for the 127-bit challenge
+- **[GEOMETRIC_CERTIFICATION_BOUNDARY.md](docs/theory/GEOMETRIC_CERTIFICATION_BOUNDARY.md)** — Clarifies the boundary between geometric ranking and the arithmetic predicate, plus logging expectations for certification
 - **[Z5D_INSIGHTS_CONCLUSION.md](docs/Z5D_INSIGHTS_CONCLUSION.md)** — Executive summary: how Z5D Prime Predictor research applies to breaking the 127-bit barrier
 
 These documents provide verifiable artifacts, reproducibility notes, and links to canonical theoretical sources.

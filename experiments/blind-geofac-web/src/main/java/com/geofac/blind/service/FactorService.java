@@ -135,8 +135,12 @@ public class FactorService {
                 // Map phase [-PI, PI] to offset width.
                 // We want to map thetaX to an offset from sqrtN.
                 // Let's treat thetaX as a normalized position in a "window" around sqrtN.
-                // Window size = 2e6 (arbitrary large window for "blind" search)
-                long offset = Math.round((thetaX - Math.PI) * 1e6 / Math.PI);
+                // Window size = 2e6, or smaller if sqrtN is small
+                long window = 1_000_000L;
+                if (sqrtN.bitLength() < 30) { // Small N
+                    window = Math.max(10, sqrtN.longValue());
+                }
+                long offset = Math.round((thetaX - Math.PI) * window / Math.PI);
 
                 BigInteger d = sqrtN.add(BigInteger.valueOf(offset)).max(BigInteger.TWO)
                         .min(n.subtract(BigInteger.ONE));
