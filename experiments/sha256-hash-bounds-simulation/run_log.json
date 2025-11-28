@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2025-11-28T13:57:44.242568",
+    "timestamp": "2025-11-28T14:01:22.640324",
     "seed": 42,
     "num_test_cases": 14,
     "claims_to_test": [
@@ -10,7 +10,7 @@
       "Variable optimal attenuation: range -0.8 to +1.2",
       "Bit-length scaling: atten \u2248 bit_length / 100 - 0.5"
     ],
-    "elapsed_seconds": 0.005573272705078125
+    "elapsed_seconds": 0.0053141117095947266
   },
   "test_results": [
     {
