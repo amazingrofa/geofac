@@ -7,17 +7,20 @@ Factorization prototype using local-global resonance with Dirichlet kernels.
 Generates candidates near sqrt(N), applies p-adic filtering, ranks by resonance score,
 and validates via arithmetic predicate (N mod d == 0).
 
-Validation range: [10^14, 10^18] per VALIDATION_GATES.md
+Validation range: [10^14, 10^18] per docs/validation/VALIDATION_GATES.md
 Whitelist: 127-bit CHALLENGE_127 = 137524771864208156028430259349934309717
 """
-import argparse, math, random, hashlib, json
+import argparse
+import math
+import random
+import hashlib
+import json
 from typing import List, Tuple, Dict, Any
 
 # Validation gates
 CHALLENGE_127 = 137524771864208156028430259349934309717  # Gate 3: 127-bit challenge
 RANGE_MIN = 10**14  # Gate 4: Operational range minimum
 RANGE_MAX = 10**18  # Gate 4: Operational range maximum
-
 
 # Retry multiplier for candidate generation (p-adic filter may reject candidates)
 FILTER_RETRY_MULTIPLIER = 50
@@ -42,6 +45,7 @@ def validate_n(N: int) -> bool:
 
 
 def dirichlet_kernel(x: float, j: int) -> float:
+    """Compute Dirichlet kernel D_j(x) = 1 + 2*sum(cos(k*x) for k in 1..j)."""
     s = 1.0
     for k in range(1, j + 1):
         s += 2.0 * math.cos(k * x)
@@ -49,6 +53,7 @@ def dirichlet_kernel(x: float, j: int) -> float:
 
 
 def real_resonance_score(N: int, d: int, j: int) -> float:
+    """Compute resonance score using Dirichlet kernel at fractional position."""
     frac = (N % d) / float(d)
     x = 2.0 * math.pi * frac
     return abs(dirichlet_kernel(x, j))
@@ -71,10 +76,12 @@ def small_primes(limit: int = 97) -> List[int]:
 
 
 def build_p_adic_filter(N: int, primes: List[int]) -> Dict[int, int]:
+    """Build p-adic filter: maps prime p to N mod p."""
     return {p: N % p for p in primes}
 
 
 def passes_p_adic_filter(d: int, N_mod: Dict[int, int]) -> bool:
+    """Check if candidate d passes p-adic filter."""
     for p, nmod in N_mod.items():
         if nmod != 0 and d % p == 0:
             return False
@@ -88,11 +95,11 @@ def generate_candidates(
     seed: int,
     N_mod: Dict[int, int],
 ) -> List[int]:
+    """Generate candidate divisors near sqrt(N) using deterministic sampling."""
     rnd = random.Random(seed)
     root = int(math.isqrt(N))
     seen = set()
     candidates: List[int] = []
-    # Allow retries to account for p-adic filter rejections
     max_attempts = samples * FILTER_RETRY_MULTIPLIER
     attempts = 0
     while len(candidates) < samples and attempts < max_attempts:
@@ -115,6 +122,7 @@ def resonance_rank(
     candidates: List[int],
     j: int,
 ) -> List[Tuple[int, float]]:
+    """Rank candidates by resonance score (descending)."""
     scored: List[Tuple[int, float]] = []
     for d in candidates:
         s = real_resonance_score(N, d, j)
@@ -124,6 +132,7 @@ def resonance_rank(
 
 
 def is_factor(N: int, d: int) -> bool:
+    """Arithmetic certification: check if d divides N."""
     return N % d == 0
 
 
@@ -134,18 +143,32 @@ def geofac_local_global(
     j: int = 25,
     top_k: int = 500,
 ) -> Dict[str, Any]:
+    """
+    Run local-global resonance factorization.
+
+    Args:
+        N: Semiprime to factor (must be in [10^14, 10^18] or CHALLENGE_127)
+        window: Half-width of search window around sqrt(N)
+        samples: Number of candidates to generate
+        j: Dirichlet kernel order
+        top_k: Number of top-ranked candidates to certify
+
+    Returns:
+        Dictionary with N, parameters, candidates, and any factors found.
+    """
+    # Validate composite requirement first
+    if N < 4:
+        raise ValueError(f"N must be >= 4 (composite). Got N = {N}")
     # Validate operational range
     if not validate_n(N):
         raise ValueError(
             f"N must be in [{RANGE_MIN}, {RANGE_MAX}] or be the 127-bit challenge "
             f"({CHALLENGE_127}). Got N = {N}"
         )
-    if N < 4:
-        raise ValueError("N must be composite in the target range (N >= 4).")
     if window <= 0 or samples <= 0 or j <= 0 or top_k <= 0:
         raise ValueError("window, samples, j, and top_k must be positive.")
 
-    # Compute and log adaptive precision for reproducibility per VALIDATION_GATES.md.
+    # Compute adaptive precision for reproducibility per docs/validation/VALIDATION_GATES.md.
     # This prototype uses standard floats for Dirichlet scoring; precision is logged
     # for consistency with repo standards. Future high-precision extensions may use mpmath.
     precision = adaptive_precision(N)
@@ -184,7 +207,10 @@ def geofac_local_global(
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Geofac-style local-global resonance prototype.")
+    """CLI entry point."""
+    ap = argparse.ArgumentParser(
+        description="Geofac-style local-global resonance prototype."
+    )
     ap.add_argument("N", type=int, help="Integer to factor (target semiprime range).")
     ap.add_argument("--window", type=int, default=10_000_000)
     ap.add_argument("--samples", type=int, default=50_000)
