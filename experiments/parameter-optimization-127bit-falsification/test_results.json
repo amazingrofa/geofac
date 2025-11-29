@@ -1,0 +1,128 @@
+{
+  "hypothesis_supported": false,
+  "falsification_reasons": [
+    "Lower threshold generates too many false candidates without finding factors"
+  ],
+  "test_results": {
+    "gate1_defaults": {
+      "config_name": "scale_adaptive_defaults",
+      "N": "1073217479",
+      "N_bits": 30,
+      "success": true,
+      "p": "32749",
+      "q": "32771",
+      "duration_ms": 9,
+      "candidates_tested": 101,
+      "candidates_passed_threshold": 5,
+      "peak_amplitude": 1.0,
+      "error_message": null
+    },
+    "gate1_proposed": {
+      "config_name": "proposed_hypothesis",
+      "N": "1073217479",
+      "N_bits": 30,
+      "success": true,
+      "p": "32749",
+      "q": "32771",
+      "duration_ms": 6,
+      "candidates_tested": 101,
+      "candidates_passed_threshold": 101,
+      "peak_amplitude": 1.0,
+      "error_message": null
+    },
+    "gate2_defaults": {
+      "config_name": "scale_adaptive_defaults",
+      "N": "1152921470247108503",
+      "N_bits": 60,
+      "success": true,
+      "p": "1073741789",
+      "q": "1073741827",
+      "duration_ms": 20,
+      "candidates_tested": 301,
+      "candidates_passed_threshold": 14,
+      "peak_amplitude": 1.0,
+      "error_message": null
+    },
+    "gate2_proposed": {
+      "config_name": "proposed_hypothesis",
+      "N": "1152921470247108503",
+      "N_bits": 60,
+      "success": true,
+      "p": "1073741789",
+      "q": "1073741827",
+      "duration_ms": 14,
+      "candidates_tested": 201,
+      "candidates_passed_threshold": 201,
+      "peak_amplitude": 1.0,
+      "error_message": null
+    },
+    "challenge_defaults": {
+      "config_name": "defaults_127bit",
+      "N": "137524771864208156028430259349934309717",
+      "N_bits": 127,
+      "success": false,
+      "p": null,
+      "q": null,
+      "duration_ms": 96129,
+      "candidates_tested": 2005000,
+      "candidates_passed_threshold": 101466,
+      "peak_amplitude": 1.0,
+      "error_message": "No factors found within budget"
+    },
+    "challenge_proposed": {
+      "config_name": "proposed_127bit",
+      "N": "137524771864208156028430259349934309717",
+      "N_bits": 127,
+      "success": false,
+      "p": null,
+      "q": null,
+      "duration_ms": 116688,
+      "candidates_tested": 2005000,
+      "candidates_passed_threshold": 433488,
+      "peak_amplitude": 1.0000000273759713,
+      "error_message": "No factors found within budget"
+    }
+  },
+  "threshold_analysis": {
+    "defaults": {
+      "config_name": "scale_adaptive_defaults",
+      "threshold": 0.8459102954418176,
+      "total_samples": 21000,
+      "passed_count": 1912,
+      "pass_rate": 0.09104761904761904,
+      "min_amplitude": 1.8325270950351302e-05,
+      "max_amplitude": 1.0,
+      "median_amplitude": 0.07912133054775766,
+      "mean_amplitude": 0.19329067133061015,
+      "count_above_015": 5248,
+      "count_above_050": 2774,
+      "count_above_082": 1986,
+      "false_positive_risk": "LOW"
+    },
+    "proposed": {
+      "config_name": "proposed_hypothesis",
+      "threshold": 0.15,
+      "total_samples": 21000,
+      "passed_count": 5142,
+      "pass_rate": 0.24485714285714286,
+      "min_amplitude": 8.567704257576889e-05,
+      "max_amplitude": 1.0,
+      "median_amplitude": 0.07848821232596306,
+      "mean_amplitude": 0.1944525303203042,
+      "count_above_015": 5142,
+      "count_above_050": 2848,
+      "count_above_082": 2044,
+      "false_positive_risk": "MODERATE"
+    }
+  },
+  "summary": {
+    "defaults_gate1_success": true,
+    "proposed_gate1_success": true,
+    "defaults_gate2_success": true,
+    "proposed_gate2_success": true,
+    "defaults_127bit_success": false,
+    "proposed_127bit_success": false,
+    "proposed_better_than_defaults": false,
+    "falsification_count": 1
+  }
+}

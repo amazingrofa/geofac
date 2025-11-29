@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [parameter-optimization-127bit-falsification/](parameter-optimization-127bit-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Test whether specific parameter optimizations (samples=50000, threshold=0.15, k-range=[0.1, 0.9], m-span=200) improve 127-bit factorization over current scale-adaptive defaults.
+
+**Key Finding**: Hypothesis decisively falsified. Lower threshold (0.15) generates 4.3× more false positives (24.5% vs 9.1% pass rate) without finding factors. Neither configuration successfully factored the 127-bit challenge within the reduced budget. Wider k-range dilutes search effectiveness.
+
+**Critical Insight**: The scale-adaptive parameter tuning (from ScaleAdaptiveParams.java) is more effective than fixed parameters. Lower thresholds capture noise, not signal. Threshold should remain ≥0.5 to avoid false positive flood.
+
+**Start here**: [parameter-optimization-127bit-falsification/EXECUTIVE_SUMMARY.md](parameter-optimization-127bit-falsification/EXECUTIVE_SUMMARY.md)
+
+---
+
 ### [isospectral-tori-falsification-attempt-2/](isospectral-tori-falsification-attempt-2/)
 
 **Status**: Complete - Hypothesis decisively falsified
