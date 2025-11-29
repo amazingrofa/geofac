@@ -19,6 +19,10 @@ RANGE_MIN = 10**14  # Gate 4: Operational range minimum
 RANGE_MAX = 10**18  # Gate 4: Operational range maximum
 
 
+# Retry multiplier for candidate generation (p-adic filter may reject candidates)
+FILTER_RETRY_MULTIPLIER = 50
+
+
 def adaptive_precision(N: int) -> int:
     """
     Compute adaptive precision based on N's bit length.
@@ -88,8 +92,8 @@ def generate_candidates(
     root = int(math.isqrt(N))
     seen = set()
     candidates: List[int] = []
-    # Allow 50x attempts to account for p-adic filter rejections
-    max_attempts = samples * 50
+    # Allow retries to account for p-adic filter rejections
+    max_attempts = samples * FILTER_RETRY_MULTIPLIER
     attempts = 0
     while len(candidates) < samples and attempts < max_attempts:
         attempts += 1
@@ -136,14 +140,14 @@ def geofac_local_global(
             f"N must be in [{RANGE_MIN}, {RANGE_MAX}] or be the 127-bit challenge "
             f"({CHALLENGE_127}). Got N = {N}"
         )
-    if N <= 3:
-        raise ValueError("N must be composite in the target range.")
+    if N < 4:
+        raise ValueError("N must be composite in the target range (N >= 4).")
     if window <= 0 or samples <= 0 or j <= 0 or top_k <= 0:
         raise ValueError("window, samples, j, and top_k must be positive.")
 
-    # Compute and log adaptive precision (for reproducibility per VALIDATION_GATES.md)
-    # Note: This prototype uses standard floats for Dirichlet scoring; precision
-    # is logged for consistency with repo standards and future high-precision extensions.
+    # Compute and log adaptive precision for reproducibility per VALIDATION_GATES.md.
+    # This prototype uses standard floats for Dirichlet scoring; precision is logged
+    # for consistency with repo standards. Future high-precision extensions may use mpmath.
     precision = adaptive_precision(N)
 
     seed_bytes = hashlib.sha256(str(N).encode("utf-8")).digest()
