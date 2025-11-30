@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [hash-bounds-falsification/](hash-bounds-falsification/)
+
+**Status**: Complete - Hypothesis decisively falsified
+
+**Objective**: Falsify the hypothesis that hash-bounds derived from Z5D fractional part predictions {√(m·ln(m))} can predict bounds for factor location in semiprime N = p × q.
+
+**Key Finding**: Hypothesis decisively falsified with 0% coverage (0/6 factors captured) across all three validation gates. This is significantly below both the claimed 51.5% coverage and the random baseline of 15.5%. The Z5D prediction systematically misses actual factor positions by large margins (average error 0.457 vs claimed ~0.237).
+
+**Critical Insight**: The Z5D prediction formula {√(m·ln(m))} where m ≈ p/ln(p) bears no meaningful mathematical relationship to actual {√p}. For CHALLENGE_127, the prediction is ~0.879 while actual is ~0.228—a complete miss. The claimed calibration metrics cannot be reproduced.
+
+**Start here**: [hash-bounds-falsification/INDEX.md](hash-bounds-falsification/INDEX.md)
+
+---
+
 ### [isospectral-tori-falsification-attempt-2/](isospectral-tori-falsification-attempt-2/)
 
 **Status**: Complete - Hypothesis decisively falsified

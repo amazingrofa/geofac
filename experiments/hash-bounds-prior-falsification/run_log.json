@@ -1,0 +1,331 @@
+{
+  "config": {
+    "width": 0.155,
+    "use_sqrt_N": true,
+    "bit_length_scaling": true,
+    "strategies": [
+      "fracSqrt",
+      "dOverSqrtN"
+    ],
+    "random_seed": 20251128,
+    "timestamp": "2025-11-28T12:41:51.041213Z"
+  },
+  "semiprime_results": [
+    {
+      "N": "137524771864208156028430259349934309717",
+      "N_bit_length": 127,
+      "p": "10508623501177419659",
+      "q": "13086849276577416863",
+      "description": "127-bit challenge (whitelisted)",
+      "band_center": 0.22777986526489258,
+      "band_lower": 0.1476836152648926,
+      "band_upper": 0.30787611526489256,
+      "band_width": 0.16019250000000002,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": true,
+          "factor_value": 0.22820043563842773,
+          "distance_from_center": 0.00042057037353515625
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.8960977069412962,
+          "distance_from_center": 0.3316821583235964
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.7262206077575684,
+          "distance_from_center": 0.4984407424926758
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.11594973656763363,
+          "distance_from_center": 0.11183012869725895
+        }
+      },
+      "hits": 1,
+      "total_checks": 4,
+      "hit_rate": 0.25,
+      "precision_dps": 708
+    },
+    {
+      "N": "100000007700000049",
+      "N_bit_length": 57,
+      "p": "100000007",
+      "q": "1000000007",
+      "description": "10^17 scale",
+      "band_center": 0.041931542651582276,
+      "band_lower": 0.9644315426515823,
+      "band_upper": 0.11943154265158228,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": true,
+          "factor_value": 0.0003499999929772457,
+          "distance_from_center": 0.04158154265860503
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.3162277759780123,
+          "distance_from_center": 0.27429623332643005
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.7767123635094322,
+          "distance_from_center": 0.2652191791421501
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.16227756055663844,
+          "distance_from_center": 0.12034601790505617
+        }
+      },
+      "hits": 1,
+      "total_checks": 4,
+      "hit_rate": 0.25,
+      "precision_dps": 428
+    },
+    {
+      "N": "100000980001501",
+      "N_bit_length": 47,
+      "p": "10000019",
+      "q": "10000079",
+      "description": "10^14 scale",
+      "band_center": 0.6831858899854524,
+      "band_lower": 0.6056858899854523,
+      "band_upper": 0.7606858899854524,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.28066433072945074,
+          "distance_from_center": 0.40252155925600164
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.9999970000191999,
+          "distance_from_center": 0.3168111100337475
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.2901511404675148,
+          "distance_from_center": 0.3930347495179376
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 2.999989800134273e-06,
+          "distance_from_center": 0.31681711000434776
+        }
+      },
+      "hits": 0,
+      "total_checks": 4,
+      "hit_rate": 0.0,
+      "precision_dps": 388
+    },
+    {
+      "N": "100003000700021",
+      "N_bit_length": 47,
+      "p": "100003",
+      "q": "1000000007",
+      "description": "mixed scale ~10^14",
+      "band_center": 0.6979783328370104,
+      "band_lower": 0.6204783328370103,
+      "band_upper": 0.7754783328370104,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.23250939775311963,
+          "distance_from_center": 0.46546893508389076
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.010000149963874492,
+          "distance_from_center": 0.31202181712686405
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.7767123635094322,
+          "distance_from_center": 0.0787340306724218
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.9985003837439024,
+          "distance_from_center": 0.300522050906892
+        }
+      },
+      "hits": 0,
+      "total_checks": 4,
+      "hit_rate": 0.0,
+      "precision_dps": 388
+    },
+    {
+      "N": "618065584371421",
+      "N_bit_length": 50,
+      "p": "24703727",
+      "q": "25019123",
+      "description": "50-bit generated (seed=20251129)",
+      "band_center": 0.15877884688870836,
+      "band_lower": 0.08127884688870846,
+      "band_upper": 0.23627884688870837,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.284398301570036,
+          "distance_from_center": 0.12561945468132762
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.9936769106366585,
+          "distance_from_center": 0.16510193625204983
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.9119344506652851,
+          "distance_from_center": 0.24684439622342325
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.0063633252374659666,
+          "distance_from_center": 0.1524155216512424
+        }
+      },
+      "hits": 0,
+      "total_checks": 4,
+      "hit_rate": 0.0,
+      "precision_dps": 400
+    },
+    {
+      "N": "8362822623568939",
+      "N_bit_length": 53,
+      "p": "89361397",
+      "q": "93584287",
+      "description": "55-bit generated (seed=20251130)",
+      "band_center": 0.4548395616620837,
+      "band_lower": 0.3773395616620836,
+      "band_upper": 0.5323395616620837,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.11572974752016307,
+          "distance_from_center": 0.33910981414192065
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.9771776085830445,
+          "distance_from_center": 0.47766195307903925
+        },
+        "q_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.8971981306476664,
+          "distance_from_center": 0.4423585689855827
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.023355417906115505,
+          "distance_from_center": 0.4314841437559682
+        }
+      },
+      "hits": 0,
+      "total_checks": 4,
+      "hit_rate": 0.0,
+      "precision_dps": 412
+    },
+    {
+      "N": "127654898013390029",
+      "N_bit_length": 57,
+      "p": "318586949",
+      "q": "400690921",
+      "description": "58-bit generated (seed=20251131)",
+      "band_center": 0.20018651731516002,
+      "band_lower": 0.12268651731516012,
+      "band_upper": 0.27768651731516003,
+      "band_width": 0.155,
+      "checks": {
+        "p_fracSqrt": {
+          "in_band": false,
+          "factor_value": 0.004145890045037959,
+          "distance_from_center": 0.19604062727012206
+        },
+        "p_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.891680438631494,
+          "distance_from_center": 0.308506078683666
+        },
+        "q_fracSqrt": {
+          "in_band": true,
+          "factor_value": 0.26557250015684986,
+          "distance_from_center": 0.06538598284168984
+        },
+        "q_dOverSqrtN": {
+          "in_band": false,
+          "factor_value": 0.12147800565721645,
+          "distance_from_center": 0.07870851165794357
+        }
+      },
+      "hits": 1,
+      "total_checks": 4,
+      "hit_rate": 0.25,
+      "precision_dps": 428
+    }
+  ],
+  "aggregate": {
+    "total_hits": 3,
+    "total_checks": 28,
+    "overall_hit_rate": 0.10714285714285714,
+    "num_semiprimes": 7,
+    "strategy_stats": {
+      "fracSqrt": {
+        "hits": 3,
+        "checks": 14,
+        "hit_rate": 0.21428571428571427
+      },
+      "dOverSqrtN": {
+        "hits": 0,
+        "checks": 14,
+        "hit_rate": 0.0
+      }
+    },
+    "factor_stats": {
+      "p": {
+        "hits": 2,
+        "checks": 14,
+        "hit_rate": 0.14285714285714285
+      },
+      "q": {
+        "hits": 1,
+        "checks": 14,
+        "hit_rate": 0.07142857142857142
+      }
+    }
+  },
+  "falsification_analysis": {
+    "overall_hit_rate": 0.10714285714285714,
+    "random_hit_rate": 0.155,
+    "hypothesis_expected_range": [
+      0.5,
+      0.8
+    ],
+    "width_used": 0.155,
+    "outperforms_random": false,
+    "within_hypothesis_range": false,
+    "below_hypothesis_minimum": true,
+    "conclusion": "FALSIFIED",
+    "evidence_strength": "Strong - performance worse than random chance",
+    "strategy_analysis": {
+      "fracSqrt": {
+        "hit_rate": 0.21428571428571427,
+        "outperforms_random": false,
+        "within_range": false
+      },
+      "dOverSqrtN": {
+        "hit_rate": 0.0,
+        "outperforms_random": false,
+        "within_range": false
+      }
+    }
+  },
+  "timestamp": "2025-11-28T12:41:51.045107Z"
+}

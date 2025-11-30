@@ -1,0 +1,234 @@
+{
+  "N": "137524771864208156028430259349934309717",
+  "N_bitlength": 127,
+  "precision_dps": 708,
+  "bit_center": 63.5,
+  "bit_width": 0.4,
+  "bit_range": [
+    63.3,
+    63.7
+  ],
+  "n_samples": 50000,
+  "k_values": [
+    0.3,
+    0.35,
+    0.4
+  ],
+  "h_step": 0.001,
+  "timeout_seconds": 60,
+  "seed": 42,
+  "timestamp": "2025-11-25T16:18:00.865092",
+  "q_actual_bits": 63.504751606010664,
+  "success": false,
+  "factors": null,
+  "method": "gva_tau_hybrid",
+  "phases": [
+    {
+      "name": "QMC_sampling",
+      "n_samples": 50000,
+      "elapsed_seconds": 0.0216372013092041
+    },
+    {
+      "name": "tau_triple_prime_computation",
+      "n_spikes": 50000,
+      "elapsed_seconds": 16.39679217338562
+    },
+    {
+      "name": "geodesic_scoring",
+      "elapsed_seconds": 43.581321239471436
+    },
+    {
+      "name": "candidate_testing",
+      "candidates_tested": 50000,
+      "elapsed_seconds": 0.04604482650756836
+    }
+  ],
+  "top_spikes": [
+    {
+      "b": 63.64708453714848,
+      "tau_triple_prime": 1.5473497994678432e+29,
+      "score": 1.713228816229874e-27,
+      "combined_score": 252.30893410250016,
+      "geodesic_distance": 0.0003963395127315434,
+      "candidate": "14443803858700487929",
+      "bit_error_from_q": 0.14233293113781542
+    },
+    {
+      "b": 63.53494066856801,
+      "tau_triple_prime": 6.065422383203939e+28,
+      "score": 3.983004465983956e-27,
+      "combined_score": 242.69534865748466,
+      "geodesic_distance": 0.0004120392111063066,
+      "candidate": "13363582957148174730",
+      "bit_error_from_q": 0.030189062557347768
+    },
+    {
+      "b": 63.43925513103604,
+      "tau_triple_prime": -1.1263114818898337e+29,
+      "score": 2.2612435689336266e-27,
+      "combined_score": 203.82128309004094,
+      "geodesic_distance": 0.0004906258977666409,
+      "candidate": "12506007852053987391",
+      "bit_error_from_q": 0.06549647497462274
+    },
+    {
+      "b": 63.58561164885759,
+      "tau_triple_prime": 3.722838556969073e+28,
+      "score": 6.848200682730156e-27,
+      "combined_score": 160.6494225902311,
+      "geodesic_distance": 0.0006224734480065346,
+      "candidate": "13841284612334684702",
+      "bit_error_from_q": 0.08086004284692905
+    },
+    {
+      "b": 63.48190881088376,
+      "tau_triple_prime": 6.488266696247498e+28,
+      "score": 3.596736311735982e-27,
+      "combined_score": 145.29246728845493,
+      "geodesic_distance": 0.0006882669271591762,
+      "candidate": "12881271502407419526",
+      "bit_error_from_q": 0.022842795126905457
+    },
+    {
+      "b": 63.61570446640253,
+      "tau_triple_prime": -9.241150201075883e+28,
+      "score": 2.7921431148622104e-27,
+      "combined_score": 105.59003128489026,
+      "geodesic_distance": 0.0009470591000223505,
+      "candidate": "14133028660944655306",
+      "bit_error_from_q": 0.11095286039186902
+    },
+    {
+      "b": 63.575914764776826,
+      "tau_triple_prime": -6.487052095503849e+28,
+      "score": 3.282842798618033e-27,
+      "combined_score": 85.23601963818771,
+      "geodesic_distance": 0.0011732129259963435,
+      "candidate": "13748564199856634059",
+      "bit_error_from_q": 0.07116315876616142
+    },
+    {
+      "b": 63.31424263939261,
+      "tau_triple_prime": -2.5504619585733973e+28,
+      "score": 9.865325462354752e-27,
+      "combined_score": 51.908811460889424,
+      "geodesic_distance": 0.001926455204533912,
+      "candidate": "11467960468373406258",
+      "bit_error_from_q": 0.1905089666180544
+    },
+    {
+      "b": 63.588422565534714,
+      "tau_triple_prime": -6.794499920824472e+28,
+      "score": 3.589737221842883e-27,
+      "combined_score": 47.2112984296149,
+      "geodesic_distance": 0.002118137041900792,
+      "candidate": "13868278969263750797",
+      "bit_error_from_q": 0.08367095952404924
+    },
+    {
+      "b": 63.33286172300577,
+      "tau_triple_prime": 4.51982222227838e+26,
+      "score": 1.0013960010959354e-25,
+      "combined_score": 40.68463213844868,
+      "geodesic_distance": 0.002457930543889466,
+      "candidate": "11616922441335263430",
+      "bit_error_from_q": 0.17188988300489427
+    },
+    {
+      "b": 63.418511389940974,
+      "tau_triple_prime": -1.828321586650735e+27,
+      "score": 8.25479630917646e-26,
+      "combined_score": 37.89628458607031,
+      "geodesic_distance": 0.0026387811125093094,
+      "candidate": "12327477221727570956",
+      "bit_error_from_q": 0.08624021606969023
+    },
+    {
+      "b": 63.608307337015866,
+      "tau_triple_prime": 6.339062596081993e+28,
+      "score": 4.834550939385157e-27,
+      "combined_score": 35.131106287011754,
+      "geodesic_distance": 0.002846480244118324,
+      "candidate": "14060749847776435921",
+      "bit_error_from_q": 0.10355573100520132
+    },
+    {
+      "b": 63.643672954291105,
+      "tau_triple_prime": -4.689594052044476e+28,
+      "score": 6.31349595454761e-27,
+      "combined_score": 33.99726161220132,
+      "geodesic_distance": 0.0029414133744263353,
+      "candidate": "14409688528937630442",
+      "bit_error_from_q": 0.13892134828044078
+    },
+    {
+      "b": 63.698080722242594,
+      "tau_triple_prime": -5.754201230260251e+28,
+      "score": 4.0547791147075784e-27,
+      "combined_score": 26.009987429373066,
+      "geodesic_distance": 0.0038446769830834315,
+      "candidate": "14963492269971262697",
+      "bit_error_from_q": 0.19332911623192928
+    },
+    {
+      "b": 63.384129573404785,
+      "tau_triple_prime": -9.836788659606452e+28,
+      "score": 2.665846439764721e-27,
+      "combined_score": 23.4723845219883,
+      "geodesic_distance": 0.004260325571367608,
+      "candidate": "12037166024613402481",
+      "bit_error_from_q": 0.12062203260587978
+    },
+    {
+      "b": 63.52049766480923,
+      "tau_triple_prime": 5.998222976686057e+28,
+      "score": 3.9099016304049556e-27,
+      "combined_score": 23.18803982310278,
+      "geodesic_distance": 0.004312568063660461,
+      "candidate": "13230465864383138803",
+      "bit_error_from_q": 0.0157460587985625
+    },
+    {
+      "b": 63.65277077890933,
+      "tau_triple_prime": 1.6814746507378421e+28,
+      "score": 8.825675336263131e-27,
+      "combined_score": 18.99199857691401,
+      "geodesic_distance": 0.005265375289231351,
+      "candidate": "14500845039819711971",
+      "bit_error_from_q": 0.14801917289866395
+    },
+    {
+      "b": 63.55364713035524,
+      "tau_triple_prime": -9.269469406155366e+28,
+      "score": 2.8212767701465405e-27,
+      "combined_score": 16.769055852344987,
+      "geodesic_distance": 0.005963364955100677,
+      "candidate": "13537987852739194126",
+      "bit_error_from_q": 0.048895524344573005
+    },
+    {
+      "b": 63.66371225938201,
+      "tau_triple_prime": 3.9004337988656343e+28,
+      "score": 7.217359829718004e-27,
+      "combined_score": 13.645939079613422,
+      "geodesic_distance": 0.007328187486150856,
+      "candidate": "14611238351004404279",
+      "bit_error_from_q": 0.15896065337134502
+    },
+    {
+      "b": 63.3372923374176,
+      "tau_triple_prime": -5.998173664845272e+28,
+      "score": 3.846522913941399e-27,
+      "combined_score": 12.745801394411991,
+      "geodesic_distance": 0.007845720869606674,
+      "candidate": "11652653637179824717",
+      "bit_error_from_q": 0.16745926859306337
+    }
+  ],
+  "q_actual_rank": 46013,
+  "q_bit_error": 2.927058211810163e-06,
+  "elapsed_seconds": 60.047375202178955,
+  "ranking_improved": false,
+  "best_proximity_bits": 2.927058211810163e-06,
+  "best_proximity_rank": 46013
+}
