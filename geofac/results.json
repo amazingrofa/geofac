@@ -1,0 +1,3014 @@
+{
+  "N": "1017956329955329",
+  "method": "Zeta-Guided QMC",
+  "params": {
+    "window": 10000000,
+    "samples": 65536,
+    "j": 25,
+    "top_k": 500,
+    "seed": 1065894116672711966
+  },
+  "candidates": [
+    {
+      "d": 40223369,
+      "score": 76.4234335928801,
+      "rank": 1,
+      "is_factor": false
+    },
+    {
+      "d": 35142253,
+      "score": 76.42331284653561,
+      "rank": 2,
+      "is_factor": false
+    },
+    {
+      "d": 38237377,
+      "score": 76.42311258827647,
+      "rank": 3,
+      "is_factor": false
+    },
+    {
+      "d": 26432701,
+      "score": 76.42176372114989,
+      "rank": 4,
+      "is_factor": false
+    },
+    {
+      "d": 34642939,
+      "score": 76.42086894251142,
+      "rank": 5,
+      "is_factor": false
+    },
+    {
+      "d": 22082537,
+      "score": 76.42077918429118,
+      "rank": 6,
+      "is_factor": false
+    },
+    {
+      "d": 31574843,
+      "score": 76.42037641641394,
+      "rank": 7,
+      "is_factor": false
+    },
+    {
+      "d": 32748407,
+      "score": 76.41978459555685,
+      "rank": 8,
+      "is_factor": false
+    },
+    {
+      "d": 38590169,
+      "score": 76.41782563014026,
+      "rank": 9,
+      "is_factor": false
+    },
+    {
+      "d": 31913779,
+      "score": 76.41760563795587,
+      "rank": 10,
+      "is_factor": false
+    },
+    {
+      "d": 32007763,
+      "score": 76.40990799548072,
+      "rank": 11,
+      "is_factor": false
+    },
+    {
+      "d": 40478491,
+      "score": 76.40765763399273,
+      "rank": 12,
+      "is_factor": false
+    },
+    {
+      "d": 23360411,
+      "score": 76.40180373494807,
+      "rank": 13,
+      "is_factor": false
+    },
+    {
+      "d": 31809683,
+      "score": 76.39604978367818,
+      "rank": 14,
+      "is_factor": false
+    },
+    {
+      "d": 34829537,
+      "score": 76.3959643696999,
+      "rank": 15,
+      "is_factor": false
+    },
+    {
+      "d": 31984237,
+      "score": 76.39521941639822,
+      "rank": 16,
+      "is_factor": false
+    },
+    {
+      "d": 39185171,
+      "score": 76.36849150025182,
+      "rank": 17,
+      "is_factor": false
+    },
+    {
+      "d": 26471881,
+      "score": 76.35879349729468,
+      "rank": 18,
+      "is_factor": false
+    },
+    {
+      "d": 30906091,
+      "score": 76.35594154443874,
+      "rank": 19,
+      "is_factor": false
+    },
+    {
+      "d": 25682681,
+      "score": 76.35180470706312,
+      "rank": 20,
+      "is_factor": false
+    },
+    {
+      "d": 33194677,
+      "score": 76.35120417485032,
+      "rank": 21,
+      "is_factor": false
+    },
+    {
+      "d": 28066217,
+      "score": 76.34754954518112,
+      "rank": 22,
+      "is_factor": false
+    },
+    {
+      "d": 36533129,
+      "score": 76.34310447307129,
+      "rank": 23,
+      "is_factor": false
+    },
+    {
+      "d": 36286301,
+      "score": 76.33805831557098,
+      "rank": 24,
+      "is_factor": false
+    },
+    {
+      "d": 23606171,
+      "score": 76.33744141783401,
+      "rank": 25,
+      "is_factor": false
+    },
+    {
+      "d": 25193009,
+      "score": 76.33242736866691,
+      "rank": 26,
+      "is_factor": false
+    },
+    {
+      "d": 26766811,
+      "score": 76.32757584982298,
+      "rank": 27,
+      "is_factor": false
+    },
+    {
+      "d": 32291263,
+      "score": 76.32387322164901,
+      "rank": 28,
+      "is_factor": false
+    },
+    {
+      "d": 38037049,
+      "score": 76.30376253030691,
+      "rank": 29,
+      "is_factor": false
+    },
+    {
+      "d": 24348173,
+      "score": 76.28603457054744,
+      "rank": 30,
+      "is_factor": false
+    },
+    {
+      "d": 29819039,
+      "score": 76.27570385416361,
+      "rank": 31,
+      "is_factor": false
+    },
+    {
+      "d": 35530819,
+      "score": 76.27424524548971,
+      "rank": 32,
+      "is_factor": false
+    },
+    {
+      "d": 39501193,
+      "score": 76.27389029313017,
+      "rank": 33,
+      "is_factor": false
+    },
+    {
+      "d": 34204207,
+      "score": 76.26931056709992,
+      "rank": 34,
+      "is_factor": false
+    },
+    {
+      "d": 33012509,
+      "score": 76.24319588926564,
+      "rank": 35,
+      "is_factor": false
+    },
+    {
+      "d": 28808443,
+      "score": 76.24255458710739,
+      "rank": 36,
+      "is_factor": false
+    },
+    {
+      "d": 33842521,
+      "score": 76.23981684155702,
+      "rank": 37,
+      "is_factor": false
+    },
+    {
+      "d": 40489027,
+      "score": 76.23161348231108,
+      "rank": 38,
+      "is_factor": false
+    },
+    {
+      "d": 32603141,
+      "score": 76.22849748861708,
+      "rank": 39,
+      "is_factor": false
+    },
+    {
+      "d": 23998753,
+      "score": 76.22678131388413,
+      "rank": 40,
+      "is_factor": false
+    },
+    {
+      "d": 31251383,
+      "score": 76.22148874153955,
+      "rank": 41,
+      "is_factor": false
+    },
+    {
+      "d": 36657893,
+      "score": 76.21868092314608,
+      "rank": 42,
+      "is_factor": false
+    },
+    {
+      "d": 28891433,
+      "score": 76.20880932225101,
+      "rank": 43,
+      "is_factor": false
+    },
+    {
+      "d": 35285933,
+      "score": 76.20249595424767,
+      "rank": 44,
+      "is_factor": false
+    },
+    {
+      "d": 32025233,
+      "score": 76.19602059447608,
+      "rank": 45,
+      "is_factor": false
+    },
+    {
+      "d": 27356501,
+      "score": 76.19527654301262,
+      "rank": 46,
+      "is_factor": false
+    },
+    {
+      "d": 27902129,
+      "score": 76.1923014795412,
+      "rank": 47,
+      "is_factor": false
+    },
+    {
+      "d": 22333819,
+      "score": 76.19036648635753,
+      "rank": 48,
+      "is_factor": false
+    },
+    {
+      "d": 35238383,
+      "score": 76.18828592378918,
+      "rank": 49,
+      "is_factor": false
+    },
+    {
+      "d": 24190141,
+      "score": 76.17998748966171,
+      "rank": 50,
+      "is_factor": false
+    },
+    {
+      "d": 30515893,
+      "score": 76.16061396117021,
+      "rank": 51,
+      "is_factor": false
+    },
+    {
+      "d": 41159383,
+      "score": 76.15137342169822,
+      "rank": 52,
+      "is_factor": false
+    },
+    {
+      "d": 29590811,
+      "score": 76.14444641893246,
+      "rank": 53,
+      "is_factor": false
+    },
+    {
+      "d": 40265339,
+      "score": 76.137298852988,
+      "rank": 54,
+      "is_factor": false
+    },
+    {
+      "d": 32015609,
+      "score": 76.13581712075637,
+      "rank": 55,
+      "is_factor": false
+    },
+    {
+      "d": 29924561,
+      "score": 76.13426791143165,
+      "rank": 56,
+      "is_factor": false
+    },
+    {
+      "d": 30511627,
+      "score": 76.11681835449762,
+      "rank": 57,
+      "is_factor": false
+    },
+    {
+      "d": 31867903,
+      "score": 76.11465941624628,
+      "rank": 58,
+      "is_factor": false
+    },
+    {
+      "d": 31514867,
+      "score": 76.0966046612953,
+      "rank": 59,
+      "is_factor": false
+    },
+    {
+      "d": 28129897,
+      "score": 76.06480013765928,
+      "rank": 60,
+      "is_factor": false
+    },
+    {
+      "d": 33071897,
+      "score": 76.06342442397248,
+      "rank": 61,
+      "is_factor": false
+    },
+    {
+      "d": 30039683,
+      "score": 76.05210985450914,
+      "rank": 62,
+      "is_factor": false
+    },
+    {
+      "d": 37710187,
+      "score": 76.03621171053328,
+      "rank": 63,
+      "is_factor": false
+    },
+    {
+      "d": 31337947,
+      "score": 76.01426077434584,
+      "rank": 64,
+      "is_factor": false
+    },
+    {
+      "d": 31852129,
+      "score": 75.98213935781853,
+      "rank": 65,
+      "is_factor": false
+    },
+    {
+      "d": 30899177,
+      "score": 75.95600538287009,
+      "rank": 66,
+      "is_factor": false
+    },
+    {
+      "d": 31936477,
+      "score": 75.93135982419041,
+      "rank": 67,
+      "is_factor": false
+    },
+    {
+      "d": 29702143,
+      "score": 75.92661907480807,
+      "rank": 68,
+      "is_factor": false
+    },
+    {
+      "d": 33773303,
+      "score": 75.90926381984688,
+      "rank": 69,
+      "is_factor": false
+    },
+    {
+      "d": 28728911,
+      "score": 75.9063252158008,
+      "rank": 70,
+      "is_factor": false
+    },
+    {
+      "d": 39904819,
+      "score": 75.89488162249049,
+      "rank": 71,
+      "is_factor": false
+    },
+    {
+      "d": 31845923,
+      "score": 75.89050285008452,
+      "rank": 72,
+      "is_factor": false
+    },
+    {
+      "d": 35188303,
+      "score": 75.86984641360597,
+      "rank": 73,
+      "is_factor": false
+    },
+    {
+      "d": 39287371,
+      "score": 75.86256218651506,
+      "rank": 74,
+      "is_factor": false
+    },
+    {
+      "d": 24882217,
+      "score": 75.83086630740956,
+      "rank": 75,
+      "is_factor": false
+    },
+    {
+      "d": 32188031,
+      "score": 75.81821945564035,
+      "rank": 76,
+      "is_factor": false
+    },
+    {
+      "d": 32958659,
+      "score": 75.77222133345202,
+      "rank": 77,
+      "is_factor": false
+    },
+    {
+      "d": 35927351,
+      "score": 75.74916489360832,
+      "rank": 78,
+      "is_factor": false
+    },
+    {
+      "d": 28019833,
+      "score": 75.71987424849695,
+      "rank": 79,
+      "is_factor": false
+    },
+    {
+      "d": 38124997,
+      "score": 75.66843589743785,
+      "rank": 80,
+      "is_factor": false
+    },
+    {
+      "d": 25712737,
+      "score": 75.65935282887922,
+      "rank": 81,
+      "is_factor": false
+    },
+    {
+      "d": 31153961,
+      "score": 75.64534686560168,
+      "rank": 82,
+      "is_factor": false
+    },
+    {
+      "d": 36108439,
+      "score": 75.64286465998896,
+      "rank": 83,
+      "is_factor": false
+    },
+    {
+      "d": 27719767,
+      "score": 75.63301351537058,
+      "rank": 84,
+      "is_factor": false
+    },
+    {
+      "d": 35617031,
+      "score": 75.62713413646426,
+      "rank": 85,
+      "is_factor": false
+    },
+    {
+      "d": 34052323,
+      "score": 75.58600688021848,
+      "rank": 86,
+      "is_factor": false
+    },
+    {
+      "d": 32492221,
+      "score": 75.58590009314048,
+      "rank": 87,
+      "is_factor": false
+    },
+    {
+      "d": 22228961,
+      "score": 75.57783609989512,
+      "rank": 88,
+      "is_factor": false
+    },
+    {
+      "d": 31562717,
+      "score": 75.51457878103236,
+      "rank": 89,
+      "is_factor": false
+    },
+    {
+      "d": 34993103,
+      "score": 75.49888619316398,
+      "rank": 90,
+      "is_factor": false
+    },
+    {
+      "d": 30160367,
+      "score": 75.47087656866043,
+      "rank": 91,
+      "is_factor": false
+    },
+    {
+      "d": 29612809,
+      "score": 75.43413510685781,
+      "rank": 92,
+      "is_factor": false
+    },
+    {
+      "d": 34142047,
+      "score": 75.41731161757828,
+      "rank": 93,
+      "is_factor": false
+    },
+    {
+      "d": 40610473,
+      "score": 75.36877278061974,
+      "rank": 94,
+      "is_factor": false
+    },
+    {
+      "d": 23506807,
+      "score": 75.32088494740624,
+      "rank": 95,
+      "is_factor": false
+    },
+    {
+      "d": 32484007,
+      "score": 75.30164945003426,
+      "rank": 96,
+      "is_factor": false
+    },
+    {
+      "d": 22649789,
+      "score": 75.25057917393296,
+      "rank": 97,
+      "is_factor": false
+    },
+    {
+      "d": 37221277,
+      "score": 75.24383961637554,
+      "rank": 98,
+      "is_factor": false
+    },
+    {
+      "d": 40007213,
+      "score": 75.23450429565862,
+      "rank": 99,
+      "is_factor": false
+    },
+    {
+      "d": 31597177,
+      "score": 75.21322261533467,
+      "rank": 100,
+      "is_factor": false
+    },
+    {
+      "d": 27534109,
+      "score": 75.18195446361557,
+      "rank": 101,
+      "is_factor": false
+    },
+    {
+      "d": 37352141,
+      "score": 75.1647333064948,
+      "rank": 102,
+      "is_factor": false
+    },
+    {
+      "d": 37935437,
+      "score": 75.14250970582066,
+      "rank": 103,
+      "is_factor": false
+    },
+    {
+      "d": 29849899,
+      "score": 75.13917801722437,
+      "rank": 104,
+      "is_factor": false
+    },
+    {
+      "d": 36421699,
+      "score": 75.10626977328032,
+      "rank": 105,
+      "is_factor": false
+    },
+    {
+      "d": 22775201,
+      "score": 75.1050756572068,
+      "rank": 106,
+      "is_factor": false
+    },
+    {
+      "d": 38232487,
+      "score": 75.0991829681735,
+      "rank": 107,
+      "is_factor": false
+    },
+    {
+      "d": 25227571,
+      "score": 75.06492770675328,
+      "rank": 108,
+      "is_factor": false
+    },
+    {
+      "d": 26705531,
+      "score": 75.0627564446234,
+      "rank": 109,
+      "is_factor": false
+    },
+    {
+      "d": 41840119,
+      "score": 75.0542257952481,
+      "rank": 110,
+      "is_factor": false
+    },
+    {
+      "d": 38167123,
+      "score": 75.05188279877103,
+      "rank": 111,
+      "is_factor": false
+    },
+    {
+      "d": 38377363,
+      "score": 75.00765140792845,
+      "rank": 112,
+      "is_factor": false
+    },
+    {
+      "d": 36169247,
+      "score": 74.95890276210693,
+      "rank": 113,
+      "is_factor": false
+    },
+    {
+      "d": 36399071,
+      "score": 74.90429483038714,
+      "rank": 114,
+      "is_factor": false
+    },
+    {
+      "d": 40818181,
+      "score": 74.8983939441525,
+      "rank": 115,
+      "is_factor": false
+    },
+    {
+      "d": 34346219,
+      "score": 74.8839560957794,
+      "rank": 116,
+      "is_factor": false
+    },
+    {
+      "d": 34445597,
+      "score": 74.88219722906962,
+      "rank": 117,
+      "is_factor": false
+    },
+    {
+      "d": 23948269,
+      "score": 74.87775126734796,
+      "rank": 118,
+      "is_factor": false
+    },
+    {
+      "d": 36244961,
+      "score": 74.86437537159985,
+      "rank": 119,
+      "is_factor": false
+    },
+    {
+      "d": 23987783,
+      "score": 74.8039250747341,
+      "rank": 120,
+      "is_factor": false
+    },
+    {
+      "d": 36672943,
+      "score": 74.75538653634149,
+      "rank": 121,
+      "is_factor": false
+    },
+    {
+      "d": 34272241,
+      "score": 74.7064029605733,
+      "rank": 122,
+      "is_factor": false
+    },
+    {
+      "d": 35742683,
+      "score": 74.69904163779046,
+      "rank": 123,
+      "is_factor": false
+    },
+    {
+      "d": 37239109,
+      "score": 74.66905670806001,
+      "rank": 124,
+      "is_factor": false
+    },
+    {
+      "d": 31635031,
+      "score": 74.63880886600083,
+      "rank": 125,
+      "is_factor": false
+    },
+    {
+      "d": 27659393,
+      "score": 74.57527971764337,
+      "rank": 126,
+      "is_factor": false
+    },
+    {
+      "d": 27470767,
+      "score": 74.56388949438221,
+      "rank": 127,
+      "is_factor": false
+    },
+    {
+      "d": 26246387,
+      "score": 74.52032904419998,
+      "rank": 128,
+      "is_factor": false
+    },
+    {
+      "d": 35939731,
+      "score": 74.47981110392347,
+      "rank": 129,
+      "is_factor": false
+    },
+    {
+      "d": 32226013,
+      "score": 74.42447282292953,
+      "rank": 130,
+      "is_factor": false
+    },
+    {
+      "d": 38043217,
+      "score": 74.40802093738598,
+      "rank": 131,
+      "is_factor": false
+    },
+    {
+      "d": 23733499,
+      "score": 74.29912226302594,
+      "rank": 132,
+      "is_factor": false
+    },
+    {
+      "d": 36822571,
+      "score": 74.21555936519421,
+      "rank": 133,
+      "is_factor": false
+    },
+    {
+      "d": 30391979,
+      "score": 74.20782763973534,
+      "rank": 134,
+      "is_factor": false
+    },
+    {
+      "d": 33845729,
+      "score": 74.1304058904718,
+      "rank": 135,
+      "is_factor": false
+    },
+    {
+      "d": 33142997,
+      "score": 74.10474715573127,
+      "rank": 136,
+      "is_factor": false
+    },
+    {
+      "d": 31507913,
+      "score": 74.07985379936781,
+      "rank": 137,
+      "is_factor": false
+    },
+    {
+      "d": 22311043,
+      "score": 74.0657274855771,
+      "rank": 138,
+      "is_factor": false
+    },
+    {
+      "d": 26907613,
+      "score": 74.06034277792693,
+      "rank": 139,
+      "is_factor": false
+    },
+    {
+      "d": 29752409,
+      "score": 74.05215896680637,
+      "rank": 140,
+      "is_factor": false
+    },
+    {
+      "d": 29290013,
+      "score": 74.04637367510736,
+      "rank": 141,
+      "is_factor": false
+    },
+    {
+      "d": 25939469,
+      "score": 74.02136112697448,
+      "rank": 142,
+      "is_factor": false
+    },
+    {
+      "d": 23198453,
+      "score": 73.97745076553599,
+      "rank": 143,
+      "is_factor": false
+    },
+    {
+      "d": 33498847,
+      "score": 73.97165492293654,
+      "rank": 144,
+      "is_factor": false
+    },
+    {
+      "d": 30732133,
+      "score": 73.96868003108317,
+      "rank": 145,
+      "is_factor": false
+    },
+    {
+      "d": 23637479,
+      "score": 73.89905843474922,
+      "rank": 146,
+      "is_factor": false
+    },
+    {
+      "d": 36054367,
+      "score": 73.84722788053878,
+      "rank": 147,
+      "is_factor": false
+    },
+    {
+      "d": 28018343,
+      "score": 73.84637640618855,
+      "rank": 148,
+      "is_factor": false
+    },
+    {
+      "d": 23872601,
+      "score": 73.83243521891534,
+      "rank": 149,
+      "is_factor": false
+    },
+    {
+      "d": 39675913,
+      "score": 73.80340109708465,
+      "rank": 150,
+      "is_factor": false
+    },
+    {
+      "d": 22021049,
+      "score": 73.78368595857296,
+      "rank": 151,
+      "is_factor": false
+    },
+    {
+      "d": 31431887,
+      "score": 73.768054244863,
+      "rank": 152,
+      "is_factor": false
+    },
+    {
+      "d": 36479057,
+      "score": 73.75832549587244,
+      "rank": 153,
+      "is_factor": false
+    },
+    {
+      "d": 33773647,
+      "score": 73.75521927243246,
+      "rank": 154,
+      "is_factor": false
+    },
+    {
+      "d": 26492969,
+      "score": 73.75335814113298,
+      "rank": 155,
+      "is_factor": false
+    },
+    {
+      "d": 35414623,
+      "score": 73.7094880611519,
+      "rank": 156,
+      "is_factor": false
+    },
+    {
+      "d": 31889269,
+      "score": 73.70947090078239,
+      "rank": 157,
+      "is_factor": false
+    },
+    {
+      "d": 32060927,
+      "score": 73.68493704789839,
+      "rank": 158,
+      "is_factor": false
+    },
+    {
+      "d": 30082259,
+      "score": 73.6847843731348,
+      "rank": 159,
+      "is_factor": false
+    },
+    {
+      "d": 29240131,
+      "score": 73.67089298103252,
+      "rank": 160,
+      "is_factor": false
+    },
+    {
+      "d": 24134651,
+      "score": 73.6442840330115,
+      "rank": 161,
+      "is_factor": false
+    },
+    {
+      "d": 41191099,
+      "score": 73.63011208773351,
+      "rank": 162,
+      "is_factor": false
+    },
+    {
+      "d": 31496119,
+      "score": 73.55916414485887,
+      "rank": 163,
+      "is_factor": false
+    },
+    {
+      "d": 34372927,
+      "score": 73.52284117767576,
+      "rank": 164,
+      "is_factor": false
+    },
+    {
+      "d": 35880821,
+      "score": 73.51878052459972,
+      "rank": 165,
+      "is_factor": false
+    },
+    {
+      "d": 37445843,
+      "score": 73.51865317472168,
+      "rank": 166,
+      "is_factor": false
+    },
+    {
+      "d": 23724797,
+      "score": 73.45536407735781,
+      "rank": 167,
+      "is_factor": false
+    },
+    {
+      "d": 34895131,
+      "score": 73.43217969088276,
+      "rank": 168,
+      "is_factor": false
+    },
+    {
+      "d": 37123871,
+      "score": 73.41034173562689,
+      "rank": 169,
+      "is_factor": false
+    },
+    {
+      "d": 33750799,
+      "score": 73.38819206342767,
+      "rank": 170,
+      "is_factor": false
+    },
+    {
+      "d": 29787521,
+      "score": 73.37126256055254,
+      "rank": 171,
+      "is_factor": false
+    },
+    {
+      "d": 30826027,
+      "score": 73.32213080173555,
+      "rank": 172,
+      "is_factor": false
+    },
+    {
+      "d": 35170819,
+      "score": 73.31028939103871,
+      "rank": 173,
+      "is_factor": false
+    },
+    {
+      "d": 40143167,
+      "score": 73.28367118446423,
+      "rank": 174,
+      "is_factor": false
+    },
+    {
+      "d": 34050529,
+      "score": 73.25973455168456,
+      "rank": 175,
+      "is_factor": false
+    },
+    {
+      "d": 30713261,
+      "score": 73.24752642561883,
+      "rank": 176,
+      "is_factor": false
+    },
+    {
+      "d": 26916419,
+      "score": 73.2307525963121,
+      "rank": 177,
+      "is_factor": false
+    },
+    {
+      "d": 31902977,
+      "score": 73.20993789493421,
+      "rank": 178,
+      "is_factor": false
+    },
+    {
+      "d": 34810141,
+      "score": 73.20792075368482,
+      "rank": 179,
+      "is_factor": false
+    },
+    {
+      "d": 25656881,
+      "score": 73.20447738321747,
+      "rank": 180,
+      "is_factor": false
+    },
+    {
+      "d": 33650569,
+      "score": 73.19489441002692,
+      "rank": 181,
+      "is_factor": false
+    },
+    {
+      "d": 28432799,
+      "score": 73.15331623357012,
+      "rank": 182,
+      "is_factor": false
+    },
+    {
+      "d": 22913983,
+      "score": 73.1404773441417,
+      "rank": 183,
+      "is_factor": false
+    },
+    {
+      "d": 28965061,
+      "score": 72.95303584433077,
+      "rank": 184,
+      "is_factor": false
+    },
+    {
+      "d": 26655401,
+      "score": 72.88023638269223,
+      "rank": 185,
+      "is_factor": false
+    },
+    {
+      "d": 30386201,
+      "score": 72.8351913627404,
+      "rank": 186,
+      "is_factor": false
+    },
+    {
+      "d": 28009757,
+      "score": 72.66852352166296,
+      "rank": 187,
+      "is_factor": false
+    },
+    {
+      "d": 25773563,
+      "score": 72.6068067048109,
+      "rank": 188,
+      "is_factor": false
+    },
+    {
+      "d": 34767731,
+      "score": 72.51479246415535,
+      "rank": 189,
+      "is_factor": false
+    },
+    {
+      "d": 34563877,
+      "score": 72.47732729852243,
+      "rank": 190,
+      "is_factor": false
+    },
+    {
+      "d": 37375211,
+      "score": 72.4124785698072,
+      "rank": 191,
+      "is_factor": false
+    },
+    {
+      "d": 31918297,
+      "score": 72.39415707921603,
+      "rank": 192,
+      "is_factor": false
+    },
+    {
+      "d": 36918257,
+      "score": 72.34897390605161,
+      "rank": 193,
+      "is_factor": false
+    },
+    {
+      "d": 34381093,
+      "score": 72.30433712704229,
+      "rank": 194,
+      "is_factor": false
+    },
+    {
+      "d": 26480309,
+      "score": 72.29527174027007,
+      "rank": 195,
+      "is_factor": false
+    },
+    {
+      "d": 32714557,
+      "score": 72.29123945383895,
+      "rank": 196,
+      "is_factor": false
+    },
+    {
+      "d": 36401423,
+      "score": 72.22092566876594,
+      "rank": 197,
+      "is_factor": false
+    },
+    {
+      "d": 29871077,
+      "score": 72.20418867480834,
+      "rank": 198,
+      "is_factor": false
+    },
+    {
+      "d": 30306823,
+      "score": 72.16999695397381,
+      "rank": 199,
+      "is_factor": false
+    },
+    {
+      "d": 30077717,
+      "score": 72.15803012863194,
+      "rank": 200,
+      "is_factor": false
+    },
+    {
+      "d": 25254043,
+      "score": 72.12421390161256,
+      "rank": 201,
+      "is_factor": false
+    },
+    {
+      "d": 40110589,
+      "score": 72.09939508306417,
+      "rank": 202,
+      "is_factor": false
+    },
+    {
+      "d": 30681709,
+      "score": 72.06215145730131,
+      "rank": 203,
+      "is_factor": false
+    },
+    {
+      "d": 39239491,
+      "score": 72.0077424226842,
+      "rank": 204,
+      "is_factor": false
+    },
+    {
+      "d": 39485399,
+      "score": 71.97670635371854,
+      "rank": 205,
+      "is_factor": false
+    },
+    {
+      "d": 32641783,
+      "score": 71.9427224862487,
+      "rank": 206,
+      "is_factor": false
+    },
+    {
+      "d": 34418243,
+      "score": 71.85781006604059,
+      "rank": 207,
+      "is_factor": false
+    },
+    {
+      "d": 31902973,
+      "score": 71.85756723094629,
+      "rank": 208,
+      "is_factor": false
+    },
+    {
+      "d": 32349253,
+      "score": 71.82690603302302,
+      "rank": 209,
+      "is_factor": false
+    },
+    {
+      "d": 32552851,
+      "score": 71.71016411275203,
+      "rank": 210,
+      "is_factor": false
+    },
+    {
+      "d": 26531447,
+      "score": 71.69728449488028,
+      "rank": 211,
+      "is_factor": false
+    },
+    {
+      "d": 31615477,
+      "score": 71.62079273827138,
+      "rank": 212,
+      "is_factor": false
+    },
+    {
+      "d": 27350759,
+      "score": 71.57321813993802,
+      "rank": 213,
+      "is_factor": false
+    },
+    {
+      "d": 24545767,
+      "score": 71.52701481630642,
+      "rank": 214,
+      "is_factor": false
+    },
+    {
+      "d": 30290063,
+      "score": 71.45959766562358,
+      "rank": 215,
+      "is_factor": false
+    },
+    {
+      "d": 32537801,
+      "score": 71.29777944178356,
+      "rank": 216,
+      "is_factor": false
+    },
+    {
+      "d": 36794711,
+      "score": 71.28362531723207,
+      "rank": 217,
+      "is_factor": false
+    },
+    {
+      "d": 37735471,
+      "score": 71.19621665400716,
+      "rank": 218,
+      "is_factor": false
+    },
+    {
+      "d": 31534073,
+      "score": 71.14238787661472,
+      "rank": 219,
+      "is_factor": false
+    },
+    {
+      "d": 33130369,
+      "score": 71.12320912529201,
+      "rank": 220,
+      "is_factor": false
+    },
+    {
+      "d": 25907423,
+      "score": 71.08496663723598,
+      "rank": 221,
+      "is_factor": false
+    },
+    {
+      "d": 34237729,
+      "score": 71.07823066752293,
+      "rank": 222,
+      "is_factor": false
+    },
+    {
+      "d": 30510707,
+      "score": 71.00180183841424,
+      "rank": 223,
+      "is_factor": false
+    },
+    {
+      "d": 24673721,
+      "score": 70.97763324706978,
+      "rank": 224,
+      "is_factor": false
+    },
+    {
+      "d": 27836869,
+      "score": 70.90302683540746,
+      "rank": 225,
+      "is_factor": false
+    },
+    {
+      "d": 26230493,
+      "score": 70.88358884496154,
+      "rank": 226,
+      "is_factor": false
+    },
+    {
+      "d": 28861297,
+      "score": 70.87812388471613,
+      "rank": 227,
+      "is_factor": false
+    },
+    {
+      "d": 28656457,
+      "score": 70.73694069905092,
+      "rank": 228,
+      "is_factor": false
+    },
+    {
+      "d": 31850947,
+      "score": 70.71711945102739,
+      "rank": 229,
+      "is_factor": false
+    },
+    {
+      "d": 27461179,
+      "score": 70.71064149083415,
+      "rank": 230,
+      "is_factor": false
+    },
+    {
+      "d": 27014041,
+      "score": 70.71051262203979,
+      "rank": 231,
+      "is_factor": false
+    },
+    {
+      "d": 30414157,
+      "score": 70.68839674444597,
+      "rank": 232,
+      "is_factor": false
+    },
+    {
+      "d": 30459127,
+      "score": 70.68090654641566,
+      "rank": 233,
+      "is_factor": false
+    },
+    {
+      "d": 31878239,
+      "score": 70.6489921841015,
+      "rank": 234,
+      "is_factor": false
+    },
+    {
+      "d": 39989843,
+      "score": 70.63749139976188,
+      "rank": 235,
+      "is_factor": false
+    },
+    {
+      "d": 22057561,
+      "score": 70.62972396363824,
+      "rank": 236,
+      "is_factor": false
+    },
+    {
+      "d": 29193079,
+      "score": 70.61060540669605,
+      "rank": 237,
+      "is_factor": false
+    },
+    {
+      "d": 30201277,
+      "score": 70.59587516059624,
+      "rank": 238,
+      "is_factor": false
+    },
+    {
+      "d": 37751111,
+      "score": 70.56436264193948,
+      "rank": 239,
+      "is_factor": false
+    },
+    {
+      "d": 36272629,
+      "score": 70.32087109739011,
+      "rank": 240,
+      "is_factor": false
+    },
+    {
+      "d": 33908779,
+      "score": 70.27070001062624,
+      "rank": 241,
+      "is_factor": false
+    },
+    {
+      "d": 28732337,
+      "score": 70.23272198126563,
+      "rank": 242,
+      "is_factor": false
+    },
+    {
+      "d": 36225491,
+      "score": 70.19261658656949,
+      "rank": 243,
+      "is_factor": false
+    },
+    {
+      "d": 31824619,
+      "score": 70.17378557164245,
+      "rank": 244,
+      "is_factor": false
+    },
+    {
+      "d": 27688211,
+      "score": 70.12827156023384,
+      "rank": 245,
+      "is_factor": false
+    },
+    {
+      "d": 32115199,
+      "score": 70.09209825027546,
+      "rank": 246,
+      "is_factor": false
+    },
+    {
+      "d": 32001961,
+      "score": 70.08104605115669,
+      "rank": 247,
+      "is_factor": false
+    },
+    {
+      "d": 24685027,
+      "score": 70.0379824743968,
+      "rank": 248,
+      "is_factor": false
+    },
+    {
+      "d": 25824847,
+      "score": 70.00512429315795,
+      "rank": 249,
+      "is_factor": false
+    },
+    {
+      "d": 27577853,
+      "score": 69.95125677095184,
+      "rank": 250,
+      "is_factor": false
+    },
+    {
+      "d": 40624487,
+      "score": 69.927413185867,
+      "rank": 251,
+      "is_factor": false
+    },
+    {
+      "d": 33353557,
+      "score": 69.87952619904196,
+      "rank": 252,
+      "is_factor": false
+    },
+    {
+      "d": 24734837,
+      "score": 69.84313060505524,
+      "rank": 253,
+      "is_factor": false
+    },
+    {
+      "d": 27559733,
+      "score": 69.8181376717124,
+      "rank": 254,
+      "is_factor": false
+    },
+    {
+      "d": 31603777,
+      "score": 69.71269509108805,
+      "rank": 255,
+      "is_factor": false
+    },
+    {
+      "d": 38898493,
+      "score": 69.67342863086395,
+      "rank": 256,
+      "is_factor": false
+    },
+    {
+      "d": 34271491,
+      "score": 69.61694129405635,
+      "rank": 257,
+      "is_factor": false
+    },
+    {
+      "d": 27415007,
+      "score": 69.6117319147364,
+      "rank": 258,
+      "is_factor": false
+    },
+    {
+      "d": 22134239,
+      "score": 69.50765901597828,
+      "rank": 259,
+      "is_factor": false
+    },
+    {
+      "d": 29954033,
+      "score": 69.46697638359257,
+      "rank": 260,
+      "is_factor": false
+    },
+    {
+      "d": 23124967,
+      "score": 69.30624313190474,
+      "rank": 261,
+      "is_factor": false
+    },
+    {
+      "d": 31744267,
+      "score": 69.25217008664436,
+      "rank": 262,
+      "is_factor": false
+    },
+    {
+      "d": 24419053,
+      "score": 69.15645600742864,
+      "rank": 263,
+      "is_factor": false
+    },
+    {
+      "d": 32501509,
+      "score": 69.15364001489431,
+      "rank": 264,
+      "is_factor": false
+    },
+    {
+      "d": 33209251,
+      "score": 69.12190159913223,
+      "rank": 265,
+      "is_factor": false
+    },
+    {
+      "d": 40921637,
+      "score": 69.04097675912404,
+      "rank": 266,
+      "is_factor": false
+    },
+    {
+      "d": 27853549,
+      "score": 68.78196761898376,
+      "rank": 267,
+      "is_factor": false
+    },
+    {
+      "d": 32057479,
+      "score": 68.7643037590517,
+      "rank": 268,
+      "is_factor": false
+    },
+    {
+      "d": 30368111,
+      "score": 68.75083028930295,
+      "rank": 269,
+      "is_factor": false
+    },
+    {
+      "d": 24449449,
+      "score": 68.71471394909238,
+      "rank": 270,
+      "is_factor": false
+    },
+    {
+      "d": 38237219,
+      "score": 68.71139592105108,
+      "rank": 271,
+      "is_factor": false
+    },
+    {
+      "d": 34175539,
+      "score": 68.68820438653007,
+      "rank": 272,
+      "is_factor": false
+    },
+    {
+      "d": 27640139,
+      "score": 68.62084042421829,
+      "rank": 273,
+      "is_factor": false
+    },
+    {
+      "d": 33474577,
+      "score": 68.59997886269794,
+      "rank": 274,
+      "is_factor": false
+    },
+    {
+      "d": 32910961,
+      "score": 68.59432145698257,
+      "rank": 275,
+      "is_factor": false
+    },
+    {
+      "d": 34520641,
+      "score": 68.56454656541325,
+      "rank": 276,
+      "is_factor": false
+    },
+    {
+      "d": 22623221,
+      "score": 68.54612922761797,
+      "rank": 277,
+      "is_factor": false
+    },
+    {
+      "d": 37099159,
+      "score": 68.47962253174953,
+      "rank": 278,
+      "is_factor": false
+    },
+    {
+      "d": 30088637,
+      "score": 68.3429168827647,
+      "rank": 279,
+      "is_factor": false
+    },
+    {
+      "d": 32743553,
+      "score": 68.24640641217523,
+      "rank": 280,
+      "is_factor": false
+    },
+    {
+      "d": 22786349,
+      "score": 68.24253802126792,
+      "rank": 281,
+      "is_factor": false
+    },
+    {
+      "d": 29135291,
+      "score": 68.21599714946684,
+      "rank": 282,
+      "is_factor": false
+    },
+    {
+      "d": 34806143,
+      "score": 68.20612940658948,
+      "rank": 283,
+      "is_factor": false
+    },
+    {
+      "d": 36609907,
+      "score": 68.16647256036622,
+      "rank": 284,
+      "is_factor": false
+    },
+    {
+      "d": 39943907,
+      "score": 68.10520528598798,
+      "rank": 285,
+      "is_factor": false
+    },
+    {
+      "d": 31942571,
+      "score": 67.96925940653708,
+      "rank": 286,
+      "is_factor": false
+    },
+    {
+      "d": 31987229,
+      "score": 67.90844873889932,
+      "rank": 287,
+      "is_factor": false
+    },
+    {
+      "d": 29166227,
+      "score": 67.81438246455244,
+      "rank": 288,
+      "is_factor": false
+    },
+    {
+      "d": 38470637,
+      "score": 67.7729429320654,
+      "rank": 289,
+      "is_factor": false
+    },
+    {
+      "d": 24184009,
+      "score": 67.70523628700067,
+      "rank": 290,
+      "is_factor": false
+    },
+    {
+      "d": 28230967,
+      "score": 67.61152752939965,
+      "rank": 291,
+      "is_factor": false
+    },
+    {
+      "d": 24977053,
+      "score": 67.58941967086432,
+      "rank": 292,
+      "is_factor": false
+    },
+    {
+      "d": 31907893,
+      "score": 67.51774432946608,
+      "rank": 293,
+      "is_factor": false
+    },
+    {
+      "d": 32704363,
+      "score": 67.40609557872547,
+      "rank": 294,
+      "is_factor": false
+    },
+    {
+      "d": 29925263,
+      "score": 67.39878059192249,
+      "rank": 295,
+      "is_factor": false
+    },
+    {
+      "d": 26324003,
+      "score": 67.31893034163089,
+      "rank": 296,
+      "is_factor": false
+    },
+    {
+      "d": 31913789,
+      "score": 67.26422411067459,
+      "rank": 297,
+      "is_factor": false
+    },
+    {
+      "d": 32648701,
+      "score": 67.2411724775042,
+      "rank": 298,
+      "is_factor": false
+    },
+    {
+      "d": 39645469,
+      "score": 67.17267387600563,
+      "rank": 299,
+      "is_factor": false
+    },
+    {
+      "d": 29844943,
+      "score": 67.14377638093096,
+      "rank": 300,
+      "is_factor": false
+    },
+    {
+      "d": 23651477,
+      "score": 67.12090182506945,
+      "rank": 301,
+      "is_factor": false
+    },
+    {
+      "d": 24555173,
+      "score": 67.07258485676287,
+      "rank": 302,
+      "is_factor": false
+    },
+    {
+      "d": 25240249,
+      "score": 67.0553394955203,
+      "rank": 303,
+      "is_factor": false
+    },
+    {
+      "d": 30614879,
+      "score": 67.02169327379717,
+      "rank": 304,
+      "is_factor": false
+    },
+    {
+      "d": 37341281,
+      "score": 67.00183916304404,
+      "rank": 305,
+      "is_factor": false
+    },
+    {
+      "d": 33911533,
+      "score": 66.99124267547552,
+      "rank": 306,
+      "is_factor": false
+    },
+    {
+      "d": 32374807,
+      "score": 66.97976892346253,
+      "rank": 307,
+      "is_factor": false
+    },
+    {
+      "d": 30768679,
+      "score": 66.78797508895148,
+      "rank": 308,
+      "is_factor": false
+    },
+    {
+      "d": 31821721,
+      "score": 66.7457800621823,
+      "rank": 309,
+      "is_factor": false
+    },
+    {
+      "d": 25804069,
+      "score": 66.60641082190219,
+      "rank": 310,
+      "is_factor": false
+    },
+    {
+      "d": 32212129,
+      "score": 66.6058060615128,
+      "rank": 311,
+      "is_factor": false
+    },
+    {
+      "d": 39110891,
+      "score": 66.60521267488689,
+      "rank": 312,
+      "is_factor": false
+    },
+    {
+      "d": 26633221,
+      "score": 66.58789707599448,
+      "rank": 313,
+      "is_factor": false
+    },
+    {
+      "d": 23588819,
+      "score": 66.55222727870775,
+      "rank": 314,
+      "is_factor": false
+    },
+    {
+      "d": 34840231,
+      "score": 66.54773757956559,
+      "rank": 315,
+      "is_factor": false
+    },
+    {
+      "d": 22017833,
+      "score": 66.53037063283067,
+      "rank": 316,
+      "is_factor": false
+    },
+    {
+      "d": 38681449,
+      "score": 66.36583769030135,
+      "rank": 317,
+      "is_factor": false
+    },
+    {
+      "d": 38730061,
+      "score": 66.16551513085024,
+      "rank": 318,
+      "is_factor": false
+    },
+    {
+      "d": 27942163,
+      "score": 66.10923019419484,
+      "rank": 319,
+      "is_factor": false
+    },
+    {
+      "d": 31401679,
+      "score": 66.08622176910544,
+      "rank": 320,
+      "is_factor": false
+    },
+    {
+      "d": 36600073,
+      "score": 66.03732932860021,
+      "rank": 321,
+      "is_factor": false
+    },
+    {
+      "d": 31494707,
+      "score": 65.9084967357727,
+      "rank": 322,
+      "is_factor": false
+    },
+    {
+      "d": 31664957,
+      "score": 65.88323855955059,
+      "rank": 323,
+      "is_factor": false
+    },
+    {
+      "d": 27248341,
+      "score": 65.88188656460665,
+      "rank": 324,
+      "is_factor": false
+    },
+    {
+      "d": 32873707,
+      "score": 65.79042550159548,
+      "rank": 325,
+      "is_factor": false
+    },
+    {
+      "d": 37436279,
+      "score": 65.76132888028474,
+      "rank": 326,
+      "is_factor": false
+    },
+    {
+      "d": 25660889,
+      "score": 65.43779795620475,
+      "rank": 327,
+      "is_factor": false
+    },
+    {
+      "d": 34545397,
+      "score": 65.32910927945045,
+      "rank": 328,
+      "is_factor": false
+    },
+    {
+      "d": 26925881,
+      "score": 65.28826816033379,
+      "rank": 329,
+      "is_factor": false
+    },
+    {
+      "d": 27408467,
+      "score": 65.18565892092141,
+      "rank": 330,
+      "is_factor": false
+    },
+    {
+      "d": 28648547,
+      "score": 65.18098157864058,
+      "rank": 331,
+      "is_factor": false
+    },
+    {
+      "d": 23732129,
+      "score": 65.17075669889299,
+      "rank": 332,
+      "is_factor": false
+    },
+    {
+      "d": 38418493,
+      "score": 65.14499374159186,
+      "rank": 333,
+      "is_factor": false
+    },
+    {
+      "d": 35035831,
+      "score": 64.93064425765856,
+      "rank": 334,
+      "is_factor": false
+    },
+    {
+      "d": 24704371,
+      "score": 64.89561430372056,
+      "rank": 335,
+      "is_factor": false
+    },
+    {
+      "d": 31463147,
+      "score": 64.88338536371671,
+      "rank": 336,
+      "is_factor": false
+    },
+    {
+      "d": 35738419,
+      "score": 64.8625016737929,
+      "rank": 337,
+      "is_factor": false
+    },
+    {
+      "d": 25068371,
+      "score": 64.74572463284602,
+      "rank": 338,
+      "is_factor": false
+    },
+    {
+      "d": 31186091,
+      "score": 64.73107356925195,
+      "rank": 339,
+      "is_factor": false
+    },
+    {
+      "d": 32066711,
+      "score": 64.68450644976342,
+      "rank": 340,
+      "is_factor": false
+    },
+    {
+      "d": 31721093,
+      "score": 64.65436833896277,
+      "rank": 341,
+      "is_factor": false
+    },
+    {
+      "d": 37552951,
+      "score": 64.45830118971479,
+      "rank": 342,
+      "is_factor": false
+    },
+    {
+      "d": 24129401,
+      "score": 64.41908874275367,
+      "rank": 343,
+      "is_factor": false
+    },
+    {
+      "d": 34637077,
+      "score": 64.16813084397512,
+      "rank": 344,
+      "is_factor": false
+    },
+    {
+      "d": 39653651,
+      "score": 64.12366079668988,
+      "rank": 345,
+      "is_factor": false
+    },
+    {
+      "d": 31570501,
+      "score": 64.12116316202612,
+      "rank": 346,
+      "is_factor": false
+    },
+    {
+      "d": 33603299,
+      "score": 64.1166057100751,
+      "rank": 347,
+      "is_factor": false
+    },
+    {
+      "d": 30560993,
+      "score": 64.0883547560759,
+      "rank": 348,
+      "is_factor": false
+    },
+    {
+      "d": 32713123,
+      "score": 63.92319339794964,
+      "rank": 349,
+      "is_factor": false
+    },
+    {
+      "d": 26773111,
+      "score": 63.830537640283126,
+      "rank": 350,
+      "is_factor": false
+    },
+    {
+      "d": 31272811,
+      "score": 63.77382138921977,
+      "rank": 351,
+      "is_factor": false
+    },
+    {
+      "d": 22416071,
+      "score": 63.72154096412577,
+      "rank": 352,
+      "is_factor": false
+    },
+    {
+      "d": 25439303,
+      "score": 63.674071093599515,
+      "rank": 353,
+      "is_factor": false
+    },
+    {
+      "d": 32391571,
+      "score": 63.65632164368168,
+      "rank": 354,
+      "is_factor": false
+    },
+    {
+      "d": 31161869,
+      "score": 63.64512930063676,
+      "rank": 355,
+      "is_factor": false
+    },
+    {
+      "d": 31438489,
+      "score": 63.63816413334521,
+      "rank": 356,
+      "is_factor": false
+    },
+    {
+      "d": 32386171,
+      "score": 63.49349773025189,
+      "rank": 357,
+      "is_factor": false
+    },
+    {
+      "d": 29495299,
+      "score": 63.46185019243186,
+      "rank": 358,
+      "is_factor": false
+    },
+    {
+      "d": 36782797,
+      "score": 63.45800771294047,
+      "rank": 359,
+      "is_factor": false
+    },
+    {
+      "d": 31185941,
+      "score": 63.44200797788414,
+      "rank": 360,
+      "is_factor": false
+    },
+    {
+      "d": 34857833,
+      "score": 63.37902868100828,
+      "rank": 361,
+      "is_factor": false
+    },
+    {
+      "d": 36395837,
+      "score": 63.29886628616331,
+      "rank": 362,
+      "is_factor": false
+    },
+    {
+      "d": 29212873,
+      "score": 63.2881049481892,
+      "rank": 363,
+      "is_factor": false
+    },
+    {
+      "d": 35597347,
+      "score": 63.2257366402167,
+      "rank": 364,
+      "is_factor": false
+    },
+    {
+      "d": 26220251,
+      "score": 63.211320610379175,
+      "rank": 365,
+      "is_factor": false
+    },
+    {
+      "d": 31026767,
+      "score": 63.17477776813333,
+      "rank": 366,
+      "is_factor": false
+    },
+    {
+      "d": 40107659,
+      "score": 62.97971897036417,
+      "rank": 367,
+      "is_factor": false
+    },
+    {
+      "d": 41436313,
+      "score": 62.885065397767505,
+      "rank": 368,
+      "is_factor": false
+    },
+    {
+      "d": 22723013,
+      "score": 62.774889886978116,
+      "rank": 369,
+      "is_factor": false
+    },
+    {
+      "d": 25379377,
+      "score": 62.72556894275939,
+      "rank": 370,
+      "is_factor": false
+    },
+    {
+      "d": 28575809,
+      "score": 62.583145913711,
+      "rank": 371,
+      "is_factor": false
+    },
+    {
+      "d": 23949517,
+      "score": 62.56884991802542,
+      "rank": 372,
+      "is_factor": false
+    },
+    {
+      "d": 31935961,
+      "score": 62.49071085688835,
+      "rank": 373,
+      "is_factor": false
+    },
+    {
+      "d": 40844261,
+      "score": 62.4337848370073,
+      "rank": 374,
+      "is_factor": false
+    },
+    {
+      "d": 25290701,
+      "score": 62.3762942440478,
+      "rank": 375,
+      "is_factor": false
+    },
+    {
+      "d": 31305697,
+      "score": 62.174824497840035,
+      "rank": 376,
+      "is_factor": false
+    },
+    {
+      "d": 40406719,
+      "score": 62.01944258373364,
+      "rank": 377,
+      "is_factor": false
+    },
+    {
+      "d": 30598483,
+      "score": 61.94599268449778,
+      "rank": 378,
+      "is_factor": false
+    },
+    {
+      "d": 28933087,
+      "score": 61.88958779624611,
+      "rank": 379,
+      "is_factor": false
+    },
+    {
+      "d": 31946261,
+      "score": 61.620291700126,
+      "rank": 380,
+      "is_factor": false
+    },
+    {
+      "d": 24924863,
+      "score": 61.56855209139216,
+      "rank": 381,
+      "is_factor": false
+    },
+    {
+      "d": 32039159,
+      "score": 61.53510019227702,
+      "rank": 382,
+      "is_factor": false
+    },
+    {
+      "d": 29702767,
+      "score": 61.5160237730223,
+      "rank": 383,
+      "is_factor": false
+    },
+    {
+      "d": 36782171,
+      "score": 61.4917010613875,
+      "rank": 384,
+      "is_factor": false
+    },
+    {
+      "d": 32615621,
+      "score": 61.47653971519776,
+      "rank": 385,
+      "is_factor": false
+    },
+    {
+      "d": 39774607,
+      "score": 61.37827938565266,
+      "rank": 386,
+      "is_factor": false
+    },
+    {
+      "d": 31715599,
+      "score": 61.36036322763494,
+      "rank": 387,
+      "is_factor": false
+    },
+    {
+      "d": 37088351,
+      "score": 61.32905391199067,
+      "rank": 388,
+      "is_factor": false
+    },
+    {
+      "d": 38800513,
+      "score": 61.23313189003627,
+      "rank": 389,
+      "is_factor": false
+    },
+    {
+      "d": 34962937,
+      "score": 61.1799478548845,
+      "rank": 390,
+      "is_factor": false
+    },
+    {
+      "d": 32087683,
+      "score": 61.1397119259057,
+      "rank": 391,
+      "is_factor": false
+    },
+    {
+      "d": 24418913,
+      "score": 61.12575707806305,
+      "rank": 392,
+      "is_factor": false
+    },
+    {
+      "d": 37237601,
+      "score": 60.75411735913879,
+      "rank": 393,
+      "is_factor": false
+    },
+    {
+      "d": 32695321,
+      "score": 60.713272587286546,
+      "rank": 394,
+      "is_factor": false
+    },
+    {
+      "d": 31304509,
+      "score": 60.40453172426795,
+      "rank": 395,
+      "is_factor": false
+    },
+    {
+      "d": 38187433,
+      "score": 60.2715064567375,
+      "rank": 396,
+      "is_factor": false
+    },
+    {
+      "d": 34422533,
+      "score": 60.242350340544,
+      "rank": 397,
+      "is_factor": false
+    },
+    {
+      "d": 31603829,
+      "score": 60.20311038580036,
+      "rank": 398,
+      "is_factor": false
+    },
+    {
+      "d": 33868859,
+      "score": 60.14835598822657,
+      "rank": 399,
+      "is_factor": false
+    },
+    {
+      "d": 32018057,
+      "score": 60.056760663936714,
+      "rank": 400,
+      "is_factor": false
+    },
+    {
+      "d": 28417871,
+      "score": 60.01188698231036,
+      "rank": 401,
+      "is_factor": false
+    },
+    {
+      "d": 40103407,
+      "score": 59.95212118202947,
+      "rank": 402,
+      "is_factor": false
+    },
+    {
+      "d": 22543331,
+      "score": 59.9226067711929,
+      "rank": 403,
+      "is_factor": false
+    },
+    {
+      "d": 37266739,
+      "score": 59.7859454463501,
+      "rank": 404,
+      "is_factor": false
+    },
+    {
+      "d": 41869211,
+      "score": 59.78394938896403,
+      "rank": 405,
+      "is_factor": false
+    },
+    {
+      "d": 30750103,
+      "score": 59.66635120992827,
+      "rank": 406,
+      "is_factor": false
+    },
+    {
+      "d": 37319543,
+      "score": 59.586689066633895,
+      "rank": 407,
+      "is_factor": false
+    },
+    {
+      "d": 22184737,
+      "score": 59.412604401407336,
+      "rank": 408,
+      "is_factor": false
+    },
+    {
+      "d": 23660023,
+      "score": 59.400337056759874,
+      "rank": 409,
+      "is_factor": false
+    },
+    {
+      "d": 38855263,
+      "score": 59.37481014609603,
+      "rank": 410,
+      "is_factor": false
+    },
+    {
+      "d": 34245203,
+      "score": 59.30324805375077,
+      "rank": 411,
+      "is_factor": false
+    },
+    {
+      "d": 29708953,
+      "score": 59.23645416552761,
+      "rank": 412,
+      "is_factor": false
+    },
+    {
+      "d": 31621621,
+      "score": 59.20853408918087,
+      "rank": 413,
+      "is_factor": false
+    },
+    {
+      "d": 33626693,
+      "score": 59.14503442107088,
+      "rank": 414,
+      "is_factor": false
+    },
+    {
+      "d": 31811863,
+      "score": 59.08645587091644,
+      "rank": 415,
+      "is_factor": false
+    },
+    {
+      "d": 41779597,
+      "score": 58.86922155552936,
+      "rank": 416,
+      "is_factor": false
+    },
+    {
+      "d": 41286551,
+      "score": 58.86890815713405,
+      "rank": 417,
+      "is_factor": false
+    },
+    {
+      "d": 33850841,
+      "score": 58.83129807091765,
+      "rank": 418,
+      "is_factor": false
+    },
+    {
+      "d": 40098731,
+      "score": 58.7963329468386,
+      "rank": 419,
+      "is_factor": false
+    },
+    {
+      "d": 34576823,
+      "score": 58.770966037492855,
+      "rank": 420,
+      "is_factor": false
+    },
+    {
+      "d": 29449781,
+      "score": 58.74766023115639,
+      "rank": 421,
+      "is_factor": false
+    },
+    {
+      "d": 38563337,
+      "score": 58.72924897228996,
+      "rank": 422,
+      "is_factor": false
+    },
+    {
+      "d": 26895761,
+      "score": 58.657644196091425,
+      "rank": 423,
+      "is_factor": false
+    },
+    {
+      "d": 33554581,
+      "score": 58.62508389791179,
+      "rank": 424,
+      "is_factor": false
+    },
+    {
+      "d": 34305263,
+      "score": 58.6020177359409,
+      "rank": 425,
+      "is_factor": false
+    },
+    {
+      "d": 31215649,
+      "score": 58.48795017143273,
+      "rank": 426,
+      "is_factor": false
+    },
+    {
+      "d": 37635683,
+      "score": 58.429830490954274,
+      "rank": 427,
+      "is_factor": false
+    },
+    {
+      "d": 30836153,
+      "score": 58.374258459704144,
+      "rank": 428,
+      "is_factor": false
+    },
+    {
+      "d": 29083211,
+      "score": 58.354146375407375,
+      "rank": 429,
+      "is_factor": false
+    },
+    {
+      "d": 26428849,
+      "score": 58.29164298317113,
+      "rank": 430,
+      "is_factor": false
+    },
+    {
+      "d": 34684571,
+      "score": 58.27724528736166,
+      "rank": 431,
+      "is_factor": false
+    },
+    {
+      "d": 33474151,
+      "score": 58.263055462219306,
+      "rank": 432,
+      "is_factor": false
+    },
+    {
+      "d": 32943997,
+      "score": 58.229347252341285,
+      "rank": 433,
+      "is_factor": false
+    },
+    {
+      "d": 22814219,
+      "score": 58.05784039372284,
+      "rank": 434,
+      "is_factor": false
+    },
+    {
+      "d": 31590667,
+      "score": 57.69667523129116,
+      "rank": 435,
+      "is_factor": false
+    },
+    {
+      "d": 33478243,
+      "score": 57.62977232606255,
+      "rank": 436,
+      "is_factor": false
+    },
+    {
+      "d": 33052699,
+      "score": 57.56446878832703,
+      "rank": 437,
+      "is_factor": false
+    },
+    {
+      "d": 36497191,
+      "score": 57.411068276276595,
+      "rank": 438,
+      "is_factor": false
+    },
+    {
+      "d": 32648101,
+      "score": 57.30108030757157,
+      "rank": 439,
+      "is_factor": false
+    },
+    {
+      "d": 28080251,
+      "score": 57.2109622283992,
+      "rank": 440,
+      "is_factor": false
+    },
+    {
+      "d": 31688123,
+      "score": 57.19951486640226,
+      "rank": 441,
+      "is_factor": false
+    },
+    {
+      "d": 28611293,
+      "score": 57.09164931374318,
+      "rank": 442,
+      "is_factor": false
+    },
+    {
+      "d": 40173361,
+      "score": 57.06639876558894,
+      "rank": 443,
+      "is_factor": false
+    },
+    {
+      "d": 25135729,
+      "score": 57.06447613453223,
+      "rank": 444,
+      "is_factor": false
+    },
+    {
+      "d": 30001883,
+      "score": 57.00041030427362,
+      "rank": 445,
+      "is_factor": false
+    },
+    {
+      "d": 23271161,
+      "score": 56.95530136196869,
+      "rank": 446,
+      "is_factor": false
+    },
+    {
+      "d": 23727317,
+      "score": 56.916812287647005,
+      "rank": 447,
+      "is_factor": false
+    },
+    {
+      "d": 30875081,
+      "score": 56.9106611960739,
+      "rank": 448,
+      "is_factor": false
+    },
+    {
+      "d": 34629967,
+      "score": 56.80316719674258,
+      "rank": 449,
+      "is_factor": false
+    },
+    {
+      "d": 24233327,
+      "score": 56.536284653458104,
+      "rank": 450,
+      "is_factor": false
+    },
+    {
+      "d": 33935933,
+      "score": 56.49649364861688,
+      "rank": 451,
+      "is_factor": false
+    },
+    {
+      "d": 41410319,
+      "score": 56.38976896781813,
+      "rank": 452,
+      "is_factor": false
+    },
+    {
+      "d": 37736467,
+      "score": 56.364087978250765,
+      "rank": 453,
+      "is_factor": false
+    },
+    {
+      "d": 39463211,
+      "score": 56.22350771268616,
+      "rank": 454,
+      "is_factor": false
+    },
+    {
+      "d": 34202197,
+      "score": 56.21908720658238,
+      "rank": 455,
+      "is_factor": false
+    },
+    {
+      "d": 31856161,
+      "score": 56.08407616845989,
+      "rank": 456,
+      "is_factor": false
+    },
+    {
+      "d": 29492479,
+      "score": 56.055721040531274,
+      "rank": 457,
+      "is_factor": false
+    },
+    {
+      "d": 31812887,
+      "score": 55.88829081840609,
+      "rank": 458,
+      "is_factor": false
+    },
+    {
+      "d": 32458121,
+      "score": 55.871356196275435,
+      "rank": 459,
+      "is_factor": false
+    },
+    {
+      "d": 26410339,
+      "score": 55.86870267096125,
+      "rank": 460,
+      "is_factor": false
+    },
+    {
+      "d": 26761997,
+      "score": 55.7381096588617,
+      "rank": 461,
+      "is_factor": false
+    },
+    {
+      "d": 26195503,
+      "score": 55.539797916982735,
+      "rank": 462,
+      "is_factor": false
+    },
+    {
+      "d": 40366253,
+      "score": 55.484665548243214,
+      "rank": 463,
+      "is_factor": false
+    },
+    {
+      "d": 27879107,
+      "score": 55.46517272605569,
+      "rank": 464,
+      "is_factor": false
+    },
+    {
+      "d": 40070843,
+      "score": 55.45225613861041,
+      "rank": 465,
+      "is_factor": false
+    },
+    {
+      "d": 31163071,
+      "score": 55.427592550328946,
+      "rank": 466,
+      "is_factor": false
+    },
+    {
+      "d": 26786737,
+      "score": 55.41196399373319,
+      "rank": 467,
+      "is_factor": false
+    },
+    {
+      "d": 23636923,
+      "score": 55.403212453891115,
+      "rank": 468,
+      "is_factor": false
+    },
+    {
+      "d": 33720179,
+      "score": 55.351203965960934,
+      "rank": 469,
+      "is_factor": false
+    },
+    {
+      "d": 28297309,
+      "score": 55.261478715797736,
+      "rank": 470,
+      "is_factor": false
+    },
+    {
+      "d": 31902943,
+      "score": 55.26080887775424,
+      "rank": 471,
+      "is_factor": false
+    },
+    {
+      "d": 26892143,
+      "score": 55.2274781826586,
+      "rank": 472,
+      "is_factor": false
+    },
+    {
+      "d": 36044713,
+      "score": 55.222278868902684,
+      "rank": 473,
+      "is_factor": false
+    },
+    {
+      "d": 27261809,
+      "score": 55.00407358742592,
+      "rank": 474,
+      "is_factor": false
+    },
+    {
+      "d": 31360603,
+      "score": 54.8882545567959,
+      "rank": 475,
+      "is_factor": false
+    },
+    {
+      "d": 27978149,
+      "score": 54.88768043590896,
+      "rank": 476,
+      "is_factor": false
+    },
+    {
+      "d": 29471231,
+      "score": 54.87375968889384,
+      "rank": 477,
+      "is_factor": false
+    },
+    {
+      "d": 23839969,
+      "score": 54.861269436344344,
+      "rank": 478,
+      "is_factor": false
+    },
+    {
+      "d": 23868587,
+      "score": 54.85709698935725,
+      "rank": 479,
+      "is_factor": false
+    },
+    {
+      "d": 27648017,
+      "score": 54.852831953333194,
+      "rank": 480,
+      "is_factor": false
+    },
+    {
+      "d": 41265299,
+      "score": 54.808039021022914,
+      "rank": 481,
+      "is_factor": false
+    },
+    {
+      "d": 35363707,
+      "score": 54.79730121685861,
+      "rank": 482,
+      "is_factor": false
+    },
+    {
+      "d": 26336501,
+      "score": 54.792542117468415,
+      "rank": 483,
+      "is_factor": false
+    },
+    {
+      "d": 31783441,
+      "score": 54.747451268553704,
+      "rank": 484,
+      "is_factor": false
+    },
+    {
+      "d": 31846189,
+      "score": 54.74497832075011,
+      "rank": 485,
+      "is_factor": false
+    },
+    {
+      "d": 31934897,
+      "score": 54.65008784667239,
+      "rank": 486,
+      "is_factor": false
+    },
+    {
+      "d": 32479001,
+      "score": 54.532757656042655,
+      "rank": 487,
+      "is_factor": false
+    },
+    {
+      "d": 33286117,
+      "score": 54.2491831220793,
+      "rank": 488,
+      "is_factor": false
+    },
+    {
+      "d": 23373817,
+      "score": 54.13846502459349,
+      "rank": 489,
+      "is_factor": false
+    },
+    {
+      "d": 39524257,
+      "score": 54.09734667064571,
+      "rank": 490,
+      "is_factor": false
+    },
+    {
+      "d": 28968227,
+      "score": 53.98797972435868,
+      "rank": 491,
+      "is_factor": false
+    },
+    {
+      "d": 33654287,
+      "score": 53.96965772843871,
+      "rank": 492,
+      "is_factor": false
+    },
+    {
+      "d": 24652217,
+      "score": 53.91044215165767,
+      "rank": 493,
+      "is_factor": false
+    },
+    {
+      "d": 36761671,
+      "score": 53.89444670021594,
+      "rank": 494,
+      "is_factor": false
+    },
+    {
+      "d": 32017343,
+      "score": 53.828692449215986,
+      "rank": 495,
+      "is_factor": false
+    },
+    {
+      "d": 41151749,
+      "score": 53.79073953330624,
+      "rank": 496,
+      "is_factor": false
+    },
+    {
+      "d": 23051243,
+      "score": 53.762695020028005,
+      "rank": 497,
+      "is_factor": false
+    },
+    {
+      "d": 33061361,
+      "score": 53.75967254017115,
+      "rank": 498,
+      "is_factor": false
+    },
+    {
+      "d": 33010931,
+      "score": 53.7183279521994,
+      "rank": 499,
+      "is_factor": false
+    },
+    {
+      "d": 36373709,
+      "score": 53.71456837410652,
+      "rank": 500,
+      "is_factor": false
+    }
+  ],
+  "factors": []
+}

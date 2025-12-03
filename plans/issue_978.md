@@ -101,5 +101,5 @@
 ## 5. ✅ Success Criteria
 *   Module `rsh` is importable and functional.
 *   `factorize_rsh` correctly factors valid semiprimes.
-*   Benchmark shows significantly fewer iterations/time than naive Fermat implementation for unbalanced inputs.
+*   Benchmark shows significantly fewer iterations or time than naive Fermat implementation for unbalanced inputs.
 *   Code passes `flake8` / linting standards.

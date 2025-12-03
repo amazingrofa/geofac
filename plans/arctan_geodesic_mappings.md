@@ -127,7 +127,7 @@ Status: ✅ Manual verification completed, script ran successfully and produced 
                 score = real_resonance_score(N, d, 0)
                 scores.append((d, score))
             
-            scores.sort(key=lambda x: x[1]) # Ascending for low-curvature bias
+            scores.sort(key=lambda x: x[1], reverse=True) # Descending for high-curvature bias
             
             trials = 0
             for d, _ in scores:
@@ -167,7 +167,7 @@ Status: ✅ Manual verification completed, script ran successfully and produced 
         from geofac.geofac_arctan_curvature import kappa_n_curvature
 
         def test_kappa_n_curvature():
-            assert kappa_n_curvature(899, 30, 1.0) > kappa_n_curvature(899, 29, 1.0) # Composite vs prime
+            assert kappa_n_curvature(899, 30, 1.0) > kappa_n_curvature(899, 29, 1.0) # Higher divisor count expected for 30 vs 29 as divisors of 899
 
         if __name__ == "__main__":
             pytest.main(['-v', __file__])
