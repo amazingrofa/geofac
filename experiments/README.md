@@ -4,6 +4,32 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [superscarred-ergodicity-insight/](superscarred-ergodicity-insight/)
+
+**Status**: Implementation complete - Ready for execution
+
+**Objective**: Apply Ruelle-like spectral resonance analysis to improve geometry-ranking before arithmetic certification.
+
+**Method**: Analyze κ(n) (curvature/Dirichlet amplitude) over search intervals using FFT to find spectral resonances, identify "scarred" regions with concentrated energy, and test stability under sinusoidal perturbations.
+
+**Key Components**:
+- Window & Detrend: High-pass or median-remove detrending of κ(n) series
+- Spectral Scan (FFT): Magnitude spectrum |K(f)|, spectral entropy, peak prominence
+- Scar Score on Rectangles: Tiled energy concentration (top 10% tiles)/(total)
+- Stability Test: Sinusoidal perturbations n' = n + ε·sin(2πn/L)
+- Candidate Shortlist: Rank by (peak_height × stability × scar_score)
+
+**Pass/Fail Gates**:
+- Gate A: At least one robust peak (z-score ≥ 2.0)
+- Gate B: Stability overlap ≥ 60%
+- Gate C: Reduction ≥ 10% vs geometry-rank alone
+
+**Test Results**: 32/32 tests passing
+
+**Start here**: [superscarred-ergodicity-insight/INDEX.md](superscarred-ergodicity-insight/INDEX.md)
+
+---
+
 ### [hash-bounds-falsification/](hash-bounds-falsification/)
 
 **Status**: Complete - Hypothesis decisively falsified
