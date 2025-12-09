@@ -13,8 +13,8 @@ This experiment performs a high-resolution curvature sweep to characterize the D
 ### Target
 
 - **Primary:** CHALLENGE_127 = 137524771864208156028430259349934309717 (Gate-3, 127-bit)
-- **Factors:** p = 10508623501177419659, q = 13086849276577416863
-- **Scale:** Within [10¹⁴, 10¹⁸] validation window
+- **Factors:** p = 10508623501177419659 (~10¹⁹), q = 13086849276577416863 (~10¹⁹)
+- **Note:** Factors are outside [10¹⁴, 10¹⁸]; Gate-4 range testing requires different N
 
 ### Curvature Band
 
@@ -39,9 +39,9 @@ Testing multiple J values validates peak persistence across kernel sharpness.
 
 ### Sampling Strategy
 
-- **Sample count:** M = 100,000 (reduced from 1e6 for practical runtime)
+- **Sample count:** M = 100,000 (reduced from 1e6 for practical runtime; full spec uses 1e6)
 - **Seed:** 1729 (deterministic)
-- **Method:** Sobol sequence for quasi-random sampling
+- **Method:** Sobol sequence for quasi-random sampling (in-tree implementation)
 - **Lattice:** Identical candidates across all κ values to isolate κ-effect
 - **Window:** Centered on √N with adaptive sizing
 
@@ -96,7 +96,7 @@ Testing multiple J values validates peak persistence across kernel sharpness.
 ### Prerequisites
 - Python 3.8+
 - mpmath (arbitrary precision)
-- Standard library only (json, time, hashlib)
+- Standard library only (json, time, hashlib) — Sobol sequence implemented in-tree
 
 ### Execution
 
@@ -106,9 +106,9 @@ python curvature_scan.py
 ```
 
 ### Expected Runtime
-- Coarse resolution (5e-5): ~10-30 minutes
-- Fine resolution (1e-5): ~1-2 hours
-- Full specification (1e-5, 1e6 samples): ~8-12 hours
+- Coarse resolution (5e-5): ~10-30 minutes (estimated)
+- Fine resolution (1e-5): ~1-2 hours (estimated)
+- Full specification (1e-5, 1e6 samples): ~8-12 hours (estimated)
 
 ## Precision Requirements
 
@@ -116,15 +116,17 @@ python curvature_scan.py
 - **For 127-bit N:** 708 decimal places
 - **Implementation:** mpmath with explicit mp.workdps()
 
-## Validation Gates Compliance
+## Design Requirements (enforced by implementation)
 
-| Gate | Status |
-|------|--------|
-| Gate-3 (127-bit challenge) | Primary target ✓ |
-| Gate-4 (10¹⁴–10¹⁸ range) | All factors in range ✓ |
-| No classical fallbacks | Pure geometric method ✓ |
-| Deterministic | Fixed seed (1729) ✓ |
-| Explicit precision | 708 dps logged ✓ |
+The following requirements must hold when runs are executed:
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Gate-3 (127-bit challenge) | Primary target N = CHALLENGE_127 |
+| Gate-4 (10¹⁴–10¹⁸ range) | Not exercised (CHALLENGE_127 factors ~10¹⁹); requires different N |
+| No classical fallbacks | Pure geometric method (no Pollard Rho, ECM, QS, etc.) |
+| Deterministic | Fixed seed (1729), Sobol sequence |
+| Explicit precision | 708 dps for 127-bit (adaptive formula: max(50, bitlen × 4 + 200)) |
 
 ## Expected Outcomes
 
