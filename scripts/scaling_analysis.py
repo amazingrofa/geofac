@@ -120,7 +120,9 @@ def generate_balanced_semiprime(target_bits: int, rng: np.random.Generator) -> T
     max_attempts = 10
     
     for _ in range(max_attempts):
-        half_bits = target_bits // 2
+        # Use local variable to avoid modifying loop state
+        adjusted_bits = target_bits
+        half_bits = adjusted_bits // 2
         
         # Generate p near 2^(half_bits) with controlled offset
         base = 1 << half_bits
@@ -138,14 +140,14 @@ def generate_balanced_semiprime(target_bits: int, rng: np.random.Generator) -> T
         if RANGE_MIN <= N <= RANGE_MAX:
             return N, min(p, q), max(p, q)
         
-        # If too large, try smaller factors
+        # If too large, try smaller factors next iteration
         if N > RANGE_MAX:
-            target_bits -= 1
+            target_bits = adjusted_bits - 1
             continue
         
-        # If too small, try larger factors
+        # If too small, try larger factors next iteration
         if N < RANGE_MIN:
-            target_bits += 1
+            target_bits = adjusted_bits + 1
             continue
     
     # Fallback: generate something in middle of range
@@ -376,9 +378,14 @@ def compute_regression(x: np.ndarray, y: np.ndarray) -> dict:
     }
 
 
-def plot_loglog(data: List[dict], output_path: Path) -> dict:
+def plot_loglog(data: List[dict], output_path: Path, rng: np.random.Generator) -> dict:
     """
     Create log-log plot of trials vs √N.
+    
+    Args:
+        data: List of data records
+        output_path: Path to save plot
+        rng: Random number generator for jitter
     
     Returns:
         Regression statistics
@@ -406,7 +413,7 @@ def plot_loglog(data: List[dict], output_path: Path) -> dict:
     fig, ax = plt.subplots(figsize=(10, 7))
     
     # Data points with jitter and transparency
-    jitter = np.exp(RNG.normal(0, 0.02, len(sqrt_N)))
+    jitter = np.exp(rng.normal(0, 0.02, len(sqrt_N)))
     ax.scatter(sqrt_N * jitter, trials, alpha=0.6, s=50, c='steelblue', 
                edgecolors='white', linewidth=0.5, label='Observed')
     
@@ -458,9 +465,14 @@ def plot_loglog(data: List[dict], output_path: Path) -> dict:
     return reg
 
 
-def bootstrap_survival(ranks: np.ndarray, n_bootstrap: int = 10000) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def bootstrap_survival(ranks: np.ndarray, rng: np.random.Generator, n_bootstrap: int = 10000) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute survival curve S(k) = P(rank > k) with bootstrap CI.
+    
+    Args:
+        ranks: Array of rank values
+        rng: Random number generator for reproducibility
+        n_bootstrap: Number of bootstrap resamples
     
     Returns:
         (k_values, survival_mean, survival_ci)
@@ -472,7 +484,7 @@ def bootstrap_survival(ranks: np.ndarray, n_bootstrap: int = 10000) -> Tuple[np.
     survival_samples = np.zeros((n_bootstrap, len(k_values)))
     
     for b in range(n_bootstrap):
-        sample = RNG.choice(ranks, size=len(ranks), replace=True)
+        sample = rng.choice(ranks, size=len(ranks), replace=True)
         for i, k in enumerate(k_values):
             survival_samples[b, i] = np.mean(sample > k)
     
@@ -483,9 +495,14 @@ def bootstrap_survival(ranks: np.ndarray, n_bootstrap: int = 10000) -> Tuple[np.
     return k_values, survival_mean, (survival_lower, survival_upper)
 
 
-def plot_survival(data: List[dict], output_path: Path) -> dict:
+def plot_survival(data: List[dict], output_path: Path, rng: np.random.Generator) -> dict:
     """
     Create survival curve plot for rank of true factor.
+    
+    Args:
+        data: List of data records
+        output_path: Path to save plot
+        rng: Random number generator for bootstrap
     
     Returns:
         Survival statistics
@@ -502,7 +519,7 @@ def plot_survival(data: List[dict], output_path: Path) -> dict:
         return {}
     
     # Compute bootstrap survival
-    k_values, survival_mean, (survival_lower, survival_upper) = bootstrap_survival(ranks)
+    k_values, survival_mean, (survival_lower, survival_upper) = bootstrap_survival(ranks, rng)
     
     # Compute statistics
     median_rank = np.median(ranks)
@@ -763,10 +780,10 @@ def main():
     
     # Generate plots
     loglog_path = output_dir / 'loglog_trials_vs_sqrt_n.png'
-    reg_stats = plot_loglog(data, loglog_path)
+    reg_stats = plot_loglog(data, loglog_path, RNG)
     
     survival_path = output_dir / 'survival_curve.png'
-    survival_stats = plot_survival(data, survival_path)
+    survival_stats = plot_survival(data, survival_path, RNG)
     
     # Print tables
     tables_output = print_tables(data, reg_stats, survival_stats)
