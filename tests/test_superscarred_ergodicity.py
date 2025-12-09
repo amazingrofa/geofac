@@ -44,14 +44,14 @@ from superscarred_ergodicity import (
     compute_spectral_entropy,
     find_spectral_peaks,
     compute_tile_scores,
-    compute_global_scar_score,
+    compute_global_localization_score,
     apply_perturbation,
     compute_peak_overlap,
     run_stability_test,
     rank_candidates,
     evaluate_gates,
     # Main class
-    SuperscarredErgodicityExperiment,
+    FFTCandidateSelectionExperiment,
     HAS_NUMPY_SCIPY,
 )
 
@@ -264,7 +264,7 @@ class TestScarScore:
         assert len(tiles) == 10, f"Should have 10 tiles, got {len(tiles)}"
         assert all(isinstance(t, TileScore) for t in tiles), "Should return TileScore objects"
     
-    def test_global_scar_score_range(self):
+    def test_global_localization_score_range(self):
         """Test global scar score is in [0, 1]."""
         import numpy as np
         
@@ -274,11 +274,11 @@ class TestScarScore:
         detrended = np.random.randn(100)
         
         tiles = compute_tile_scores(n_values, kappa_values, detrended, num_tiles=10)
-        scar_score = compute_global_scar_score(tiles, top_fraction=0.10)
+        localization_score = compute_global_localization_score(tiles, top_fraction=0.10)
         
-        assert 0 <= scar_score <= 1, f"Scar score {scar_score} should be in [0, 1]"
+        assert 0 <= localization_score <= 1, f"Scar score {localization_score} should be in [0, 1]"
     
-    def test_scar_score_concentrated_energy(self):
+    def test_localization_score_concentrated_energy(self):
         """Test scar score is high when energy is concentrated."""
         import numpy as np
         
@@ -290,11 +290,11 @@ class TestScarScore:
         detrended[:10] = 10.0  # High energy in first 10 elements
         
         tiles = compute_tile_scores(n_values, kappa_values, detrended, num_tiles=10)
-        scar_score = compute_global_scar_score(tiles, top_fraction=0.10)
+        localization_score = compute_global_localization_score(tiles, top_fraction=0.10)
         
         # With 10 tiles and top 10%, we're looking at 1 tile
         # That tile has all the energy, so scar score should be 1.0
-        assert scar_score == 1.0, f"Scar score should be 1.0 for concentrated energy, got {scar_score}"
+        assert localization_score == 1.0, f"Scar score should be 1.0 for concentrated energy, got {localization_score}"
 
 
 class TestStabilityTest:
@@ -426,14 +426,14 @@ class TestExperimentValidation:
     
     def test_validate_challenge_127(self):
         """Test CHALLENGE_127 is accepted."""
-        experiment = SuperscarredErgodicityExperiment()
+        experiment = FFTCandidateSelectionExperiment()
         
         # Should not raise
         experiment.validate_n(CHALLENGE_127)
     
     def test_validate_operational_range(self):
         """Test operational range is accepted."""
-        experiment = SuperscarredErgodicityExperiment()
+        experiment = FFTCandidateSelectionExperiment()
         
         # Should not raise
         experiment.validate_n(RANGE_MIN)
@@ -442,7 +442,7 @@ class TestExperimentValidation:
     
     def test_reject_outside_range(self):
         """Test values outside range are rejected."""
-        experiment = SuperscarredErgodicityExperiment()
+        experiment = FFTCandidateSelectionExperiment()
         
         with pytest.raises(ValueError, match="violates validation gates"):
             experiment.validate_n(12345)  # Below RANGE_MIN threshold
@@ -463,7 +463,7 @@ class TestFullPipeline:
             seed=42
         )
         
-        experiment = SuperscarredErgodicityExperiment(config)
+        experiment = FFTCandidateSelectionExperiment(config)
         
         # Use N in operational range with larger window to ensure enough data
         N = RANGE_MIN  # 10^14

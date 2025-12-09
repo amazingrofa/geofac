@@ -1,31 +1,37 @@
-# Superscarred Ergodicity Insight Experiment
+# FFT-Based Candidate Selection Experiment
 
 ## Objective
 
-Implement Ruelle-like spectral resonance analysis to improve geometry-ranking before arithmetic certification. The experiment analyzes κ(n) (curvature/Dirichlet amplitude) over search intervals to find "Ruelle-like" resonances via spectral analysis.
+Test whether frequency-domain analysis (FFT) of the κ(n) curvature series can identify promising candidate regions for factorization, reducing the number of arithmetic divisibility checks needed.
+
+**What this is:** Empirical signal processing to find patterns in κ(n) sequences.
+
+**What this is NOT:** This experiment does NOT establish theoretical connections to quantum scarring, Ruelle zeta functions, or geodesic flows. Those terms appear in the original prompt but are not mathematically justified here.
 
 ## Hypothesis Under Test
 
-**Claimed:**
+**Empirical Claim:**
 
-> By applying spectral analysis (FFT) to the κ(n) series over the factor search interval, we can identify "superscarred" regions where spectral energy is concentrated. These regions correspond to geometric resonances that improve candidate ranking for arithmetic certification.
+> Spectral analysis (FFT) of κ(n) over the search interval may reveal frequency-domain patterns. If these patterns correlate with factor locations, they could guide candidate selection.
 
-**Specific claims:**
+**Testable predictions:**
 
-1. **Spectral Structure**: The κ(n) series exhibits non-random spectral structure with identifiable peaks
-2. **Energy Concentration**: Spectral energy concentrates in specific tiles ("scarring")
-3. **Stability**: The spectral structure is robust under small sinusoidal perturbations
-4. **Ranking Improvement**: Using superscarred regions reduces the number of arithmetic checks needed
+1. **Spectral Structure**: κ(n) series exhibits identifiable FFT peaks (vs. white noise baseline)
+2. **Energy Localization**: Spectral energy clusters in specific n-regions more than uniform random
+3. **Perturbation Robustness**: Peak structure persists under small sinusoidal perturbations
+4. **Efficiency Gain**: FFT-guided selection reduces arithmetic checks ≥10% compared to uniform sampling
 
 ## Experimental Design
 
-### Pass/Fail Gates
+### Validation Thresholds
 
-The hypothesis is tested via three gates:
+**NOTE:** These thresholds are empirically chosen, not theoretically derived. They represent exploratory data analysis criteria:
 
-1. **Gate A - Robust Peak**: At least one spectral peak with prominence z-score ≥ 2.0
-2. **Gate B - Stability**: Peak overlap ≥ 60% under sinusoidal perturbations (ε ∈ {10⁻⁶, 10⁻⁵, 10⁻⁴}, L ∈ {100, 500, 1000})
-3. **Gate C - Reduction**: Candidate windows reduce arithmetic checks by ≥ 10% vs. geometry-rank alone
+1. **Gate A - Signal Detection**: At least one FFT peak with prominence z-score ≥ 2.0 (indicates non-random structure)
+2. **Gate B - Robustness**: Peak overlap ≥ 60% under sinusoidal perturbations (ε ∈ {10⁻⁶, 10⁻⁵, 10⁻⁴}, L ∈ {100, 500, 1000})
+3. **Gate C - Efficiency**: Candidate windows reduce arithmetic checks by ≥ 10% vs. geometry-rank alone
+
+**Statistical Note:** These are not p-values or confidence intervals. They are heuristic cutoffs for exploratory analysis. Parameter tuning to meet these thresholds would constitute p-hacking.
 
 ### Test Target
 
@@ -69,20 +75,23 @@ spectral_entropy = -Σ p_i log(p_i)  # where p_i = |K(f_i)|²/Σ|K|²
 peak_prominences = find_peaks(magnitudes)
 ```
 
-### 3. Scar Score on Rectangles
+### 3. Energy Localization Score
 
-Subdivide n into equal blocks (rectangular tiles):
+Subdivide n into equal blocks (tiles) and compute energy distribution:
 
 ```python
 # Partition into tiles
 tiles = partition(n_values, num_tiles=20)
 
-# Compute energy per tile
+# Compute energy per tile (squared amplitudes)
 tile_energy[i] = Σ (detrended[j])² for j in tile[i]
 
-# Global scar score
-scar_score = (energy in top 10% tiles) / (total energy)
+# Localization score (analogous to Gini coefficient)
+# Higher score = more concentrated in fewer tiles
+localization_score = (energy in top 10% tiles) / (total energy)
 ```
+
+**Note:** The 10% threshold is arbitrary. The term "scar score" in earlier versions referred to quantum scarring, which is not applicable here. This is simply measuring energy concentration.
 
 ### 4. Stability Test
 
@@ -103,11 +112,40 @@ Retain candidates whose peak sets overlap ≥ 60% across all deformations.
 Rank tiles by composite score:
 
 ```python
-score = peak_height × stability_overlap × scar_score
+score = peak_height × stability_overlap × localization_score
 candidates = top_M(tiles, by=score)
 ```
 
 Emit top M n-windows for arithmetic certification.
+
+## Theoretical Disclaimer
+
+**IMPORTANT:** The original issue prompt referenced "Ruelle zeta resonances," "superscarred ergodicity," and "geodesic flows on rectangular tori." These terms come from:
+- Dynamical systems theory (Ruelle zeta functions)
+- Quantum chaos (quantum scarring)
+- Differential geometry (geodesic flows)
+
+**This experiment does NOT establish mathematical connections between these concepts and integer factorization.** The terminology was inherited from an AI-generated prompt and is not rigorously justified.
+
+**What this experiment actually does:**
+- Standard FFT-based signal processing
+- Peak detection in frequency domain
+- Energy localization metrics
+- Perturbation stability testing
+
+**If FFT analysis proves useful for factorization, that would be an empirical finding, not theoretical validation of quantum chaos or dynamical systems connections.**
+
+## Null Hypothesis & Falsification
+
+**Null hypothesis:** κ(n) series has no exploitable frequency-domain structure beyond random noise.
+
+**How to falsify the approach:**
+1. Compare FFT peak prominence to white noise baseline → if indistinguishable, FFT adds no signal
+2. Measure computational overhead of FFT analysis → if overhead > 10% savings, net-negative efficiency
+3. Test on known factors → if FFT-selected regions don't contain factors more than random sampling, no predictive power
+4. Cross-validation on multiple semiprimes → if approach fails on >50%, not generalizable
+
+**Current status:** This is exploratory. Gates may be tuned to artificially "pass" (p-hacking). Independent validation required.
 
 ## Configuration
 

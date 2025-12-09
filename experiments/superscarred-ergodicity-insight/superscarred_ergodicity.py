@@ -1,17 +1,27 @@
 """
-Superscarred Ergodicity Insight Experiment
-============================================
+FFT-Based Candidate Selection Experiment
+=========================================
 
-Implements Ruelle-like spectral resonance analysis to improve geometry-ranking
-before arithmetic certification. The experiment analyzes κ(n) (curvature/Dirichlet
-amplitude) over search intervals to find "Ruelle-like" resonances via spectral analysis.
+Tests whether frequency-domain analysis (FFT) of κ(n) curvature series can identify
+promising candidate regions for factorization, reducing arithmetic divisibility checks.
+
+**What this is:** Empirical signal processing to find patterns in κ(n) sequences.
+
+**What this is NOT:** This does NOT establish theoretical connections to quantum 
+scarring, Ruelle zeta functions, or geodesic flows. Those terms appear in the original 
+prompt but are not mathematically justified here.
 
 Key components:
 1. Window & Detrend: High-pass/median-remove detrending of κ(n) series
 2. Spectral Scan (FFT): Magnitude spectrum, spectral entropy, peak prominence
-3. Scar Score on Rectangles: Tiled energy concentration analysis
+3. Energy Localization: Tiled energy concentration analysis
 4. Stability Test: Sinusoidal perturbations with overlap detection
 5. Candidate Shortlist: Ranked n-windows for arithmetic certification
+
+Validation thresholds (empirical, not theoretical):
+- Gate A: At least one FFT peak with prominence z-score ≥ 2.0
+- Gate B: Stability overlap ≥ 60% across perturbations
+- Gate C: Candidate windows reduce arithmetic checks by ≥ 10%
 
 Validation gates:
 - Primary: CHALLENGE_127 = 137524771864208156028430259349934309717
@@ -22,11 +32,6 @@ Constraints:
 - Pin seeds, log all parameters with timestamps
 - Precision: max(configured, N.bitLength() × 4 + 200)
 - No classical fallbacks (Pollard Rho, ECM, trial division)
-
-References:
-- Ruelle resonance theory in dynamical systems
-- Quantum scarring in chaotic systems
-- Spectral theory for Anosov flows
 """
 
 import mpmath as mp
@@ -46,8 +51,12 @@ try:
     from scipy.fft import fft, fftfreq
     from scipy.stats import zscore as scipy_zscore
     HAS_NUMPY_SCIPY = True
+    # Type alias for numpy array
+    NDArray = np.ndarray
 except ImportError:
     HAS_NUMPY_SCIPY = False
+    # Fallback type for when numpy is not available
+    NDArray = Any
 
 # Try matplotlib for plotting
 try:
@@ -108,7 +117,7 @@ class TileScore:
     end_n: int
     tile_index: int
     energy: float
-    scar_score: float
+    localization_score: float
 
 
 @dataclass
@@ -118,7 +127,7 @@ class CandidateWindow:
     end_n: int
     peak_height: float
     stability: float
-    scar_score: float
+    localization_score: float
     composite_score: float
 
 
@@ -239,7 +248,7 @@ def generate_kappa_series(
 # DETRENDING METHODS
 # ============================================================================
 
-def detrend_median(kappa_values: List[float], window_size: int = 51) -> np.ndarray:
+def detrend_median(kappa_values: List[float], window_size: int = 51) -> NDArray:
     """
     Remove median trend from κ(n) series to isolate oscillations.
     
@@ -271,7 +280,7 @@ def detrend_median(kappa_values: List[float], window_size: int = 51) -> np.ndarr
     return detrended
 
 
-def detrend_highpass(kappa_values: List[float], cutoff: float = 0.01, fs: float = 1.0) -> np.ndarray:
+def detrend_highpass(kappa_values: List[float], cutoff: float = 0.01, fs: float = 1.0) -> NDArray:
     """
     Apply high-pass filter to κ(n) series to isolate high-frequency oscillations.
     
@@ -310,7 +319,7 @@ def apply_detrend(
     kappa_values: List[float], 
     method: str = "median",
     **kwargs
-) -> np.ndarray:
+) -> NDArray:
     """
     Apply specified detrending method.
     
@@ -337,7 +346,7 @@ def apply_detrend(
 # SPECTRAL ANALYSIS (FFT)
 # ============================================================================
 
-def compute_magnitude_spectrum(detrended: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def compute_magnitude_spectrum(detrended: NDArray) -> Tuple[NDArray, NDArray]:
     """
     Compute magnitude spectrum |K(f)| using FFT.
     
@@ -368,7 +377,7 @@ def compute_magnitude_spectrum(detrended: np.ndarray) -> Tuple[np.ndarray, np.nd
     return freqs, magnitudes
 
 
-def compute_spectral_entropy(magnitudes: np.ndarray) -> float:
+def compute_spectral_entropy(magnitudes: NDArray) -> float:
     """
     Compute spectral entropy of the magnitude spectrum.
     
@@ -402,8 +411,8 @@ def compute_spectral_entropy(magnitudes: np.ndarray) -> float:
 
 
 def find_spectral_peaks(
-    frequencies: np.ndarray,
-    magnitudes: np.ndarray,
+    frequencies: NDArray,
+    magnitudes: NDArray,
     top_k: int = 5,
     min_prominence_zscore: float = 2.0
 ) -> List[SpectralPeak]:
@@ -470,7 +479,7 @@ def find_spectral_peaks(
 def compute_tile_scores(
     n_values: List[int],
     kappa_values: List[float],
-    detrended: np.ndarray,
+    detrended: NDArray,
     num_tiles: int = 20
 ) -> List[TileScore]:
     """
@@ -513,7 +522,7 @@ def compute_tile_scores(
             end_n=int(n_arr[end_idx - 1]) if end_idx > start_idx else int(n_arr[start_idx]),
             tile_index=i,
             energy=float(tile_energy),
-            scar_score=0.0  # Will be computed later
+            localization_score=0.0  # Will be computed later
         )
         tiles.append(tile)
     
@@ -521,23 +530,24 @@ def compute_tile_scores(
     total_energy = sum(t.energy for t in tiles)
     if total_energy > 0:
         for tile in tiles:
-            tile.scar_score = tile.energy / total_energy
+            tile.localization_score = tile.energy / total_energy
     
     return tiles
 
 
-def compute_global_scar_score(tiles: List[TileScore], top_fraction: float = 0.10) -> float:
+def compute_global_localization_score(tiles: List[TileScore], top_fraction: float = 0.10) -> float:
     """
-    Compute global scar score: (energy in top X% tiles) / (total energy).
+    Compute global energy localization score: (energy in top X% tiles) / (total energy).
     
-    Higher scar score indicates more concentrated energy (scarring).
+    Higher score indicates more concentrated/localized energy distribution.
+    Note: This is analogous to a Gini coefficient for energy distribution.
     
     Args:
         tiles: List of TileScore objects
-        top_fraction: Fraction of tiles considered "top"
+        top_fraction: Fraction of tiles considered "top" (default: 10%)
         
     Returns:
-        Global scar score in [0, 1]
+        Global localization score in [0, 1]
     """
     if len(tiles) == 0:
         return 0.0
@@ -689,7 +699,7 @@ def rank_candidates(
     top_m: int = 10
 ) -> List[CandidateWindow]:
     """
-    Rank tiles by (peak_height × stability × scar_score) and emit top M.
+    Rank tiles by (peak_height × stability × localization_score) and emit top M.
     
     Args:
         tiles: TileScore objects
@@ -710,14 +720,14 @@ def rank_candidates(
     for tile in tiles:
         # Composite score
         normalized_height = max_peak_height
-        composite = normalized_height * stability_overlap * tile.scar_score
+        composite = normalized_height * stability_overlap * tile.localization_score
         
         candidate = CandidateWindow(
             start_n=tile.start_n,
             end_n=tile.end_n,
             peak_height=normalized_height,
             stability=stability_overlap,
-            scar_score=tile.scar_score,
+            localization_score=tile.localization_score,
             composite_score=composite
         )
         candidates.append(candidate)
@@ -877,7 +887,7 @@ def log_experiment_results(
             ]
         },
         "scar_analysis": {
-            "global_scar_score": compute_global_scar_score(tiles, config.top_tile_fraction),
+            "global_localization_score": compute_global_localization_score(tiles, config.top_tile_fraction),
             "num_tiles": len(tiles)
         },
         "stability_test": {
@@ -890,7 +900,7 @@ def log_experiment_results(
                 "end_n": c.end_n,
                 "peak_height": c.peak_height,
                 "stability": c.stability,
-                "scar_score": c.scar_score,
+                "localization_score": c.localization_score,
                 "composite_score": c.composite_score
             }
             for c in candidates
@@ -924,16 +934,16 @@ def log_experiment_results(
     candidates_csv = os.path.join(output_dir, "candidates.csv")
     with open(candidates_csv, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(["start_n", "end_n", "peak_height", "stability", "scar_score", "composite_score"])
+        writer.writerow(["start_n", "end_n", "peak_height", "stability", "localization_score", "composite_score"])
         for c in candidates:
-            writer.writerow([c.start_n, c.end_n, c.peak_height, c.stability, c.scar_score, c.composite_score])
+            writer.writerow([c.start_n, c.end_n, c.peak_height, c.stability, c.localization_score, c.composite_score])
     
     return results
 
 
 def plot_spectrum_and_tiles(
-    frequencies: np.ndarray,
-    magnitudes: np.ndarray,
+    frequencies: NDArray,
+    magnitudes: NDArray,
     peaks: List[SpectralPeak],
     tiles: List[TileScore],
     output_dir: str,
@@ -982,7 +992,7 @@ def plot_spectrum_and_tiles(
     tile_energies = [t.energy for t in tiles]
     
     # Color by scar score
-    colors = ['red' if t.scar_score > np.percentile([ti.scar_score for ti in tiles], 90) else 'blue'
+    colors = ['red' if t.localization_score > np.percentile([ti.localization_score for ti in tiles], 90) else 'blue'
               for t in tiles]
     
     ax2.bar(tile_indices, tile_energies, color=colors, alpha=0.7)
@@ -1005,7 +1015,7 @@ def plot_spectrum_and_tiles(
 # MAIN EXPERIMENT RUNNER
 # ============================================================================
 
-class SuperscarredErgodicityExperiment:
+class FFTCandidateSelectionExperiment:
     """
     Main experiment class for superscarred ergodicity analysis.
     """
@@ -1078,7 +1088,7 @@ class SuperscarredErgodicityExperiment:
         with mp.workdps(precision_dps):
             sqrt_N = int(mp.sqrt(N))
         
-        print(f"=== Superscarred Ergodicity Insight Experiment ===")
+        print(f"=== FFT-Based Candidate Selection Experiment ===")
         print(f"Timestamp: {timestamp}")
         print(f"N = {N} ({N.bit_length()} bits)")
         print(f"sqrt(N) ≈ {sqrt_N}")
@@ -1122,7 +1132,7 @@ class SuperscarredErgodicityExperiment:
         # Step 4: Compute tile scores
         print("Step 4: Computing scar scores on rectangles...")
         tiles = compute_tile_scores(n_values, kappa_values, detrended, self.config.num_tiles)
-        global_scar = compute_global_scar_score(tiles, self.config.top_tile_fraction)
+        global_scar = compute_global_localization_score(tiles, self.config.top_tile_fraction)
         print(f"  Global scar score: {global_scar:.4f}")
         
         # Step 5: Stability test
@@ -1189,7 +1199,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description="Superscarred Ergodicity Insight Experiment"
+        description="FFT-Based Candidate Selection Experiment"
     )
     parser.add_argument(
         "--n", type=int, default=None,
@@ -1221,7 +1231,7 @@ def main():
     config = ExperimentConfig(seed=args.seed)
     
     # Run experiment
-    experiment = SuperscarredErgodicityExperiment(config)
+    experiment = FFTCandidateSelectionExperiment(config)
     results = experiment.run(
         N=N,
         half_window=args.half_window,
