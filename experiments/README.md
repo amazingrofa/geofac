@@ -4,6 +4,20 @@ This directory contains research experiments for the geofac geometric resonance 
 
 ## Current Experiments
 
+### [adaptive-windowing-test/](adaptive-windowing-test/)
+
+**Status**: Complete - Hypothesis partially falsified
+
+**Objective**: Design and execute a definitive test of the hypothesis that expanding geometric windows centered on √N with enrichment-based signal locks can detect factors of semiprimes in [10^14, 10^18] and the 127-bit challenge.
+
+**Key Finding**: Adaptive windowing with mock Z5D scoring achieves >5x enrichment signal locks on 3/3 validation gates (100%) but finds true factors on 0/3 gates (0%). This decisively demonstrates that random scoring produces false signal locks and that the adaptive windowing strategy alone is insufficient without authentic geometric resonance computation.
+
+**Critical Insight**: High enrichment scores (>600x observed) do not correlate with factor proximity when using pseudo-random scoring. The enrichment metric can be misleading - it reflects the score distribution rather than geometric structure. Actual Z5D/geometric resonance scoring is critical for the method to provide predictive value.
+
+**Start here**: [adaptive-windowing-test/INDEX.md](adaptive-windowing-test/INDEX.md)
+
+---
+
 ### [hash-bounds-falsification/](hash-bounds-falsification/)
 
 **Status**: Complete - Hypothesis decisively falsified
