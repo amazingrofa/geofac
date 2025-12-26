@@ -1,0 +1,74 @@
+{
+  "gate1_30bit": {
+    "name": "Gate 1 (30-bit Quick Check)",
+    "N": "1073217479",
+    "p": "32749",
+    "q": "32771",
+    "bits": 30,
+    "signal_lock_achieved": true,
+    "factors_found": false,
+    "total_time": 0.6165432929992676,
+    "top_3_candidates": [
+      {
+        "candidate": "30792",
+        "score": -9.99996564532734
+      },
+      {
+        "candidate": "30792",
+        "score": -9.99996564532734
+      },
+      {
+        "candidate": "30792",
+        "score": -9.99996564532734
+      }
+    ]
+  },
+  "gate2_60bit": {
+    "name": "Gate 2 (60-bit Scaling)",
+    "N": "1152921470247108503",
+    "p": "1073741789",
+    "q": "1073741827",
+    "bits": 60,
+    "signal_lock_achieved": true,
+    "factors_found": false,
+    "total_time": 0.6372842788696289,
+    "top_3_candidates": [
+      {
+        "candidate": "1001527710",
+        "score": -9.999758679826792
+      },
+      {
+        "candidate": "944823404",
+        "score": -9.999696995352632
+      },
+      {
+        "candidate": "952058001",
+        "score": -9.999631652887572
+      }
+    ]
+  },
+  "gate3_127bit": {
+    "name": "Gate 3 (127-bit CHALLENGE)",
+    "N": "137524771864208156028430259349934309717",
+    "p": "10508623501177419659",
+    "q": "13086849276577416863",
+    "bits": 127,
+    "signal_lock_achieved": true,
+    "factors_found": false,
+    "total_time": 0.6301648616790771,
+    "top_3_candidates": [
+      {
+        "candidate": "10919262372267957272",
+        "score": -9.999952309082477
+      },
+      {
+        "candidate": "11011949277178743998",
+        "score": -9.999908079463161
+      },
+      {
+        "candidate": "11906092164024099107",
+        "score": -9.999901711092726
+      }
+    ]
+  }
+}
